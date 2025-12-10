@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>시니어 롱폼 인사이트 툴 v3.0 (쿼터가계부)</title>
+  <title>시니어 롱폼 인사이트 툴 v3.1 (스마트기간)</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     html { scroll-behavior: smooth; }
@@ -18,8 +18,8 @@
     
     <header class="mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
       <div>
-        <h1 class="text-3xl font-extrabold text-indigo-900">시니어 롱폼 인사이트 v3.0</h1>
-        <p class="text-base text-gray-600 mt-2">API 쿼터 관리 기능 탑재</p>
+        <h1 class="text-3xl font-extrabold text-indigo-900">시니어 롱폼 인사이트 v3.1</h1>
+        <p class="text-base text-gray-600 mt-2">간편 기간 설정 ("딸깍" 모드) 적용</p>
       </div>
       
       <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200 w-full sm:w-80">
@@ -63,10 +63,16 @@
             <option value="any">전체</option>
           </select>
         </div>
+        
         <div>
-          <label class="block text-sm font-bold text-gray-700 mb-2">업로드 기간</label>
-          <input id="publishedAfter" type="date" class="w-full rounded-xl border-gray-300 p-3 text-base shadow-sm" />
+          <label class="block text-sm font-bold text-gray-700 mb-2">기간 설정</label>
+          <select id="datePreset" class="w-full rounded-xl border-gray-300 p-3 text-base shadow-sm bg-indigo-50 text-indigo-900 font-bold">
+            <option value="1year" selected>📅 최근 1년 (추천)</option>
+            <option value="1month">🔥 최근 1개월 (트렌드)</option>
+            <option value="all">🌐 전체 기간</option>
+          </select>
         </div>
+
         <div>
           <label class="block text-sm font-bold text-gray-700 mb-2">검색 개수</label>
           <select id="maxResults" class="w-full rounded-xl border-gray-300 p-3 text-base shadow-sm">
@@ -118,13 +124,11 @@
     const QUOTA_KEY = 'yt_quota_usage';
     const DAILY_LIMIT = 10000;
     
-    // 한국어 조사 제거
     function cleanKoreanWord(word) {
       if (word.length < 2) return word;
       return word.replace(/(은|는|이|가|을|를|의|와|과|도|로|에|서)$/, '');
     }
 
-    // 시간 변환
     function parseDuration(iso) {
         if (!iso) return "";
         const match = iso.match(/PT(\d+H)?(\d+M)?(\d+S)?/);
@@ -136,12 +140,25 @@
         return h > 0 ? `${h}:${pad(m)}:${pad(s)}` : `${m}:${pad(s)}`;
     }
 
+    // 날짜 계산 함수 (딸깍 기능의 핵심)
+    function getPublishedAfterDate(preset) {
+        const now = new Date();
+        if (preset === '1year') {
+            now.setFullYear(now.getFullYear() - 1);
+            return now.toISOString();
+        } else if (preset === '1month') {
+            now.setMonth(now.getMonth() - 1);
+            return now.toISOString();
+        }
+        return null; // 전체 기간
+    }
+
     const els = {
       apiKey: document.getElementById('apiKey'),
       q: document.getElementById('q'),
       order: document.getElementById('order'),
       videoDuration: document.getElementById('videoDuration'),
-      publishedAfter: document.getElementById('publishedAfter'),
+      datePreset: document.getElementById('datePreset'), // 변경된 부분
       maxResults: document.getElementById('maxResults'),
       btnSearch: document.getElementById('btnSearch'),
       btnExport: document.getElementById('btnExport'),
@@ -160,24 +177,19 @@
     const fmt = n => new Intl.NumberFormat('ko-KR', { notation: "compact", maximumFractionDigits: 1 }).format(n);
     const fmtFull = n => new Intl.NumberFormat('ko-KR').format(n);
 
-    // --- 쿼터 관리 로직 (가계부) ---
+    // --- 쿼터 관리 ---
     function updateQuotaUI() {
         const today = new Date().toDateString();
         let qData = JSON.parse(localStorage.getItem(QUOTA_KEY) || '{}');
-        
-        // 날짜가 다르면 리셋
         if (qData.date !== today) {
             qData = { date: today, used: 0 };
             localStorage.setItem(QUOTA_KEY, JSON.stringify(qData));
         }
-
         const used = qData.used;
         const pct = Math.min((used / DAILY_LIMIT) * 100, 100);
-        
         els.quotaText.textContent = `${used.toLocaleString()} / 10,000`;
         els.quotaBar.style.width = `${pct}%`;
         
-        // 색상 변경 (안전:녹색, 주의:노랑, 위험:빨강)
         if(pct > 80) els.quotaBar.className = "h-3 rounded-full transition-all duration-500 bg-red-500";
         else if(pct > 50) els.quotaBar.className = "h-3 rounded-full transition-all duration-500 bg-yellow-400";
         else els.quotaBar.className = "h-3 rounded-full transition-all duration-500 bg-green-500";
@@ -187,21 +199,16 @@
         const today = new Date().toDateString();
         let qData = JSON.parse(localStorage.getItem(QUOTA_KEY) || '{}');
         if (qData.date !== today) qData = { date: today, used: 0 };
-        
         qData.used += cost;
         localStorage.setItem(QUOTA_KEY, JSON.stringify(qData));
         updateQuotaUI();
     }
-
-    // 초기 실행 시 UI 업데이트
     updateQuotaUI();
 
     // --- API 호출 ---
     async function fetchWithCache(url, cost) {
       const cacheKey = CACHE_KEY_PREFIX + url;
       const cached = localStorage.getItem(cacheKey);
-      
-      // 캐시 있으면 쿼터 차감 없이 반환
       if (cached) {
         const parsed = JSON.parse(cached);
         if (Date.now() - parsed.timestamp < 1000 * 60 * 60 * 24) {
@@ -209,18 +216,13 @@
           return parsed.data;
         }
       }
-
-      // 실제 호출 (비용 발생)
       const res = await fetch(url);
       if (!res.ok) throw new Error(`API Error: ${res.status}`);
       const data = await res.json();
-      
       try {
         localStorage.setItem(cacheKey, JSON.stringify({ timestamp: Date.now(), data: data }));
-        // 성공 시 쿼터 비용 기록
         addQuotaUsage(cost);
       } catch (e) { console.warn("Cache full"); }
-      
       return data;
     }
 
@@ -237,7 +239,10 @@
       try {
         const maxResults = parseInt(els.maxResults.value);
         
-        // 1. 검색 API (비용: 100)
+        // 날짜 자동 계산
+        const publishedAfter = getPublishedAfterDate(els.datePreset.value);
+
+        // 1. Search API
         const params = new URLSearchParams({
           part: 'snippet', type: 'video', q, key,
           maxResults: maxResults,
@@ -245,7 +250,7 @@
           videoDuration: els.videoDuration.value,
           regionCode: 'KR', relevanceLanguage: 'ko'
         });
-        if (els.publishedAfter.value) params.append('publishedAfter', new Date(els.publishedAfter.value).toISOString());
+        if (publishedAfter) params.append('publishedAfter', publishedAfter);
 
         const searchData = await fetchWithCache(`https://www.googleapis.com/youtube/v3/search?${params}`, 100);
         if (!searchData.items?.length) throw new Error('결과가 없습니다.');
@@ -253,15 +258,14 @@
         const videoIds = searchData.items.map(i => i.id.videoId);
         const channelIds = [...new Set(searchData.items.map(i => i.snippet.channelId))];
 
-        // 2. 비디오 상세 API (비용: 1 * 개수)
+        // 2. Videos API
         const vParams = new URLSearchParams({ part: 'statistics,contentDetails,snippet', id: videoIds.join(','), key });
         const videoDetails = await fetchWithCache(`https://www.googleapis.com/youtube/v3/videos?${vParams}`, videoIds.length);
         
-        // 3. 채널 상세 API (비용: 1 * 개수)
+        // 3. Channels API
         const cParams = new URLSearchParams({ part: 'statistics', id: channelIds.join(','), key });
         const channelDetails = await fetchWithCache(`https://www.googleapis.com/youtube/v3/channels?${cParams}`, channelIds.length);
 
-        // --- 매핑 및 로직 ---
         const vMap = new Map(videoDetails.items.map(i => [i.id, i]));
         const cMap = new Map(channelDetails.items.map(i => [i.id, i.statistics]));
 
@@ -373,7 +377,7 @@
       const blob = new Blob([header + rows.join('\n')], {type: 'text/csv;charset=utf-8;'});
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
-      a.href = url; a.download = 'youtube_analysis_v3.csv';
+      a.href = url; a.download = 'youtube_analysis_v3.1.csv';
       a.click();
     };
 
