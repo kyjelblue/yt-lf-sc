@@ -3,41 +3,53 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>시니어 롱폼 인사이트 툴 v2.1 (큰글씨)</title>
+  <title>시니어 롱폼 인사이트 툴 v3.0 (쿼터가계부)</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     html { scroll-behavior: smooth; }
-    /* 가독성을 위한 기본 폰트 설정 */
     body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
     .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
     .wrap { word-break: break-word; }
-    /* V/S Ratio 강조 스타일 */
     .high-potential { background-color: #f0fdf4; border-left: 4px solid #16a34a; }
   </style>
 </head>
 <body class="bg-gray-100 text-gray-900">
   <div class="max-w-7xl mx-auto p-4 sm:p-8">
+    
     <header class="mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
       <div>
-        <h1 class="text-3xl font-extrabold text-indigo-900">시니어 롱폼 인사이트 v2.1</h1>
-        <p class="text-base text-gray-600 mt-2">큰 글씨 모드 & 영상 길이 표시 적용됨</p>
+        <h1 class="text-3xl font-extrabold text-indigo-900">시니어 롱폼 인사이트 v3.0</h1>
+        <p class="text-base text-gray-600 mt-2">API 쿼터 관리 기능 탑재</p>
       </div>
-      <button id="btnClearCache" class="text-sm bg-white border border-red-200 text-red-600 px-4 py-2 rounded hover:bg-red-50">캐시 초기화</button>
+      
+      <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200 w-full sm:w-80">
+        <div class="flex justify-between text-sm font-bold mb-1">
+          <span class="text-gray-600">오늘 사용량 (예상)</span>
+          <span id="quotaText" class="text-indigo-600">0 / 10,000</span>
+        </div>
+        <div class="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+          <div id="quotaBar" class="bg-green-500 h-3 rounded-full transition-all duration-500" style="width: 0%"></div>
+        </div>
+        <p class="text-xs text-gray-400 mt-1 text-right">*검색 1회당 약 160~200 차감</p>
+      </div>
     </header>
 
     <section class="bg-white rounded-2xl shadow-md p-6 mb-8 border border-indigo-100">
+      <div class="flex justify-end mb-4">
+         <button id="btnClearCache" class="text-sm bg-white border border-red-200 text-red-600 px-3 py-1 rounded hover:bg-red-50 transition">🗑️ 캐시 및 쿼터 초기화</button>
+      </div>
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <div class="col-span-1 md:col-span-2">
           <label class="block text-sm font-bold text-gray-700 mb-2">YOUTUBE API KEY</label>
-          <input id="apiKey" type="password" class="w-full rounded-xl border-gray-300 focus:ring-indigo-500 p-3 text-base" placeholder="여기에 키 입력" />
+          <input id="apiKey" type="password" class="w-full rounded-xl border-gray-300 focus:ring-indigo-500 p-3 text-base shadow-sm" placeholder="API 키 입력" />
         </div>
         <div class="col-span-1 md:col-span-2">
-          <label class="block text-sm font-bold text-gray-700 mb-2">검색어 (타깃 키워드)</label>
-          <input id="q" type="text" class="w-full rounded-xl border-gray-300 focus:ring-indigo-500 p-3 text-base font-bold text-indigo-900" placeholder="예: 60대 건강, 당뇨 식단" />
+          <label class="block text-sm font-bold text-gray-700 mb-2">검색어</label>
+          <input id="q" type="text" class="w-full rounded-xl border-gray-300 focus:ring-indigo-500 p-3 text-base font-bold text-indigo-900 shadow-sm" placeholder="예: 60대 노후, 무릎 통증" />
         </div>
         <div>
           <label class="block text-sm font-bold text-gray-700 mb-2">정렬 기준</label>
-          <select id="order" class="w-full rounded-xl border-gray-300 p-3 text-base">
+          <select id="order" class="w-full rounded-xl border-gray-300 p-3 text-base shadow-sm">
             <option value="viewCount">조회수순 (검증된 대박)</option>
             <option value="relevance">관련성순</option>
             <option value="date">최신순 (트렌드)</option>
@@ -45,20 +57,20 @@
         </div>
         <div>
           <label class="block text-sm font-bold text-gray-700 mb-2">영상 길이</label>
-          <select id="videoDuration" class="w-full rounded-xl border-gray-300 p-3 text-base">
+          <select id="videoDuration" class="w-full rounded-xl border-gray-300 p-3 text-base shadow-sm">
             <option value="medium">중간 (4~20분)</option>
             <option value="long" selected>롱폼 (20분 이상)</option>
             <option value="any">전체</option>
           </select>
         </div>
         <div>
-          <label class="block text-sm font-bold text-gray-700 mb-2">업로드 기간 (이 날짜 이후)</label>
-          <input id="publishedAfter" type="date" class="w-full rounded-xl border-gray-300 p-3 text-base" />
+          <label class="block text-sm font-bold text-gray-700 mb-2">업로드 기간</label>
+          <input id="publishedAfter" type="date" class="w-full rounded-xl border-gray-300 p-3 text-base shadow-sm" />
         </div>
         <div>
           <label class="block text-sm font-bold text-gray-700 mb-2">검색 개수</label>
-          <select id="maxResults" class="w-full rounded-xl border-gray-300 p-3 text-base">
-            <option value="10">10개 (빠름)</option>
+          <select id="maxResults" class="w-full rounded-xl border-gray-300 p-3 text-base shadow-sm">
+            <option value="10">10개 (절약)</option>
             <option value="25" selected>25개 (추천)</option>
             <option value="50">50개 (쿼터 주의)</option>
           </select>
@@ -66,18 +78,18 @@
       </div>
       
       <div class="mt-6 flex gap-3">
-        <button id="btnSearch" class="flex-1 bg-indigo-700 text-white py-3 rounded-xl hover:bg-indigo-800 font-bold text-lg shadow-md transition">🚀 분석 시작</button>
-        <button id="btnExport" class="px-8 bg-gray-800 text-white py-3 rounded-xl hover:bg-gray-900 font-bold text-lg" disabled>CSV 저장</button>
+        <button id="btnSearch" class="flex-1 bg-indigo-700 text-white py-3 rounded-xl hover:bg-indigo-800 font-bold text-lg shadow-md transition transform active:scale-95">🚀 분석 시작</button>
+        <button id="btnExport" class="px-8 bg-gray-800 text-white py-3 rounded-xl hover:bg-gray-900 font-bold text-lg shadow-md" disabled>CSV 저장</button>
       </div>
     </section>
 
-    <section class="bg-indigo-50 rounded-2xl p-6 mb-8 border border-indigo-200">
+    <section class="bg-indigo-50 rounded-2xl p-6 mb-8 border border-indigo-200 shadow-inner">
       <div class="flex justify-between items-center mb-4">
-        <h2 class="text-lg font-bold text-indigo-900">🔥 상위 노출 키워드 (제목/설명 분석)</h2>
-        <button id="btnCopyKeywords" class="text-sm bg-white border border-gray-300 px-3 py-1.5 rounded hover:bg-gray-50" disabled>키워드 복사</button>
+        <h2 class="text-lg font-bold text-indigo-900">🔥 상위 노출 키워드</h2>
+        <button id="btnCopyKeywords" class="text-sm bg-white border border-gray-300 px-3 py-1.5 rounded hover:bg-gray-50 font-medium" disabled>키워드 복사</button>
       </div>
-      <div id="keywordsBox" class="flex flex-wrap gap-3 text-sm">
-        <span class="text-gray-500 text-base">검색 결과가 나오면 이곳에 주요 키워드가 표시됩니다.</span>
+      <div id="keywordsBox" class="flex flex-wrap gap-3 text-sm min-h-[50px]">
+        <span class="text-gray-500 text-base flex items-center">검색 결과가 나오면 이곳에 주요 키워드가 표시됩니다.</span>
       </div>
     </section>
 
@@ -86,7 +98,7 @@
         <table class="w-full text-left">
           <thead class="bg-gray-100 text-gray-700 uppercase text-sm border-b-2 border-gray-200">
             <tr>
-              <th class="p-4">영상 정보 (제목/썸네일)</th>
+              <th class="p-4">영상 정보</th>
               <th class="p-4 w-40">채널 / 구독자</th>
               <th class="p-4 w-32 text-center">성과(V/S)</th>
               <th class="p-4 w-32 text-right">조회수</th>
@@ -102,34 +114,26 @@
 
   <script>
     // --- 설정 및 유틸 ---
-    const CACHE_KEY_PREFIX = 'yt_tool_v2_';
+    const CACHE_KEY_PREFIX = 'yt_tool_v3_';
+    const QUOTA_KEY = 'yt_quota_usage';
+    const DAILY_LIMIT = 10000;
     
+    // 한국어 조사 제거
     function cleanKoreanWord(word) {
       if (word.length < 2) return word;
       return word.replace(/(은|는|이|가|을|를|의|와|과|도|로|에|서)$/, '');
     }
 
-    // ISO 8601 시간 변환 (PT1H2M10S -> 01:02:10)
+    // 시간 변환
     function parseDuration(iso) {
         if (!iso) return "";
         const match = iso.match(/PT(\d+H)?(\d+M)?(\d+S)?/);
         if (!match) return iso;
-
-        const hours = (match[1] || '').replace('H', '');
-        const mins = (match[2] || '').replace('M', '');
-        const secs = (match[3] || '').replace('S', '');
-
-        const h = parseInt(hours || 0);
-        const m = parseInt(mins || 0);
-        const s = parseInt(secs || 0);
-
-        // 시간 포맷팅
-        const pad = (n) => n.toString().padStart(2, '0');
-        if (h > 0) {
-            return `${h}:${pad(m)}:${pad(s)}`;
-        } else {
-            return `${m}:${pad(s)}`;
-        }
+        const h = parseInt((match[1]||'').replace('H','')) || 0;
+        const m = parseInt((match[2]||'').replace('M','')) || 0;
+        const s = parseInt((match[3]||'').replace('S','')) || 0;
+        const pad = n => n.toString().padStart(2,'0');
+        return h > 0 ? `${h}:${pad(m)}:${pad(s)}` : `${m}:${pad(s)}`;
     }
 
     const els = {
@@ -144,7 +148,9 @@
       keywordsBox: document.getElementById('keywordsBox'),
       tbody: document.getElementById('tbody'),
       btnCopyKeywords: document.getElementById('btnCopyKeywords'),
-      btnClearCache: document.getElementById('btnClearCache')
+      btnClearCache: document.getElementById('btnClearCache'),
+      quotaText: document.getElementById('quotaText'),
+      quotaBar: document.getElementById('quotaBar')
     };
 
     const savedKey = localStorage.getItem('yt_api_key');
@@ -154,23 +160,67 @@
     const fmt = n => new Intl.NumberFormat('ko-KR', { notation: "compact", maximumFractionDigits: 1 }).format(n);
     const fmtFull = n => new Intl.NumberFormat('ko-KR').format(n);
 
-    // --- 핵심 로직 (API 호출 및 캐싱) ---
-    async function fetchWithCache(url) {
+    // --- 쿼터 관리 로직 (가계부) ---
+    function updateQuotaUI() {
+        const today = new Date().toDateString();
+        let qData = JSON.parse(localStorage.getItem(QUOTA_KEY) || '{}');
+        
+        // 날짜가 다르면 리셋
+        if (qData.date !== today) {
+            qData = { date: today, used: 0 };
+            localStorage.setItem(QUOTA_KEY, JSON.stringify(qData));
+        }
+
+        const used = qData.used;
+        const pct = Math.min((used / DAILY_LIMIT) * 100, 100);
+        
+        els.quotaText.textContent = `${used.toLocaleString()} / 10,000`;
+        els.quotaBar.style.width = `${pct}%`;
+        
+        // 색상 변경 (안전:녹색, 주의:노랑, 위험:빨강)
+        if(pct > 80) els.quotaBar.className = "h-3 rounded-full transition-all duration-500 bg-red-500";
+        else if(pct > 50) els.quotaBar.className = "h-3 rounded-full transition-all duration-500 bg-yellow-400";
+        else els.quotaBar.className = "h-3 rounded-full transition-all duration-500 bg-green-500";
+    }
+
+    function addQuotaUsage(cost) {
+        const today = new Date().toDateString();
+        let qData = JSON.parse(localStorage.getItem(QUOTA_KEY) || '{}');
+        if (qData.date !== today) qData = { date: today, used: 0 };
+        
+        qData.used += cost;
+        localStorage.setItem(QUOTA_KEY, JSON.stringify(qData));
+        updateQuotaUI();
+    }
+
+    // 초기 실행 시 UI 업데이트
+    updateQuotaUI();
+
+    // --- API 호출 ---
+    async function fetchWithCache(url, cost) {
       const cacheKey = CACHE_KEY_PREFIX + url;
       const cached = localStorage.getItem(cacheKey);
+      
+      // 캐시 있으면 쿼터 차감 없이 반환
       if (cached) {
         const parsed = JSON.parse(cached);
         if (Date.now() - parsed.timestamp < 1000 * 60 * 60 * 24) {
-          console.log("Using Cache:", url);
+          console.log("Using Cache (No Cost):", url);
           return parsed.data;
         }
       }
+
+      // 실제 호출 (비용 발생)
       const res = await fetch(url);
       if (!res.ok) throw new Error(`API Error: ${res.status}`);
       const data = await res.json();
+      
       try {
         localStorage.setItem(cacheKey, JSON.stringify({ timestamp: Date.now(), data: data }));
+        // 성공 시 쿼터 비용 기록
+        addQuotaUsage(cost);
       } catch (e) { console.warn("Cache full"); }
+      
       return data;
     }
 
@@ -182,30 +232,36 @@
       
       els.btnSearch.disabled = true;
       els.btnSearch.textContent = '데이터 분석 중...';
-      els.tbody.innerHTML = '<tr><td colspan="6" class="p-8 text-center text-lg text-gray-500">유튜브 데이터를 가져오는 중입니다...</td></tr>';
+      els.tbody.innerHTML = '<tr><td colspan="6" class="p-8 text-center text-lg text-gray-500">데이터를 가져오는 중입니다...</td></tr>';
 
       try {
+        const maxResults = parseInt(els.maxResults.value);
+        
+        // 1. 검색 API (비용: 100)
         const params = new URLSearchParams({
           part: 'snippet', type: 'video', q, key,
-          maxResults: els.maxResults.value,
+          maxResults: maxResults,
           order: els.order.value,
           videoDuration: els.videoDuration.value,
           regionCode: 'KR', relevanceLanguage: 'ko'
         });
         if (els.publishedAfter.value) params.append('publishedAfter', new Date(els.publishedAfter.value).toISOString());
 
-        const searchData = await fetchWithCache(`https://www.googleapis.com/youtube/v3/search?${params}`);
+        const searchData = await fetchWithCache(`https://www.googleapis.com/youtube/v3/search?${params}`, 100);
         if (!searchData.items?.length) throw new Error('결과가 없습니다.');
 
         const videoIds = searchData.items.map(i => i.id.videoId);
         const channelIds = [...new Set(searchData.items.map(i => i.snippet.channelId))];
 
+        // 2. 비디오 상세 API (비용: 1 * 개수)
         const vParams = new URLSearchParams({ part: 'statistics,contentDetails,snippet', id: videoIds.join(','), key });
-        const videoDetails = await fetchWithCache(`https://www.googleapis.com/youtube/v3/videos?${vParams}`);
+        const videoDetails = await fetchWithCache(`https://www.googleapis.com/youtube/v3/videos?${vParams}`, videoIds.length);
         
+        // 3. 채널 상세 API (비용: 1 * 개수)
         const cParams = new URLSearchParams({ part: 'statistics', id: channelIds.join(','), key });
-        const channelDetails = await fetchWithCache(`https://www.googleapis.com/youtube/v3/channels?${cParams}`);
+        const channelDetails = await fetchWithCache(`https://www.googleapis.com/youtube/v3/channels?${cParams}`, channelIds.length);
 
+        // --- 매핑 및 로직 ---
         const vMap = new Map(videoDetails.items.map(i => [i.id, i]));
         const cMap = new Map(channelDetails.items.map(i => [i.id, i.statistics]));
 
@@ -228,12 +284,10 @@
             viewCount,
             subCount,
             vsRatio,
-            duration: v.contentDetails.duration // ISO 포맷 (PT15M30S)
+            duration: v.contentDetails.duration
           };
         }).filter(Boolean);
         
-        // 정렬 로직 보완: 조회수순이 아닐 때도 내부적으로 V/S Ratio로 정렬해서 보여줄지 여부는 선택
-        // 여기서는 검색 API의 순서를 존중하되, 결과 배열만 저장
         currentData = results;
         renderTable(results);
         analyzeKeywords(results);
@@ -254,7 +308,6 @@
         const isViral = item.vsRatio > 1.5; 
         const rowClass = isViral ? 'high-potential' : '';
         const badge = isViral ? `<br><span class="bg-red-600 text-white text-xs px-2 py-0.5 rounded-full font-bold shadow-sm">떡상🔥</span>` : '';
-        const durationStr = parseDuration(item.duration);
 
         const tr = document.createElement('tr');
         tr.className = `border-b border-gray-100 hover:bg-gray-50 transition-colors ${rowClass}`;
@@ -280,7 +333,7 @@
             <div class="font-mono text-lg font-bold text-gray-700">${fmtFull(item.viewCount)}</div>
           </td>
           <td class="p-4 text-center">
-            <div class="font-mono text-base bg-gray-100 px-2 py-1 rounded text-gray-700 inline-block font-bold">${durationStr}</div>
+            <div class="font-mono text-base bg-gray-100 px-2 py-1 rounded text-gray-700 inline-block font-bold">${parseDuration(item.duration)}</div>
           </td>
           <td class="p-4 text-center text-sm text-gray-500">
             ${item.publishedAt}
@@ -304,11 +357,9 @@
       });
 
       const sorted = Object.entries(counts).sort((a,b) => b[1] - a[1]).slice(0, 20);
-      
       els.keywordsBox.innerHTML = sorted.map(([k, v]) => 
         `<span class="bg-indigo-50 border border-indigo-200 text-indigo-900 px-3 py-1.5 rounded-lg shadow-sm text-base font-medium cursor-pointer hover:bg-indigo-100 transition">${k} <span class="text-indigo-400 text-xs ml-1">${v}</span></span>`
       ).join('');
-      
       els.btnCopyKeywords.disabled = false;
       els.btnCopyKeywords.onclick = () => {
         navigator.clipboard.writeText(sorted.map(i=>i[0]).join(', '));
@@ -318,22 +369,22 @@
 
     els.btnExport.onclick = () => {
       const header = ['ID,제목,채널명,구독자,조회수,VS비율,길이,게시일\n'];
-      const rows = currentData.map(i => 
-        `${i.id},"${i.title.replaceAll('"','""')}","${i.channelTitle}",${i.subCount},${i.viewCount},${i.vsRatio.toFixed(2)},${parseDuration(i.duration)},${i.publishedAt}`
-      );
+      const rows = currentData.map(i => `${i.id},"${i.title.replaceAll('"','""')}","${i.channelTitle}",${i.subCount},${i.viewCount},${i.vsRatio.toFixed(2)},${parseDuration(i.duration)},${i.publishedAt}`);
       const blob = new Blob([header + rows.join('\n')], {type: 'text/csv;charset=utf-8;'});
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
-      a.href = url; a.download = 'youtube_analysis_big.csv';
+      a.href = url; a.download = 'youtube_analysis_v3.csv';
       a.click();
     };
 
     els.btnClearCache.onclick = () => {
-      Object.keys(localStorage).forEach(k => {
-        if(k.startsWith(CACHE_KEY_PREFIX)) localStorage.removeItem(k);
-      });
-      alert('캐시가 삭제되었습니다.');
-      location.reload();
+      if(confirm('캐시 데이터와 오늘의 쿼터 사용량을 모두 초기화하시겠습니까?')) {
+        Object.keys(localStorage).forEach(k => {
+          if(k.startsWith(CACHE_KEY_PREFIX) || k === QUOTA_KEY) localStorage.removeItem(k);
+        });
+        alert('초기화 완료.');
+        location.reload();
+      }
     };
 
     els.btnSearch.addEventListener('click', runSearch);
