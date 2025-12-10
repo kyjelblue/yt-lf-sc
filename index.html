@@ -3,394 +3,337 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>YouTube 시니어 롱폼 키워드 서치 툴</title>
-  <!-- Tailwind CSS CDN (개인용/테스트용) -->
+  <title>시니어 롱폼 인사이트 툴 v2.0 (Cached)</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    /* 스크롤 성능을 위한 약간의 튜닝 */
     html { scroll-behavior: smooth; }
-    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
     .wrap { word-break: break-word; }
+    /* V/S Ratio 강조 스타일 */
+    .high-potential { background-color: #ecfccb; } /* 연한 라임색 */
   </style>
 </head>
 <body class="bg-gray-50 text-gray-900">
-  <div class="max-w-6xl mx-auto p-4 sm:p-6 lg:p-8">
-    <header class="mb-6">
-      <h1 class="text-2xl sm:text-3xl font-bold">YouTube 시니어 롱폼 키워드 서치 툴</h1>
-      <p class="text-sm text-gray-600 mt-1">시니어 타깃 롱폼(20분+) 주제 발굴용. 개인 비공개 사용 전제.</p>
+  <div class="max-w-7xl mx-auto p-4 sm:p-6">
+    <header class="mb-6 flex justify-between items-center">
+      <div>
+        <h1 class="text-2xl font-bold text-indigo-900">시니어 롱폼 인사이트 툴 v2.0</h1>
+        <p class="text-sm text-gray-600 mt-1">캐싱 기능 & 구독자 대비 조회수(V/S) 분석 탑재</p>
+      </div>
+      <button id="btnClearCache" class="text-xs bg-red-100 text-red-600 px-3 py-1 rounded hover:bg-red-200">캐시 초기화</button>
     </header>
 
-    <!-- 설정 패널 -->
-    <section class="bg-white rounded-2xl shadow p-4 sm:p-6 mb-6">
-      <h2 class="text-lg font-semibold mb-4">API & 검색 설정</h2>
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <label class="block">
-          <span class="text-sm font-medium">YouTube API Key</span>
-          <input id="apiKey" type="password" class="mt-1 w-full rounded-xl border-gray-300 focus:border-indigo-500 focus:ring-indigo-500" placeholder="YOUR_API_KEY" />
-          <p class="text-xs text-gray-500 mt-1">참고: 브라우저에서 호출 시 API Key의 <span class="underline">HTTP Referrer 제한</span>을 설정해야 할 수 있습니다. 로컬 테스트는 간단 서버 권장(예: <span class="mono">python -m http.server 8000</span>).</p>
-        </label>
-        <label class="block">
-          <span class="text-sm font-medium">검색어 (예: 시니어 건강, 시니어 돈관리)</span>
-          <input id="q" type="text" class="mt-1 w-full rounded-xl border-gray-300 focus:border-indigo-500 focus:ring-indigo-500" placeholder="검색어" />
-        </label>
-        <label class="block">
-          <span class="text-sm font-medium">정렬</span>
-          <select id="order" class="mt-1 w-full rounded-xl border-gray-300 focus:border-indigo-500 focus:ring-indigo-500">
-            <option value="relevance">관련성</option>
-            <option value="viewCount">조회수</option>
-            <option value="date">최신순</option>
-            <option value="rating">평점</option>
+    <section class="bg-white rounded-2xl shadow p-4 mb-6 border border-indigo-100">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="col-span-1 md:col-span-2">
+          <label class="block text-xs font-bold text-gray-500 mb-1">YOUTUBE API KEY</label>
+          <input id="apiKey" type="password" class="w-full rounded-lg border-gray-300 focus:ring-indigo-500 text-sm" placeholder="여기에 키 입력" />
+        </div>
+        <div class="col-span-1 md:col-span-2">
+          <label class="block text-xs font-bold text-gray-500 mb-1">검색어 (타깃 키워드)</label>
+          <input id="q" type="text" class="w-full rounded-lg border-gray-300 focus:ring-indigo-500 text-sm font-bold" placeholder="예: 60대 건강, 당뇨 식단" />
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-gray-500 mb-1">정렬 기준</label>
+          <select id="order" class="w-full rounded-lg border-gray-300 text-sm">
+            <option value="viewCount">조회수순 (검증된 대박)</option>
+            <option value="relevance">관련성순</option>
+            <option value="date">최신순 (트렌드)</option>
           </select>
-        </label>
-        <label class="block">
-          <span class="text-sm font-medium">기간 시작 (publishedAfter)</span>
-          <input id="publishedAfter" type="date" class="mt-1 w-full rounded-xl border-gray-300 focus:border-indigo-500 focus:ring-indigo-500" />
-          <p class="text-xs text-gray-500 mt-1">해당 날짜 이후 업로드된 영상만 검색</p>
-        </label>
-        <label class="block">
-          <span class="text-sm font-medium">길이 필터 (videoDuration)</span>
-          <select id="videoDuration" class="mt-1 w-full rounded-xl border-gray-300 focus:border-indigo-500 focus:ring-indigo-500">
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-gray-500 mb-1">영상 길이</label>
+          <select id="videoDuration" class="w-full rounded-lg border-gray-300 text-sm">
+            <option value="medium">중간 (4~20분)</option>
+            <option value="long" selected>롱폼 (20분 이상)</option>
             <option value="any">전체</option>
-            <option value="long">롱폼(20분 이상)</option>
-            <option value="medium">중간(4~20분)</option>
-            <option value="short">쇼츠/짧은(4분 이하)</option>
           </select>
-        </label>
-        <label class="block">
-          <span class="text-sm font-medium">언어(가중) & 지역</span>
-          <div class="grid grid-cols-2 gap-2 mt-1">
-            <select id="relevanceLanguage" class="w-full rounded-xl border-gray-300 focus:border-indigo-500 focus:ring-indigo-500">
-              <option value="ko">ko (한국어)</option>
-              <option value="en">en (영어)</option>
-              <option value="ja">ja (일본어)</option>
-            </select>
-            <select id="regionCode" class="w-full rounded-xl border-gray-300 focus:border-indigo-500 focus:ring-indigo-500">
-              <option value="KR">KR (대한민국)</option>
-              <option value="US">US (미국)</option>
-              <option value="JP">JP (일본)</option>
-            </select>
-          </div>
-        </label>
-        <label class="block">
-          <span class="text-sm font-medium">최대 결과수</span>
-          <input id="maxResults" type="number" min="5" max="50" value="25" class="mt-1 w-full rounded-xl border-gray-300 focus:border-indigo-500 focus:ring-indigo-500" />
-          <p class="text-xs text-gray-500 mt-1">YouTube API 검색 1회 최대 50</p>
-        </label>
-      </div>
-      <div class="flex flex-wrap gap-2 mt-4">
-        <button id="btnSearch" class="px-4 py-2 rounded-xl bg-indigo-600 text-white hover:bg-indigo-700">검색 실행</button>
-        <button id="btnExportCsv" class="px-4 py-2 rounded-xl bg-gray-800 text-white hover:bg-gray-900" disabled>결과 CSV 다운로드</button>
-      </div>
-    </section>
-
-    <!-- 키워드 섹션 -->
-    <section class="bg-white rounded-2xl shadow p-4 sm:p-6 mb-6">
-      <div class="flex items-center justify-between mb-2">
-        <h2 class="text-lg font-semibold">키워드 추출 (제목/설명 기반)</h2>
-        <div class="flex gap-2">
-          <select id="ngram" class="rounded-xl border-gray-300 focus:border-indigo-500 focus:ring-indigo-500">
-            <option value="1">Unigram</option>
-            <option value="2">Bigram</option>
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-gray-500 mb-1">업로드 기간 (이 날짜 이후)</label>
+          <input id="publishedAfter" type="date" class="w-full rounded-lg border-gray-300 text-sm" />
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-gray-500 mb-1">검색 개수</label>
+          <select id="maxResults" class="w-full rounded-lg border-gray-300 text-sm">
+            <option value="10">10개 (빠름)</option>
+            <option value="25" selected>25개 (추천)</option>
+            <option value="50">50개 (쿼터 주의)</option>
           </select>
-          <select id="topK" class="rounded-xl border-gray-300 focus:border-indigo-500 focus:ring-indigo-500">
-            <option value="20">Top 20</option>
-            <option value="30" selected>Top 30</option>
-            <option value="50">Top 50</option>
-          </select>
-          <button id="btnCopyKeywords" class="px-3 py-2 rounded-xl bg-gray-200 hover:bg-gray-300" disabled>키워드 복사</button>
         </div>
       </div>
-      <div id="keywordsBox" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 text-sm"></div>
+      
+      <div class="mt-4 flex gap-2">
+        <button id="btnSearch" class="flex-1 bg-indigo-600 text-white py-2 rounded-xl hover:bg-indigo-700 font-bold shadow-md transition">🚀 분석 시작</button>
+        <button id="btnExport" class="px-6 bg-gray-800 text-white py-2 rounded-xl hover:bg-gray-900 font-bold" disabled>CSV 저장</button>
+      </div>
     </section>
 
-    <!-- 결과 섹션 -->
-    <section class="bg-white rounded-2xl shadow p-4 sm:p-6">
-      <h2 class="text-lg font-semibold mb-2">검색 결과</h2>
-      <div id="stats" class="text-sm text-gray-600 mb-3"></div>
-      <div class="overflow-auto">
-        <table class="min-w-full text-sm">
-          <thead class="sticky top-0 bg-gray-100">
+    <section class="bg-indigo-50 rounded-2xl p-4 mb-6 border border-indigo-100">
+      <div class="flex justify-between items-center mb-2">
+        <h2 class="text-sm font-bold text-indigo-800">🔥 상위 노출 키워드 (제목/설명 분석)</h2>
+        <button id="btnCopyKeywords" class="text-xs bg-white border px-2 py-1 rounded" disabled>복사</button>
+      </div>
+      <div id="keywordsBox" class="flex flex-wrap gap-2 text-xs">
+        <span class="text-gray-400">검색 결과가 나오면 이곳에 주요 키워드가 표시됩니다.</span>
+      </div>
+    </section>
+
+    <section class="bg-white rounded-2xl shadow overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm text-left">
+          <thead class="bg-gray-100 text-gray-600 uppercase text-xs">
             <tr>
-              <th class="text-left p-2">제목</th>
-              <th class="text-left p-2">채널</th>
-              <th class="text-left p-2">업로드</th>
-              <th class="text-left p-2">길이</th>
-              <th class="text-right p-2">조회수</th>
+              <th class="p-3">영상 정보 (제목/썸네일)</th>
+              <th class="p-3 w-32">채널 지표</th>
+              <th class="p-3 w-24 text-right">성과(V/S)</th>
+              <th class="p-3 w-24 text-right">조회수</th>
+              <th class="p-3 w-24">업로드</th>
             </tr>
           </thead>
-          <tbody id="tbody"></tbody>
+          <tbody id="tbody" class="divide-y divide-gray-100"></tbody>
         </table>
       </div>
     </section>
-
-    <footer class="mt-8 text-xs text-gray-500">
-      <p>주의: 공개 브라우저에서 API Key 사용 시 쿼터/보안 유의. 비공개 개인용 테스트 전제.</p>
-    </footer>
   </div>
 
   <script>
-    // 간단한 한국어/영어 불용어 세트 (필요시 자유롭게 수정)
-    const STOPWORDS_KO = new Set([
-      '그리고','그러나','하지만','그래서','이미','아직','또','또한','또는','등','더','매우','정말','진짜','그','이','저','것','수','들','등등','같은','대한','위한','관련','에서','으로','에게','에서','까지','부터','하는','했다','합니다','하기','되는','되어','입니다','있습니다','없는','있는','합니다','해주세요','영상','유튜브','시니어','노인','노년','중년','장년' // 일반 단어 + 도메인 일반어 일부 제외
-    ]);
-    const STOPWORDS_EN = new Set([
-      'the','a','an','of','and','or','to','for','in','on','with','at','by','from','is','are','be','as','it','this','that','these','those','you','we','they','he','she','i','your','our','their','how','what','why','when','where','can','will','new','best','top','guide','video'
-    ]);
+    // --- 설정 및 유틸 ---
+    const CACHE_KEY_PREFIX = 'yt_tool_v2_';
+    
+    // 한국어 조사 제거를 위한 간단한 처리 (완벽하진 않으나 효과적)
+    function cleanKoreanWord(word) {
+      // 끝에 붙는 조사들 제거 (길이가 2글자 이상일 때만)
+      if (word.length < 2) return word;
+      return word.replace(/(은|는|이|가|을|를|의|와|과|도|로|에|서)$/, '');
+    }
 
     const els = {
       apiKey: document.getElementById('apiKey'),
       q: document.getElementById('q'),
       order: document.getElementById('order'),
-      publishedAfter: document.getElementById('publishedAfter'),
       videoDuration: document.getElementById('videoDuration'),
-      relevanceLanguage: document.getElementById('relevanceLanguage'),
-      regionCode: document.getElementById('regionCode'),
+      publishedAfter: document.getElementById('publishedAfter'),
       maxResults: document.getElementById('maxResults'),
       btnSearch: document.getElementById('btnSearch'),
-      btnExportCsv: document.getElementById('btnExportCsv'),
-      ngram: document.getElementById('ngram'),
-      topK: document.getElementById('topK'),
-      btnCopyKeywords: document.getElementById('btnCopyKeywords'),
+      btnExport: document.getElementById('btnExport'),
       keywordsBox: document.getElementById('keywordsBox'),
-      stats: document.getElementById('stats'),
       tbody: document.getElementById('tbody'),
+      btnCopyKeywords: document.getElementById('btnCopyKeywords'),
+      btnClearCache: document.getElementById('btnClearCache')
     };
 
-    let lastResults = []; // videos API 병합 결과 캐시
+    // 저장된 API Key 불러오기 (편의성)
+    const savedKey = localStorage.getItem('yt_api_key');
+    if(savedKey) els.apiKey.value = savedKey;
 
-    function iso8601DurationToHHMMSS(iso) {
-      // e.g., PT1H2M3S -> 01:02:03
-      const regex = /PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/;
-      const m = regex.exec(iso) || [];
-      const h = parseInt(m[1] || '0', 10);
-      const min = parseInt(m[2] || '0', 10);
-      const s = parseInt(m[3] || '0', 10);
-      const pad = (n)=> n.toString().padStart(2,'0');
-      return `${pad(h)}:${pad(min)}:${pad(s)}`;
-    }
+    let currentData = []; // CSV용 데이터 저장
 
-    function formatNumber(n){
-      if(n==null) return '';
-      return new Intl.NumberFormat('ko-KR').format(Number(n));
-    }
+    // 숫자 포맷
+    const fmt = n => new Intl.NumberFormat('ko-KR', { notation: "compact", maximumFractionDigits: 1 }).format(n);
+    const fmtFull = n => new Intl.NumberFormat('ko-KR').format(n);
 
-    function csvEscape(s){
-      if(s == null) return '';
-      s = String(s);
-      if(/[",\n]/.test(s)) return '"' + s.replace(/"/g,'""') + '"';
-      return s;
-    }
+    // --- 핵심 로직 ---
 
-    function downloadCsv(filename, rows){
-      const csv = rows.map(r => r.map(csvEscape).join(',')).join('\n');
-      const blob = new Blob([csv], {type: 'text/csv;charset=utf-8;'});
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url; a.download = filename; a.click();
-      URL.revokeObjectURL(url);
-    }
-
-    function tokenizeKoEn(text){
-      if(!text) return [];
-      // 한국어/영어/숫자만 남기고 나머지 분리
-      const tokens = text
-        .toLowerCase()
-        .replace(/\u3131-\u314e/g, '') // 호환 자모 제거 (간단 처리)
-        .replace(/[^a-z0-9가-힣\s]/g, ' ') // 한영숫자 외 제거
-        .split(/\s+/)
-        .filter(t => t.length >= 2 && !STOPWORDS_KO.has(t) && !STOPWORDS_EN.has(t));
-      return tokens;
-    }
-
-    function buildNgrams(tokens, n){
-      if(n===1) return tokens;
-      const grams = [];
-      for(let i=0;i<tokens.length-(n-1);i++){
-        grams.push(tokens.slice(i, i+n).join(' '));
+    async function fetchWithCache(url) {
+      const cacheKey = CACHE_KEY_PREFIX + url;
+      const cached = localStorage.getItem(cacheKey);
+      
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        // 캐시 유효기간: 24시간 (API 아끼기 위해)
+        if (Date.now() - parsed.timestamp < 1000 * 60 * 60 * 24) {
+          console.log("Using Cache:", url);
+          return parsed.data;
+        }
       }
-      return grams;
+
+      const res = await fetch(url);
+      if (!res.ok) throw new Error(`API Error: ${res.status}`);
+      const data = await res.json();
+      
+      try {
+        localStorage.setItem(cacheKey, JSON.stringify({
+          timestamp: Date.now(),
+          data: data
+        }));
+      } catch (e) { console.warn("Cache full"); }
+      
+      return data;
     }
 
-    function extractKeywordsFromResults(results, n=1, topK=30){
-      const text = results.map(v => (v.snippet.title + ' ' + (v.snippet.description||''))).join(' ');
-      const tokens = tokenizeKoEn(text);
-      const grams = buildNgrams(tokens, n);
-      const map = new Map();
-      for(const g of grams){
-        map.set(g, (map.get(g)||0)+1);
+    async function runSearch() {
+      const key = els.apiKey.value.trim();
+      const q = els.q.value.trim();
+      if (!key || !q) return alert('API Key와 검색어를 입력하세요.');
+      
+      localStorage.setItem('yt_api_key', key); // 키 저장
+      
+      els.btnSearch.disabled = true;
+      els.btnSearch.textContent = '데이터 분석 중...';
+      els.tbody.innerHTML = '<tr><td colspan="5" class="p-4 text-center">유튜브 데이터를 가져오는 중입니다...</td></tr>';
+
+      try {
+        // 1. Search API (검색)
+        const params = new URLSearchParams({
+          part: 'snippet', type: 'video', q, key,
+          maxResults: els.maxResults.value,
+          order: els.order.value,
+          videoDuration: els.videoDuration.value,
+          regionCode: 'KR', relevanceLanguage: 'ko'
+        });
+        if (els.publishedAfter.value) params.append('publishedAfter', new Date(els.publishedAfter.value).toISOString());
+
+        const searchData = await fetchWithCache(`https://www.googleapis.com/youtube/v3/search?${params}`);
+        if (!searchData.items?.length) throw new Error('결과가 없습니다.');
+
+        const videoIds = searchData.items.map(i => i.id.videoId);
+        const channelIds = [...new Set(searchData.items.map(i => i.snippet.channelId))];
+
+        // 2. Videos API (조회수, 길이 상세)
+        const vParams = new URLSearchParams({ part: 'statistics,contentDetails,snippet', id: videoIds.join(','), key });
+        const videoDetails = await fetchWithCache(`https://www.googleapis.com/youtube/v3/videos?${vParams}`);
+        
+        // 3. Channels API (구독자 수 확인 - V/S 계산용)
+        // 주의: 채널 수가 많으면 URL 길이가 길어질 수 있으나 50개까진 보통 괜찮음
+        const cParams = new URLSearchParams({ part: 'statistics', id: channelIds.join(','), key });
+        const channelDetails = await fetchWithCache(`https://www.googleapis.com/youtube/v3/channels?${cParams}`);
+
+        // 데이터 병합 (Map핑)
+        const vMap = new Map(videoDetails.items.map(i => [i.id, i]));
+        const cMap = new Map(channelDetails.items.map(i => [i.id, i.statistics]));
+
+        const results = searchData.items.map(item => {
+          const v = vMap.get(item.id.videoId);
+          const cStats = cMap.get(item.snippet.channelId);
+          
+          if (!v) return null;
+
+          const viewCount = parseInt(v.statistics.viewCount || 0);
+          const subCount = parseInt(cStats?.subscriberCount || 1); // 0 방지
+          const vsRatio = subCount > 0 ? (viewCount / subCount) : 0;
+          
+          return {
+            id: item.id.videoId,
+            title: item.snippet.title,
+            desc: item.snippet.description,
+            thumb: item.snippet.thumbnails.medium.url,
+            channelTitle: item.snippet.channelTitle,
+            publishedAt: item.snippet.publishedAt.split('T')[0],
+            viewCount,
+            subCount,
+            vsRatio, // 구독자 대비 조회수 배율
+            duration: v.contentDetails.duration
+          };
+        }).filter(Boolean);
+
+        // V/S Ratio 내림차순 정렬 (이게 핵심!)
+        // 사용자가 '조회수' 정렬을 원하면 그대로 두고, 아니면 분석을 위해 제공
+        // 여기서는 기본 결과 순서에 V/S 정보를 붙여서 보여줌
+        
+        currentData = results;
+        renderTable(results);
+        analyzeKeywords(results);
+        els.btnExport.disabled = false;
+
+      } catch (err) {
+        alert('오류 발생: ' + err.message);
+        console.error(err);
+      } finally {
+        els.btnSearch.disabled = false;
+        els.btnSearch.textContent = '🚀 분석 시작';
       }
-      const arr = Array.from(map.entries()).sort((a,b)=> b[1]-a[1]).slice(0, topK);
-      return arr; // [term, count]
     }
 
-    function renderKeywords(pairs){
-      els.keywordsBox.innerHTML = '';
-      if(!pairs.length){
-        els.keywordsBox.innerHTML = '<p class="text-gray-500">추출 가능한 키워드가 없습니다.</p>';
-        els.btnCopyKeywords.disabled = true;
-        return;
-      }
-      const frag = document.createDocumentFragment();
-      for(const [term,count] of pairs){
-        const div = document.createElement('div');
-        div.className = 'px-3 py-2 rounded-xl bg-gray-100 flex items-center justify-between';
-        div.innerHTML = `<span class="wrap">${term}</span><span class="mono text-gray-600">${count}</span>`;
-        frag.appendChild(div);
-      }
-      els.keywordsBox.appendChild(frag);
-      els.btnCopyKeywords.disabled = false;
-    }
+    function renderTable(data) {
+      els.tbody.innerHTML = '';
+      data.forEach(item => {
+        // V/S Ratio가 1.0 넘으면(구독자보다 조회수가 많음) 강조
+        const isViral = item.vsRatio > 1.5; 
+        const rowClass = isViral ? 'bg-indigo-50' : '';
+        const badge = isViral ? `<span class="bg-red-500 text-white text-[10px] px-1 rounded font-bold ml-1">떡상🔥</span>` : '';
 
-    function copyKeywordsToClipboard(pairs){
-      const lines = pairs.map(([t,c])=> `${t},${c}`).join('\n');
-      navigator.clipboard.writeText(lines).then(()=>{
-        alert('키워드를 클립보드에 복사했습니다.');
-      }).catch(()=>{
-        alert('복사 실패. 브라우저 권한을 확인하세요.');
+        const tr = document.createElement('tr');
+        tr.className = `border-b border-gray-100 hover:bg-gray-50 ${rowClass}`;
+        tr.innerHTML = `
+          <td class="p-3">
+            <div class="flex gap-3">
+              <img src="${item.thumb}" class="w-24 h-16 object-cover rounded shadow" />
+              <div>
+                <a href="https://youtu.be/${item.id}" target="_blank" class="text-indigo-700 font-bold hover:underline line-clamp-2 leading-tight">${item.title}</a>
+                <p class="text-xs text-gray-500 mt-1 line-clamp-1">${item.desc}</p>
+              </div>
+            </div>
+          </td>
+          <td class="p-3">
+            <div class="text-xs font-bold">${item.channelTitle}</div>
+            <div class="text-xs text-gray-400">구독자: ${fmt(item.subCount)}</div>
+          </td>
+          <td class="p-3 text-right">
+            <div class="font-bold text-indigo-600 ${isViral ? 'text-red-600' : ''}">${item.vsRatio.toFixed(1)}x</div>
+            ${badge}
+          </td>
+          <td class="p-3 text-right text-xs font-mono text-gray-600">
+            ${fmtFull(item.viewCount)}
+          </td>
+          <td class="p-3 text-xs text-gray-400">
+            ${item.publishedAt}
+          </td>
+        `;
+        els.tbody.appendChild(tr);
       });
     }
 
-    async function youtubeSearch(){
-      const key = els.apiKey.value.trim();
-      if(!key){ alert('API Key를 입력하세요.'); return; }
+    function analyzeKeywords(data) {
+      const text = data.map(i => i.title + ' ' + i.desc).join(' ');
+      // 간단한 토크나이저
+      const words = text.replace(/[^\w가-힣\s]/g, '').split(/\s+/);
+      const counts = {};
+      const stopWords = new Set(['영상','시니어','건강','유튜브','하는','합니다','있는','입니다','그리고','에서','으로','까지','정말','진짜','방법','이유','가지']);
 
-      const q = els.q.value.trim();
-      if(!q){ alert('검색어를 입력하세요.'); return; }
+      words.forEach(w => {
+        if(w.length < 2) return;
+        const clean = cleanKoreanWord(w); // 조사 제거
+        if(stopWords.has(clean)) return;
+        counts[clean] = (counts[clean] || 0) + 1;
+      });
 
-      els.btnSearch.disabled = true;
-      els.btnSearch.textContent = '검색 중...';
-      els.btnExportCsv.disabled = true;
-      els.btnCopyKeywords.disabled = true;
-      els.tbody.innerHTML = '';
-      els.keywordsBox.innerHTML = '';
-      els.stats.textContent = '';
-
-      try{
-        const params = new URLSearchParams({
-          key, part: 'snippet', type: 'video', maxResults: String(Math.min(Math.max(parseInt(els.maxResults.value||'25',10),5),50)),
-          q, order: els.order.value,
-          regionCode: els.regionCode.value,
-          relevanceLanguage: els.relevanceLanguage.value,
-        });
-        const pa = els.publishedAfter.value;
-        if(pa){ params.set('publishedAfter', new Date(pa).toISOString()); }
-        const vd = els.videoDuration.value;
-        if(vd && vd !== 'any'){ params.set('videoDuration', vd); }
-
-        const searchUrl = `https://www.googleapis.com/youtube/v3/search?${params.toString()}`;
-        const sRes = await fetch(searchUrl);
-        if(!sRes.ok){ throw new Error('search.list 실패: ' + sRes.status + ' ' + sRes.statusText); }
-        const sJson = await sRes.json();
-        const ids = (sJson.items||[]).map(it => it.id && it.id.videoId).filter(Boolean);
-        if(ids.length === 0){
-          els.stats.textContent = '결과가 없습니다.';
-          return;
-        }
-
-        // videos.list 로 상세 정보(통계, 길이) 병합
-        const vParams = new URLSearchParams({ key, part: 'snippet,contentDetails,statistics', id: ids.join(',') });
-        const vUrl = `https://www.googleapis.com/youtube/v3/videos?${vParams.toString()}`;
-        const vRes = await fetch(vUrl);
-        if(!vRes.ok){ throw new Error('videos.list 실패: ' + vRes.status + ' ' + vRes.statusText); }
-        const vJson = await vRes.json();
-
-        // id -> item 매핑
-        const map = new Map();
-        for(const it of vJson.items||[]){
-          map.set(it.id, it);
-        }
-
-        // 검색 결과 순서를 유지하면서 병합
-        lastResults = ids.map(id => map.get(id)).filter(Boolean);
-
-        // 렌더링
-        const frag = document.createDocumentFragment();
-        for(const v of lastResults){
-          const url = `https://www.youtube.com/watch?v=${v.id}`;
-          const row = document.createElement('tr');
-          row.innerHTML = `
-            <td class="p-2 align-top">
-              <a href="${url}" target="_blank" class="text-indigo-600 hover:underline wrap">${escapeHtml(v.snippet.title)}</a>
-              <div class="text-xs text-gray-500 wrap">${escapeHtml(v.snippet.description || '').slice(0, 140)}${(v.snippet.description||'').length>140?'…':''}</div>
-            </td>
-            <td class="p-2 align-top">${escapeHtml(v.snippet.channelTitle)}</td>
-            <td class="p-2 align-top">${new Date(v.snippet.publishedAt).toLocaleString()}</td>
-            <td class="p-2 align-top mono">${iso8601DurationToHHMMSS(v.contentDetails.duration)}</td>
-            <td class="p-2 align-top text-right mono">${formatNumber(v.statistics.viewCount)}</td>
-          `;
-          frag.appendChild(row);
-        }
-        els.tbody.appendChild(frag);
-        els.stats.textContent = `${lastResults.length}개 결과`;
-
-        // 키워드 추출
-        const n = parseInt(els.ngram.value, 10);
-        const k = parseInt(els.topK.value, 10);
-        const pairs = extractKeywordsFromResults(lastResults, n, k);
-        renderKeywords(pairs);
-
-        // CSV 버튼 활성화
-        els.btnExportCsv.disabled = false;
-
-      } catch(err){
-        console.error(err);
-        alert('오류: ' + err.message);
-      } finally {
-        els.btnSearch.disabled = false;
-        els.btnSearch.textContent = '검색 실행';
-      }
+      const sorted = Object.entries(counts).sort((a,b) => b[1] - a[1]).slice(0, 15);
+      
+      els.keywordsBox.innerHTML = sorted.map(([k, v]) => 
+        `<span class="bg-white border border-indigo-200 text-indigo-800 px-2 py-1 rounded shadow-sm text-xs cursor-pointer hover:bg-indigo-100">${k} (${v})</span>`
+      ).join('');
+      
+      els.btnCopyKeywords.disabled = false;
+      els.btnCopyKeywords.onclick = () => {
+        navigator.clipboard.writeText(sorted.map(i=>i[0]).join(', '));
+        alert('키워드 복사 완료!');
+      };
     }
 
-    function exportResultsCsv(){
-      if(!lastResults.length){ return; }
-      const rows = [];
-      rows.push(['videoId','title','channelTitle','publishedAt','duration','viewCount','url']);
-      for(const v of lastResults){
-        const id = v.id;
-        const url = `https://www.youtube.com/watch?v=${id}`;
-        rows.push([
-          id,
-          (v.snippet.title||'').replace(/\n/g,' '),
-          v.snippet.channelTitle||'',
-          v.snippet.publishedAt||'',
-          iso8601DurationToHHMMSS(v.contentDetails.duration||''),
-          v.statistics.viewCount||'',
-          url
-        ]);
-      }
-      downloadCsv('youtube_search_results.csv', rows);
-    }
+    // CSV 다운로드
+    els.btnExport.onclick = () => {
+      const header = ['ID,제목,채널명,구독자,조회수,VS비율,게시일\n'];
+      const rows = currentData.map(i => 
+        `${i.id},"${i.title.replaceAll('"','""')}","${i.channelTitle}",${i.subCount},${i.viewCount},${i.vsRatio.toFixed(2)},${i.publishedAt}`
+      );
+      const blob = new Blob([header + rows.join('\n')], {type: 'text/csv;charset=utf-8;'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = 'youtube_analysis.csv';
+      a.click();
+    };
 
-    function escapeHtml(s){
-      return String(s)
-        .replaceAll('&','&amp;')
-        .replaceAll('<','&lt;')
-        .replaceAll('>','&gt;')
-        .replaceAll('"','&quot;')
-        .replaceAll("'",'&#39;');
-    }
+    // 캐시 초기화
+    els.btnClearCache.onclick = () => {
+      Object.keys(localStorage).forEach(k => {
+        if(k.startsWith(CACHE_KEY_PREFIX)) localStorage.removeItem(k);
+      });
+      alert('캐시가 삭제되었습니다.');
+      location.reload();
+    };
 
-    // 이벤트 바인딩
-    els.btnSearch.addEventListener('click', youtubeSearch);
-    els.btnExportCsv.addEventListener('click', exportResultsCsv);
-    els.ngram.addEventListener('change', ()=>{
-      if(!lastResults.length) return;
-      const n = parseInt(els.ngram.value, 10);
-      const k = parseInt(els.topK.value, 10);
-      renderKeywords(extractKeywordsFromResults(lastResults, n, k));
-    });
-    els.topK.addEventListener('change', ()=>{
-      if(!lastResults.length) return;
-      const n = parseInt(els.ngram.value, 10);
-      const k = parseInt(els.topK.value, 10);
-      renderKeywords(extractKeywordsFromResults(lastResults, n, k));
-    });
-    els.btnCopyKeywords.addEventListener('click', ()=>{
-      if(!lastResults.length) return;
-      const n = parseInt(els.ngram.value, 10);
-      const k = parseInt(els.topK.value, 10);
-      copyKeywordsToClipboard(extractKeywordsFromResults(lastResults, n, k));
-    });
+    els.btnSearch.addEventListener('click', runSearch);
   </script>
 </body>
 </html>
