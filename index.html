@@ -3,59 +3,61 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>시니어 롱폼 인사이트 툴 v2.0 (Cached)</title>
+  <title>시니어 롱폼 인사이트 툴 v2.1 (큰글씨)</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     html { scroll-behavior: smooth; }
+    /* 가독성을 위한 기본 폰트 설정 */
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
     .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
     .wrap { word-break: break-word; }
     /* V/S Ratio 강조 스타일 */
-    .high-potential { background-color: #ecfccb; } /* 연한 라임색 */
+    .high-potential { background-color: #f0fdf4; border-left: 4px solid #16a34a; }
   </style>
 </head>
-<body class="bg-gray-50 text-gray-900">
-  <div class="max-w-7xl mx-auto p-4 sm:p-6">
-    <header class="mb-6 flex justify-between items-center">
+<body class="bg-gray-100 text-gray-900">
+  <div class="max-w-7xl mx-auto p-4 sm:p-8">
+    <header class="mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
       <div>
-        <h1 class="text-2xl font-bold text-indigo-900">시니어 롱폼 인사이트 툴 v2.0</h1>
-        <p class="text-sm text-gray-600 mt-1">캐싱 기능 & 구독자 대비 조회수(V/S) 분석 탑재</p>
+        <h1 class="text-3xl font-extrabold text-indigo-900">시니어 롱폼 인사이트 v2.1</h1>
+        <p class="text-base text-gray-600 mt-2">큰 글씨 모드 & 영상 길이 표시 적용됨</p>
       </div>
-      <button id="btnClearCache" class="text-xs bg-red-100 text-red-600 px-3 py-1 rounded hover:bg-red-200">캐시 초기화</button>
+      <button id="btnClearCache" class="text-sm bg-white border border-red-200 text-red-600 px-4 py-2 rounded hover:bg-red-50">캐시 초기화</button>
     </header>
 
-    <section class="bg-white rounded-2xl shadow p-4 mb-6 border border-indigo-100">
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+    <section class="bg-white rounded-2xl shadow-md p-6 mb-8 border border-indigo-100">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <div class="col-span-1 md:col-span-2">
-          <label class="block text-xs font-bold text-gray-500 mb-1">YOUTUBE API KEY</label>
-          <input id="apiKey" type="password" class="w-full rounded-lg border-gray-300 focus:ring-indigo-500 text-sm" placeholder="여기에 키 입력" />
+          <label class="block text-sm font-bold text-gray-700 mb-2">YOUTUBE API KEY</label>
+          <input id="apiKey" type="password" class="w-full rounded-xl border-gray-300 focus:ring-indigo-500 p-3 text-base" placeholder="여기에 키 입력" />
         </div>
         <div class="col-span-1 md:col-span-2">
-          <label class="block text-xs font-bold text-gray-500 mb-1">검색어 (타깃 키워드)</label>
-          <input id="q" type="text" class="w-full rounded-lg border-gray-300 focus:ring-indigo-500 text-sm font-bold" placeholder="예: 60대 건강, 당뇨 식단" />
+          <label class="block text-sm font-bold text-gray-700 mb-2">검색어 (타깃 키워드)</label>
+          <input id="q" type="text" class="w-full rounded-xl border-gray-300 focus:ring-indigo-500 p-3 text-base font-bold text-indigo-900" placeholder="예: 60대 건강, 당뇨 식단" />
         </div>
         <div>
-          <label class="block text-xs font-bold text-gray-500 mb-1">정렬 기준</label>
-          <select id="order" class="w-full rounded-lg border-gray-300 text-sm">
+          <label class="block text-sm font-bold text-gray-700 mb-2">정렬 기준</label>
+          <select id="order" class="w-full rounded-xl border-gray-300 p-3 text-base">
             <option value="viewCount">조회수순 (검증된 대박)</option>
             <option value="relevance">관련성순</option>
             <option value="date">최신순 (트렌드)</option>
           </select>
         </div>
         <div>
-          <label class="block text-xs font-bold text-gray-500 mb-1">영상 길이</label>
-          <select id="videoDuration" class="w-full rounded-lg border-gray-300 text-sm">
+          <label class="block text-sm font-bold text-gray-700 mb-2">영상 길이</label>
+          <select id="videoDuration" class="w-full rounded-xl border-gray-300 p-3 text-base">
             <option value="medium">중간 (4~20분)</option>
             <option value="long" selected>롱폼 (20분 이상)</option>
             <option value="any">전체</option>
           </select>
         </div>
         <div>
-          <label class="block text-xs font-bold text-gray-500 mb-1">업로드 기간 (이 날짜 이후)</label>
-          <input id="publishedAfter" type="date" class="w-full rounded-lg border-gray-300 text-sm" />
+          <label class="block text-sm font-bold text-gray-700 mb-2">업로드 기간 (이 날짜 이후)</label>
+          <input id="publishedAfter" type="date" class="w-full rounded-xl border-gray-300 p-3 text-base" />
         </div>
         <div>
-          <label class="block text-xs font-bold text-gray-500 mb-1">검색 개수</label>
-          <select id="maxResults" class="w-full rounded-lg border-gray-300 text-sm">
+          <label class="block text-sm font-bold text-gray-700 mb-2">검색 개수</label>
+          <select id="maxResults" class="w-full rounded-xl border-gray-300 p-3 text-base">
             <option value="10">10개 (빠름)</option>
             <option value="25" selected>25개 (추천)</option>
             <option value="50">50개 (쿼터 주의)</option>
@@ -63,35 +65,36 @@
         </div>
       </div>
       
-      <div class="mt-4 flex gap-2">
-        <button id="btnSearch" class="flex-1 bg-indigo-600 text-white py-2 rounded-xl hover:bg-indigo-700 font-bold shadow-md transition">🚀 분석 시작</button>
-        <button id="btnExport" class="px-6 bg-gray-800 text-white py-2 rounded-xl hover:bg-gray-900 font-bold" disabled>CSV 저장</button>
+      <div class="mt-6 flex gap-3">
+        <button id="btnSearch" class="flex-1 bg-indigo-700 text-white py-3 rounded-xl hover:bg-indigo-800 font-bold text-lg shadow-md transition">🚀 분석 시작</button>
+        <button id="btnExport" class="px-8 bg-gray-800 text-white py-3 rounded-xl hover:bg-gray-900 font-bold text-lg" disabled>CSV 저장</button>
       </div>
     </section>
 
-    <section class="bg-indigo-50 rounded-2xl p-4 mb-6 border border-indigo-100">
-      <div class="flex justify-between items-center mb-2">
-        <h2 class="text-sm font-bold text-indigo-800">🔥 상위 노출 키워드 (제목/설명 분석)</h2>
-        <button id="btnCopyKeywords" class="text-xs bg-white border px-2 py-1 rounded" disabled>복사</button>
+    <section class="bg-indigo-50 rounded-2xl p-6 mb-8 border border-indigo-200">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-lg font-bold text-indigo-900">🔥 상위 노출 키워드 (제목/설명 분석)</h2>
+        <button id="btnCopyKeywords" class="text-sm bg-white border border-gray-300 px-3 py-1.5 rounded hover:bg-gray-50" disabled>키워드 복사</button>
       </div>
-      <div id="keywordsBox" class="flex flex-wrap gap-2 text-xs">
-        <span class="text-gray-400">검색 결과가 나오면 이곳에 주요 키워드가 표시됩니다.</span>
+      <div id="keywordsBox" class="flex flex-wrap gap-3 text-sm">
+        <span class="text-gray-500 text-base">검색 결과가 나오면 이곳에 주요 키워드가 표시됩니다.</span>
       </div>
     </section>
 
-    <section class="bg-white rounded-2xl shadow overflow-hidden">
+    <section class="bg-white rounded-2xl shadow-lg overflow-hidden">
       <div class="overflow-x-auto">
-        <table class="w-full text-sm text-left">
-          <thead class="bg-gray-100 text-gray-600 uppercase text-xs">
+        <table class="w-full text-left">
+          <thead class="bg-gray-100 text-gray-700 uppercase text-sm border-b-2 border-gray-200">
             <tr>
-              <th class="p-3">영상 정보 (제목/썸네일)</th>
-              <th class="p-3 w-32">채널 지표</th>
-              <th class="p-3 w-24 text-right">성과(V/S)</th>
-              <th class="p-3 w-24 text-right">조회수</th>
-              <th class="p-3 w-24">업로드</th>
+              <th class="p-4">영상 정보 (제목/썸네일)</th>
+              <th class="p-4 w-40">채널 / 구독자</th>
+              <th class="p-4 w-32 text-center">성과(V/S)</th>
+              <th class="p-4 w-32 text-right">조회수</th>
+              <th class="p-4 w-28 text-center">시간</th>
+              <th class="p-4 w-32 text-center">업로드</th>
             </tr>
           </thead>
-          <tbody id="tbody" class="divide-y divide-gray-100"></tbody>
+          <tbody id="tbody" class="divide-y divide-gray-100 text-base"></tbody>
         </table>
       </div>
     </section>
@@ -101,11 +104,32 @@
     // --- 설정 및 유틸 ---
     const CACHE_KEY_PREFIX = 'yt_tool_v2_';
     
-    // 한국어 조사 제거를 위한 간단한 처리 (완벽하진 않으나 효과적)
     function cleanKoreanWord(word) {
-      // 끝에 붙는 조사들 제거 (길이가 2글자 이상일 때만)
       if (word.length < 2) return word;
       return word.replace(/(은|는|이|가|을|를|의|와|과|도|로|에|서)$/, '');
+    }
+
+    // ISO 8601 시간 변환 (PT1H2M10S -> 01:02:10)
+    function parseDuration(iso) {
+        if (!iso) return "";
+        const match = iso.match(/PT(\d+H)?(\d+M)?(\d+S)?/);
+        if (!match) return iso;
+
+        const hours = (match[1] || '').replace('H', '');
+        const mins = (match[2] || '').replace('M', '');
+        const secs = (match[3] || '').replace('S', '');
+
+        const h = parseInt(hours || 0);
+        const m = parseInt(mins || 0);
+        const s = parseInt(secs || 0);
+
+        // 시간 포맷팅
+        const pad = (n) => n.toString().padStart(2, '0');
+        if (h > 0) {
+            return `${h}:${pad(m)}:${pad(s)}`;
+        } else {
+            return `${m}:${pad(s)}`;
+        }
     }
 
     const els = {
@@ -123,42 +147,30 @@
       btnClearCache: document.getElementById('btnClearCache')
     };
 
-    // 저장된 API Key 불러오기 (편의성)
     const savedKey = localStorage.getItem('yt_api_key');
     if(savedKey) els.apiKey.value = savedKey;
 
-    let currentData = []; // CSV용 데이터 저장
-
-    // 숫자 포맷
+    let currentData = [];
     const fmt = n => new Intl.NumberFormat('ko-KR', { notation: "compact", maximumFractionDigits: 1 }).format(n);
     const fmtFull = n => new Intl.NumberFormat('ko-KR').format(n);
 
-    // --- 핵심 로직 ---
-
+    // --- 핵심 로직 (API 호출 및 캐싱) ---
     async function fetchWithCache(url) {
       const cacheKey = CACHE_KEY_PREFIX + url;
       const cached = localStorage.getItem(cacheKey);
-      
       if (cached) {
         const parsed = JSON.parse(cached);
-        // 캐시 유효기간: 24시간 (API 아끼기 위해)
         if (Date.now() - parsed.timestamp < 1000 * 60 * 60 * 24) {
           console.log("Using Cache:", url);
           return parsed.data;
         }
       }
-
       const res = await fetch(url);
       if (!res.ok) throw new Error(`API Error: ${res.status}`);
       const data = await res.json();
-      
       try {
-        localStorage.setItem(cacheKey, JSON.stringify({
-          timestamp: Date.now(),
-          data: data
-        }));
+        localStorage.setItem(cacheKey, JSON.stringify({ timestamp: Date.now(), data: data }));
       } catch (e) { console.warn("Cache full"); }
-      
       return data;
     }
 
@@ -166,15 +178,13 @@
       const key = els.apiKey.value.trim();
       const q = els.q.value.trim();
       if (!key || !q) return alert('API Key와 검색어를 입력하세요.');
-      
-      localStorage.setItem('yt_api_key', key); // 키 저장
+      localStorage.setItem('yt_api_key', key);
       
       els.btnSearch.disabled = true;
       els.btnSearch.textContent = '데이터 분석 중...';
-      els.tbody.innerHTML = '<tr><td colspan="5" class="p-4 text-center">유튜브 데이터를 가져오는 중입니다...</td></tr>';
+      els.tbody.innerHTML = '<tr><td colspan="6" class="p-8 text-center text-lg text-gray-500">유튜브 데이터를 가져오는 중입니다...</td></tr>';
 
       try {
-        // 1. Search API (검색)
         const params = new URLSearchParams({
           part: 'snippet', type: 'video', q, key,
           maxResults: els.maxResults.value,
@@ -190,27 +200,22 @@
         const videoIds = searchData.items.map(i => i.id.videoId);
         const channelIds = [...new Set(searchData.items.map(i => i.snippet.channelId))];
 
-        // 2. Videos API (조회수, 길이 상세)
         const vParams = new URLSearchParams({ part: 'statistics,contentDetails,snippet', id: videoIds.join(','), key });
         const videoDetails = await fetchWithCache(`https://www.googleapis.com/youtube/v3/videos?${vParams}`);
         
-        // 3. Channels API (구독자 수 확인 - V/S 계산용)
-        // 주의: 채널 수가 많으면 URL 길이가 길어질 수 있으나 50개까진 보통 괜찮음
         const cParams = new URLSearchParams({ part: 'statistics', id: channelIds.join(','), key });
         const channelDetails = await fetchWithCache(`https://www.googleapis.com/youtube/v3/channels?${cParams}`);
 
-        // 데이터 병합 (Map핑)
         const vMap = new Map(videoDetails.items.map(i => [i.id, i]));
         const cMap = new Map(channelDetails.items.map(i => [i.id, i.statistics]));
 
         const results = searchData.items.map(item => {
           const v = vMap.get(item.id.videoId);
           const cStats = cMap.get(item.snippet.channelId);
-          
           if (!v) return null;
 
           const viewCount = parseInt(v.statistics.viewCount || 0);
-          const subCount = parseInt(cStats?.subscriberCount || 1); // 0 방지
+          const subCount = parseInt(cStats?.subscriberCount || 1);
           const vsRatio = subCount > 0 ? (viewCount / subCount) : 0;
           
           return {
@@ -222,15 +227,13 @@
             publishedAt: item.snippet.publishedAt.split('T')[0],
             viewCount,
             subCount,
-            vsRatio, // 구독자 대비 조회수 배율
-            duration: v.contentDetails.duration
+            vsRatio,
+            duration: v.contentDetails.duration // ISO 포맷 (PT15M30S)
           };
         }).filter(Boolean);
-
-        // V/S Ratio 내림차순 정렬 (이게 핵심!)
-        // 사용자가 '조회수' 정렬을 원하면 그대로 두고, 아니면 분석을 위해 제공
-        // 여기서는 기본 결과 순서에 V/S 정보를 붙여서 보여줌
         
+        // 정렬 로직 보완: 조회수순이 아닐 때도 내부적으로 V/S Ratio로 정렬해서 보여줄지 여부는 선택
+        // 여기서는 검색 API의 순서를 존중하되, 결과 배열만 저장
         currentData = results;
         renderTable(results);
         analyzeKeywords(results);
@@ -248,35 +251,38 @@
     function renderTable(data) {
       els.tbody.innerHTML = '';
       data.forEach(item => {
-        // V/S Ratio가 1.0 넘으면(구독자보다 조회수가 많음) 강조
         const isViral = item.vsRatio > 1.5; 
-        const rowClass = isViral ? 'bg-indigo-50' : '';
-        const badge = isViral ? `<span class="bg-red-500 text-white text-[10px] px-1 rounded font-bold ml-1">떡상🔥</span>` : '';
+        const rowClass = isViral ? 'high-potential' : '';
+        const badge = isViral ? `<br><span class="bg-red-600 text-white text-xs px-2 py-0.5 rounded-full font-bold shadow-sm">떡상🔥</span>` : '';
+        const durationStr = parseDuration(item.duration);
 
         const tr = document.createElement('tr');
-        tr.className = `border-b border-gray-100 hover:bg-gray-50 ${rowClass}`;
+        tr.className = `border-b border-gray-100 hover:bg-gray-50 transition-colors ${rowClass}`;
         tr.innerHTML = `
-          <td class="p-3">
-            <div class="flex gap-3">
-              <img src="${item.thumb}" class="w-24 h-16 object-cover rounded shadow" />
-              <div>
-                <a href="https://youtu.be/${item.id}" target="_blank" class="text-indigo-700 font-bold hover:underline line-clamp-2 leading-tight">${item.title}</a>
-                <p class="text-xs text-gray-500 mt-1 line-clamp-1">${item.desc}</p>
+          <td class="p-4">
+            <div class="flex gap-4">
+              <img src="${item.thumb}" class="w-32 h-20 object-cover rounded-lg shadow-md" />
+              <div class="flex-1">
+                <a href="https://youtu.be/${item.id}" target="_blank" class="text-indigo-800 font-bold text-lg hover:underline line-clamp-2 leading-snug">${item.title}</a>
+                <p class="text-sm text-gray-500 mt-1 line-clamp-1">${item.desc}</p>
               </div>
             </div>
           </td>
-          <td class="p-3">
-            <div class="text-xs font-bold">${item.channelTitle}</div>
-            <div class="text-xs text-gray-400">구독자: ${fmt(item.subCount)}</div>
+          <td class="p-4">
+            <div class="font-bold text-gray-800">${item.channelTitle}</div>
+            <div class="text-sm text-gray-500">구독자: ${fmt(item.subCount)}</div>
           </td>
-          <td class="p-3 text-right">
-            <div class="font-bold text-indigo-600 ${isViral ? 'text-red-600' : ''}">${item.vsRatio.toFixed(1)}x</div>
+          <td class="p-4 text-center">
+            <div class="font-extrabold text-xl text-indigo-700 ${isViral ? 'text-red-600' : ''}">${item.vsRatio.toFixed(1)}x</div>
             ${badge}
           </td>
-          <td class="p-3 text-right text-xs font-mono text-gray-600">
-            ${fmtFull(item.viewCount)}
+          <td class="p-4 text-right">
+            <div class="font-mono text-lg font-bold text-gray-700">${fmtFull(item.viewCount)}</div>
           </td>
-          <td class="p-3 text-xs text-gray-400">
+          <td class="p-4 text-center">
+            <div class="font-mono text-base bg-gray-100 px-2 py-1 rounded text-gray-700 inline-block font-bold">${durationStr}</div>
+          </td>
+          <td class="p-4 text-center text-sm text-gray-500">
             ${item.publishedAt}
           </td>
         `;
@@ -286,22 +292,21 @@
 
     function analyzeKeywords(data) {
       const text = data.map(i => i.title + ' ' + i.desc).join(' ');
-      // 간단한 토크나이저
       const words = text.replace(/[^\w가-힣\s]/g, '').split(/\s+/);
       const counts = {};
-      const stopWords = new Set(['영상','시니어','건강','유튜브','하는','합니다','있는','입니다','그리고','에서','으로','까지','정말','진짜','방법','이유','가지']);
+      const stopWords = new Set(['영상','시니어','건강','유튜브','하는','합니다','있는','입니다','그리고','에서','으로','까지','정말','진짜','방법','이유','가지','티비','TV']);
 
       words.forEach(w => {
         if(w.length < 2) return;
-        const clean = cleanKoreanWord(w); // 조사 제거
+        const clean = cleanKoreanWord(w);
         if(stopWords.has(clean)) return;
         counts[clean] = (counts[clean] || 0) + 1;
       });
 
-      const sorted = Object.entries(counts).sort((a,b) => b[1] - a[1]).slice(0, 15);
+      const sorted = Object.entries(counts).sort((a,b) => b[1] - a[1]).slice(0, 20);
       
       els.keywordsBox.innerHTML = sorted.map(([k, v]) => 
-        `<span class="bg-white border border-indigo-200 text-indigo-800 px-2 py-1 rounded shadow-sm text-xs cursor-pointer hover:bg-indigo-100">${k} (${v})</span>`
+        `<span class="bg-indigo-50 border border-indigo-200 text-indigo-900 px-3 py-1.5 rounded-lg shadow-sm text-base font-medium cursor-pointer hover:bg-indigo-100 transition">${k} <span class="text-indigo-400 text-xs ml-1">${v}</span></span>`
       ).join('');
       
       els.btnCopyKeywords.disabled = false;
@@ -311,20 +316,18 @@
       };
     }
 
-    // CSV 다운로드
     els.btnExport.onclick = () => {
-      const header = ['ID,제목,채널명,구독자,조회수,VS비율,게시일\n'];
+      const header = ['ID,제목,채널명,구독자,조회수,VS비율,길이,게시일\n'];
       const rows = currentData.map(i => 
-        `${i.id},"${i.title.replaceAll('"','""')}","${i.channelTitle}",${i.subCount},${i.viewCount},${i.vsRatio.toFixed(2)},${i.publishedAt}`
+        `${i.id},"${i.title.replaceAll('"','""')}","${i.channelTitle}",${i.subCount},${i.viewCount},${i.vsRatio.toFixed(2)},${parseDuration(i.duration)},${i.publishedAt}`
       );
       const blob = new Blob([header + rows.join('\n')], {type: 'text/csv;charset=utf-8;'});
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
-      a.href = url; a.download = 'youtube_analysis.csv';
+      a.href = url; a.download = 'youtube_analysis_big.csv';
       a.click();
     };
 
-    // 캐시 초기화
     els.btnClearCache.onclick = () => {
       Object.keys(localStorage).forEach(k => {
         if(k.startsWith(CACHE_KEY_PREFIX)) localStorage.removeItem(k);
