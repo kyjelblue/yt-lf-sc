@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>시니어 롱폼 인사이트 툴 v3.1 (스마트기간)</title>
+  <title>시니어 롱폼 인사이트 툴 v4.0 (헤더 정렬)</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     html { scroll-behavior: smooth; }
@@ -11,6 +11,7 @@
     .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
     .wrap { word-break: break-word; }
     .high-potential { background-color: #f0fdf4; border-left: 4px solid #16a34a; }
+    th.sortable:hover { background-color: #e5e7eb; cursor: pointer; user-select: none; }
   </style>
 </head>
 <body class="bg-gray-100 text-gray-900">
@@ -18,8 +19,8 @@
     
     <header class="mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
       <div>
-        <h1 class="text-3xl font-extrabold text-indigo-900">시니어 롱폼 인사이트 v3.1</h1>
-        <p class="text-base text-gray-600 mt-2">간편 기간 설정 ("딸깍" 모드) 적용</p>
+        <h1 class="text-3xl font-extrabold text-indigo-900">시니어 롱폼 인사이트 v4.0</h1>
+        <p class="text-base text-gray-600 mt-2">표제 헤더 클릭 정렬 기능 탑재</p>
       </div>
       
       <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200 w-full sm:w-80">
@@ -48,7 +49,7 @@
           <input id="q" type="text" class="w-full rounded-xl border-gray-300 focus:ring-indigo-500 p-3 text-base font-bold text-indigo-900 shadow-sm" placeholder="예: 60대 노후, 무릎 통증" />
         </div>
         <div>
-          <label class="block text-sm font-bold text-gray-700 mb-2">정렬 기준</label>
+          <label class="block text-sm font-bold text-gray-700 mb-2">정렬 기준 (API)</label>
           <select id="order" class="w-full rounded-xl border-gray-300 p-3 text-base shadow-sm">
             <option value="viewCount">조회수순 (검증된 대박)</option>
             <option value="relevance">관련성순</option>
@@ -104,12 +105,12 @@
         <table class="w-full text-left">
           <thead class="bg-gray-100 text-gray-700 uppercase text-sm border-b-2 border-gray-200">
             <tr>
-              <th class="p-4">영상 정보</th>
-              <th class="p-4 w-40">채널 / 구독자</th>
-              <th class="p-4 w-32 text-center">성과(V/S)</th>
-              <th class="p-4 w-32 text-right">조회수</th>
-              <th class="p-4 w-28 text-center">시간</th>
-              <th class="p-4 w-32 text-center">업로드</th>
+              <th class="p-4 sortable" data-sort="title">영상 정보 (제목) <span id="sortIcon-title"></span></th>
+              <th class="p-4 w-40 sortable" data-sort="subCount">채널 / 구독자 <span id="sortIcon-subCount"></span></th>
+              <th class="p-4 w-32 text-center sortable" data-sort="vsRatio">성과(V/S) <span id="sortIcon-vsRatio"></span></th>
+              <th class="p-4 w-32 text-right sortable" data-sort="viewCount">조회수 <span id="sortIcon-viewCount"></span></th>
+              <th class="p-4 w-28 text-center sortable" data-sort="duration">시간 <span id="sortIcon-duration"></span></th>
+              <th class="p-4 w-32 text-center sortable" data-sort="publishedAt">업로드 <span id="sortIcon-publishedAt"></span></th>
             </tr>
           </thead>
           <tbody id="tbody" class="divide-y divide-gray-100 text-base"></tbody>
@@ -140,7 +141,6 @@
         return h > 0 ? `${h}:${pad(m)}:${pad(s)}` : `${m}:${pad(s)}`;
     }
 
-    // 날짜 계산 함수 (딸깍 기능의 핵심)
     function getPublishedAfterDate(preset) {
         const now = new Date();
         if (preset === '1year') {
@@ -150,7 +150,7 @@
             now.setMonth(now.getMonth() - 1);
             return now.toISOString();
         }
-        return null; // 전체 기간
+        return null;
     }
 
     const els = {
@@ -158,7 +158,7 @@
       q: document.getElementById('q'),
       order: document.getElementById('order'),
       videoDuration: document.getElementById('videoDuration'),
-      datePreset: document.getElementById('datePreset'), // 변경된 부분
+      datePreset: document.getElementById('datePreset'),
       maxResults: document.getElementById('maxResults'),
       btnSearch: document.getElementById('btnSearch'),
       btnExport: document.getElementById('btnExport'),
@@ -238,11 +238,8 @@
 
       try {
         const maxResults = parseInt(els.maxResults.value);
-        
-        // 날짜 자동 계산
         const publishedAfter = getPublishedAfterDate(els.datePreset.value);
 
-        // 1. Search API
         const params = new URLSearchParams({
           part: 'snippet', type: 'video', q, key,
           maxResults: maxResults,
@@ -258,11 +255,9 @@
         const videoIds = searchData.items.map(i => i.id.videoId);
         const channelIds = [...new Set(searchData.items.map(i => i.snippet.channelId))];
 
-        // 2. Videos API
         const vParams = new URLSearchParams({ part: 'statistics,contentDetails,snippet', id: videoIds.join(','), key });
         const videoDetails = await fetchWithCache(`https://www.googleapis.com/youtube/v3/videos?${vParams}`, videoIds.length);
         
-        // 3. Channels API
         const cParams = new URLSearchParams({ part: 'statistics', id: channelIds.join(','), key });
         const channelDetails = await fetchWithCache(`https://www.googleapis.com/youtube/v3/channels?${cParams}`, channelIds.length);
 
@@ -288,11 +283,15 @@
             viewCount,
             subCount,
             vsRatio,
-            duration: v.contentDetails.duration
+            duration: v.contentDetails.duration,
+            durationSec: parseISO8601DurationToSeconds(v.contentDetails.duration) // 정렬용 초 단위 시간
           };
         }).filter(Boolean);
         
         currentData = results;
+        // 초기 정렬 상태 (기본: API 검색 결과 순)
+        currentSort = { key: null, order: 'asc' };
+        updateSortIcons();
         renderTable(results);
         analyzeKeywords(results);
         els.btnExport.disabled = false;
@@ -305,6 +304,66 @@
         els.btnSearch.textContent = '🚀 분석 시작';
       }
     }
+
+    // --- 정렬 로직 추가 ---
+    let currentSort = { key: null, order: 'asc' }; // 현재 정렬 상태
+
+    document.querySelectorAll('th.sortable').forEach(th => {
+      th.addEventListener('click', () => {
+        const key = th.dataset.sort;
+        if (currentSort.key === key) {
+          currentSort.order = currentSort.order === 'asc' ? 'desc' : 'asc';
+        } else {
+          currentSort.key = key;
+          currentSort.order = 'desc'; // 기본 내림차순 (높은게 위로)
+          if (key === 'title' || key === 'publishedAt') currentSort.order = 'asc'; // 텍스트, 날짜는 오름차순 기본
+        }
+        sortData(key, currentSort.order);
+        updateSortIcons();
+      });
+    });
+
+    function sortData(key, order) {
+      if (!currentData.length) return;
+      
+      currentData.sort((a, b) => {
+        let valA = a[key];
+        let valB = b[key];
+        
+        // 문자열 비교
+        if (typeof valA === 'string') {
+          valA = valA.toLowerCase();
+          valB = valB.toLowerCase();
+          if (valA < valB) return order === 'asc' ? -1 : 1;
+          if (valA > valB) return order === 'asc' ? 1 : -1;
+          return 0;
+        }
+        
+        // 숫자 비교
+        return order === 'asc' ? valA - valB : valB - valA;
+      });
+      renderTable(currentData);
+    }
+
+    function updateSortIcons() {
+      document.querySelectorAll('th.sortable span').forEach(span => span.textContent = '');
+      if (currentSort.key) {
+        const icon = currentSort.order === 'asc' ? ' ▲' : ' ▼';
+        document.getElementById(`sortIcon-${currentSort.key}`).textContent = icon;
+      }
+    }
+    
+    // ISO 8601 duration을 초 단위로 변환 (정렬용)
+    function parseISO8601DurationToSeconds(iso) {
+        if (!iso) return 0;
+        const match = iso.match(/PT(\d+H)?(\d+M)?(\d+S)?/);
+        if (!match) return 0;
+        const h = parseInt((match[1]||'').replace('H','')) || 0;
+        const m = parseInt((match[2]||'').replace('M','')) || 0;
+        const s = parseInt((match[3]||'').replace('S','')) || 0;
+        return h * 3600 + m * 60 + s;
+    }
+
 
     function renderTable(data) {
       els.tbody.innerHTML = '';
@@ -377,7 +436,7 @@
       const blob = new Blob([header + rows.join('\n')], {type: 'text/csv;charset=utf-8;'});
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
-      a.href = url; a.download = 'youtube_analysis_v3.1.csv';
+      a.href = url; a.download = 'youtube_analysis_v4.0.csv';
       a.click();
     };
 
