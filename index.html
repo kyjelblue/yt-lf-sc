@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="referrer" content="strict-origin-when-cross-origin" />
-  <title>시니어 롱폼 인사이트 툴 v5.0</title>
+  <title>유튜브 트렌드 인사이트 툴 v5.8</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     html { scroll-behavior: smooth; }
@@ -13,6 +13,9 @@
     .wrap { overflow-wrap: anywhere; word-break: break-word; }
     .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
     .line-clamp-1 { display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
+    .results-table { min-width: 1520px; table-layout: auto; }
+    .col-video { min-width: 460px; }
+    .col-channel { min-width: 260px; width: 280px; }
     th.sortable:hover { background-color: #e5e7eb; cursor: pointer; user-select: none; }
     .row-high { background-color: #fff7ed; border-left: 4px solid #f97316; }
     .row-breakout { background-color: #f0fdf4; border-left: 4px solid #16a34a; }
@@ -26,10 +29,10 @@
     <header class="mb-6 grid grid-cols-1 xl:grid-cols-[1fr_460px] gap-4 items-start">
       <div>
         <div class="flex flex-wrap items-center gap-3">
-          <h1 class="text-3xl font-extrabold text-indigo-950">시니어 롱폼 인사이트 v5.0</h1>
+          <h1 class="text-3xl font-extrabold text-indigo-950">유튜브 트렌드 인사이트 v5.8</h1>
           <span class="chip bg-indigo-100 text-indigo-800 border border-indigo-200">개인 리서치용</span>
         </div>
-        <p class="text-base text-slate-600 mt-2">쿼터 분리 표시 · 보안형 캐시 · 복합어 키워드 · 소재 후보 저장 · 성과 지표 강화</p>
+        <p class="text-base text-slate-600 mt-2">범용 유튜브 검색 · 리서치 모드 · 키워드 선택/저장 · 확장 검색 · 비교 분석 · MD/CSV 내보내기 · 히스토리 백업/복원 · 쿼터/캐시 선택 백업 · SUNO 초안</p>
       </div>
 
       <div class="soft-card p-4">
@@ -62,7 +65,7 @@
     <section class="soft-card p-5 mb-5 border-indigo-100">
       <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-3 mb-4">
         <div class="text-sm text-slate-600">
-          <strong class="text-slate-800">보안 메모:</strong> API 키는 코드·CSV·캐시 키에 넣지 않습니다. 체크할 때만 이 브라우저에 저장합니다.
+          <strong class="text-slate-800">보안 메모:</strong> API 키는 코드·내보내기 파일·캐시 키에 넣지 않습니다. 체크할 때만 이 브라우저에 저장합니다.
         </div>
         <div class="flex flex-wrap gap-2">
           <button id="btnDeleteKey" class="text-sm bg-white border border-slate-300 text-slate-700 px-3 py-1.5 rounded-lg hover:bg-slate-50 transition">API 키 삭제</button>
@@ -83,10 +86,19 @@
         <div class="col-span-1 md:col-span-2">
           <label for="q" class="block text-sm font-bold text-slate-700 mb-2">검색어</label>
           <div class="flex gap-2">
-            <input id="q" type="text" class="flex-1 rounded-xl border border-slate-300 focus:ring-indigo-500 p-3 text-base font-bold text-indigo-950 shadow-sm" placeholder="예: 60대 노후, 무릎 통증, 기초연금" />
+            <input id="q" type="text" class="flex-1 rounded-xl border border-slate-300 focus:ring-indigo-500 p-3 text-base font-bold text-indigo-950 shadow-sm" placeholder="예: playlist, lofi playlist, 기초연금, AI music" />
             <button id="btnAddSeed" class="px-4 bg-slate-900 text-white rounded-xl hover:bg-slate-800 font-bold">추천어</button>
           </div>
           <div id="seedBox" class="hidden mt-2 flex flex-wrap gap-2 text-sm"></div>
+        </div>
+
+        <div>
+          <label for="researchMode" class="block text-sm font-bold text-slate-700 mb-2">리서치 모드</label>
+          <select id="researchMode" class="w-full rounded-xl border border-slate-300 p-3 text-base shadow-sm bg-white">
+            <option value="general" selected>범용 트렌드</option>
+            <option value="music">AI 음악·플레이리스트</option>
+            <option value="senior">시니어 롱폼</option>
+          </select>
         </div>
 
         <div>
@@ -145,10 +157,19 @@
         </div>
       </div>
 
-      <div class="mt-6 grid grid-cols-1 md:grid-cols-[1fr_auto_auto] gap-3">
+      <div class="mt-6 grid grid-cols-1 md:grid-cols-[1fr_auto_auto_auto_auto] gap-3">
         <button id="btnSearch" class="bg-indigo-700 text-white py-3 rounded-xl hover:bg-indigo-800 font-bold text-lg shadow-md transition transform active:scale-95">분석 시작</button>
-        <button id="btnExport" class="px-8 bg-slate-800 text-white py-3 rounded-xl hover:bg-slate-900 font-bold text-lg shadow-md disabled:opacity-50" disabled>결과 CSV</button>
-        <button id="btnExportIdeas" class="px-8 bg-emerald-700 text-white py-3 rounded-xl hover:bg-emerald-800 font-bold text-lg shadow-md disabled:opacity-50" disabled>후보 CSV</button>
+        <button id="btnSaveComparison" class="px-6 bg-fuchsia-700 text-white py-3 rounded-xl hover:bg-fuchsia-800 font-bold text-lg shadow-md disabled:opacity-50" disabled>비교 저장</button>
+        <button id="btnExport" class="px-6 bg-slate-800 text-white py-3 rounded-xl hover:bg-slate-900 font-bold text-lg shadow-md disabled:opacity-50" disabled>결과 MD</button>
+        <button id="btnExportIdeas" class="px-6 bg-emerald-700 text-white py-3 rounded-xl hover:bg-emerald-800 font-bold text-lg shadow-md disabled:opacity-50" disabled>후보 MD</button>
+        <button id="btnExportFull" class="px-6 bg-violet-700 text-white py-3 rounded-xl hover:bg-violet-800 font-bold text-lg shadow-md disabled:opacity-50" disabled>통합 MD</button>
+      </div>
+      <div class="mt-3 flex flex-wrap items-center gap-2 text-sm">
+        <span class="font-bold text-slate-600 mr-1">CSV 보조 내보내기</span>
+        <button id="btnExportCsv" class="bg-white border border-slate-300 text-slate-700 px-3 py-1.5 rounded-lg hover:bg-slate-50 font-medium disabled:opacity-50" disabled>결과 CSV</button>
+        <button id="btnExportIdeasCsv" class="bg-white border border-emerald-200 text-emerald-700 px-3 py-1.5 rounded-lg hover:bg-emerald-50 font-medium disabled:opacity-50" disabled>후보 CSV</button>
+        <button id="btnExportFullCsv" class="bg-white border border-violet-200 text-violet-700 px-3 py-1.5 rounded-lg hover:bg-violet-50 font-medium disabled:opacity-50" disabled>요약 CSV</button>
+        <span class="text-xs text-slate-500">AI 협업은 MD, 엑셀 재가공은 CSV가 편합니다.</span>
       </div>
     </section>
 
@@ -178,7 +199,11 @@
     <section class="soft-card p-5 mb-5 bg-indigo-50 border-indigo-200">
       <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-4">
         <h2 class="text-lg font-black text-indigo-950">키워드·복합어 인사이트</h2>
-        <button id="btnCopyKeywords" class="text-sm bg-white border border-slate-300 px-3 py-1.5 rounded-lg hover:bg-slate-50 font-medium disabled:opacity-50" disabled>키워드 복사</button>
+        <div class="flex flex-wrap gap-2">
+          <button id="btnCopyKeywords" class="text-sm bg-white border border-slate-300 px-3 py-1.5 rounded-lg hover:bg-slate-50 font-medium disabled:opacity-50" disabled>키워드 복사</button>
+          <button id="btnExportKeywords" class="text-sm bg-white border border-emerald-200 text-emerald-700 px-3 py-1.5 rounded-lg hover:bg-emerald-50 font-medium disabled:opacity-50" disabled>선택 키워드 MD</button>
+          <button id="btnExportKeywordsCsv" class="text-sm bg-white border border-slate-300 text-slate-700 px-3 py-1.5 rounded-lg hover:bg-slate-50 font-medium disabled:opacity-50" disabled>선택 키워드 CSV</button>
+        </div>
       </div>
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <div>
@@ -190,6 +215,105 @@
           <div id="keywordBox" class="flex flex-wrap gap-2 min-h-[42px]"><span class="text-slate-500">검색 결과가 나오면 표시됩니다.</span></div>
         </div>
       </div>
+      <p class="text-xs text-slate-500 mt-4">키워드 칩을 클릭하면 검색어 입력이 아니라 아래 선택 키워드 보드에 저장되고, 그 키워드 중심의 확장 검색 후보가 생성됩니다.</p>
+    </section>
+
+    <section class="soft-card p-5 mb-5 bg-violet-50 border-violet-200">
+      <div class="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-3 mb-4">
+        <div>
+          <h2 class="text-lg font-black text-violet-950">제목 패턴 · SUNO 초안</h2>
+          <p class="text-sm text-slate-600 mt-1">상위 제목에서 반복되는 표현을 뽑고, 음악·플레이리스트 리서치용 SUNO 프롬프트 뼈대를 만듭니다.</p>
+        </div>
+        <div class="flex flex-wrap gap-2">
+          <button id="btnBuildSunoPrompt" class="text-sm bg-white border border-violet-200 text-violet-800 px-3 py-1.5 rounded-lg hover:bg-violet-100 font-bold disabled:opacity-50" disabled>SUNO 초안 새로 만들기</button>
+          <button id="btnCopySunoPrompt" class="text-sm bg-white border border-slate-300 px-3 py-1.5 rounded-lg hover:bg-slate-50 font-medium disabled:opacity-50" disabled>초안 복사</button>
+        </div>
+      </div>
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div>
+          <h3 class="text-sm font-bold text-slate-700 mb-2">제목 패턴 추출</h3>
+          <div id="titlePatternBox" class="flex flex-wrap gap-2 min-h-[48px]"><span class="text-slate-500">검색 결과가 나오면 제목 패턴이 표시됩니다.</span></div>
+          <p class="text-xs text-slate-500 mt-3">패턴 칩을 클릭하면 선택 키워드로 저장됩니다.</p>
+        </div>
+        <div>
+          <div class="flex justify-between items-center mb-2 gap-3">
+            <h3 class="text-sm font-bold text-slate-700">SUNO 프롬프트 초안</h3>
+            <span id="sunoPromptSeed" class="text-xs text-violet-700 font-bold truncate"></span>
+          </div>
+          <textarea id="sunoPromptBox" rows="8" class="w-full rounded-xl border border-violet-200 p-3 text-sm shadow-sm bg-white mono" readonly placeholder="AI 음악·플레이리스트 모드에서 검색하면 초안이 표시됩니다."></textarea>
+        </div>
+      </div>
+    </section>
+
+    <section class="soft-card p-5 mb-5 bg-fuchsia-50 border-fuchsia-200">
+      <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-4">
+        <div>
+          <h2 class="text-lg font-black text-fuchsia-950">검색 결과 비교</h2>
+          <p class="text-sm text-slate-600 mt-1">예: lofi playlist, sleep music, study music을 각각 검색한 뒤 비교 저장하면 한 화면에서 후보성을 비교할 수 있습니다.</p>
+        </div>
+        <div class="flex flex-wrap gap-2">
+          <button id="btnExportComparisons" class="text-sm bg-white border border-fuchsia-200 text-fuchsia-800 px-3 py-1.5 rounded-lg hover:bg-fuchsia-100 disabled:opacity-50" disabled>비교 MD</button>
+          <button id="btnExportComparisonsCsv" class="text-sm bg-white border border-slate-300 text-slate-700 px-3 py-1.5 rounded-lg hover:bg-slate-50 disabled:opacity-50" disabled>비교 CSV</button>
+          <button id="btnClearComparisons" class="text-sm bg-white border border-red-200 text-red-600 px-3 py-1.5 rounded-lg hover:bg-red-50 disabled:opacity-50" disabled>비교 비우기</button>
+        </div>
+      </div>
+      <div id="comparisonBox" class="overflow-x-auto"><div class="text-slate-500">비교 저장한 검색 결과가 없습니다.</div></div>
+    </section>
+
+    <section class="soft-card p-5 mb-5 bg-emerald-50 border-emerald-200">
+      <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-4">
+        <h2 class="text-lg font-black text-emerald-950">선택 키워드 보드</h2>
+        <div class="flex flex-wrap gap-2">
+          <button id="btnClearSelectedKeywords" class="text-sm bg-white border border-red-200 text-red-600 px-3 py-1.5 rounded-lg hover:bg-red-50 disabled:opacity-50" disabled>선택 키워드 비우기</button>
+        </div>
+      </div>
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div>
+          <h3 class="text-sm font-bold text-slate-700 mb-2">저장한 키워드</h3>
+          <div id="selectedKeywordBox" class="flex flex-wrap gap-2 min-h-[44px]"><span class="text-slate-500">추출 키워드를 클릭하면 이곳에 저장됩니다.</span></div>
+        </div>
+        <div>
+          <h3 class="text-sm font-bold text-slate-700 mb-2">선택 키워드 중심 확장 후보</h3>
+          <div id="expansionBox" class="flex flex-wrap gap-2 min-h-[44px]"><span class="text-slate-500">저장 키워드를 선택하면 확장 후보가 표시됩니다.</span></div>
+        </div>
+      </div>
+      <div class="mt-4 grid grid-cols-1 md:grid-cols-[1fr_auto_auto] gap-3">
+        <input id="manualKeyword" type="text" class="rounded-xl border border-slate-300 p-3 text-base shadow-sm" placeholder="직접 저장할 키워드: 예) deep sleep music, AI playlist, 기초연금" />
+        <button id="btnAddManualKeyword" class="px-5 bg-emerald-700 text-white rounded-xl hover:bg-emerald-800 font-bold">직접 추가</button>
+        <button id="btnSearchActiveKeyword" class="px-5 bg-slate-900 text-white rounded-xl hover:bg-slate-800 font-bold disabled:opacity-50" disabled>선택 키워드 검색</button>
+      </div>
+    </section>
+
+    <section class="soft-card p-5 mb-5 bg-amber-50 border-amber-200">
+      <div class="flex flex-col xl:flex-row xl:justify-between xl:items-start gap-3 mb-4">
+        <div>
+          <h2 class="text-lg font-black text-amber-950">히스토리 뷰어</h2>
+          <p class="text-sm text-slate-600 mt-1">검색 시점을 브라우저에 임시 저장합니다. 보존할 항목은 MD/CSV로 내보내고, 불필요한 항목은 삭제하면 됩니다.</p>
+        </div>
+        <div class="flex flex-wrap gap-2">
+          <label class="inline-flex items-center gap-2 bg-white border border-amber-200 rounded-lg px-3 py-1.5 text-sm text-slate-700 select-none">
+            <input id="autoHistory" type="checkbox" checked>
+            검색 후 자동 저장
+          </label>
+          <label class="inline-flex items-center gap-2 bg-white border border-blue-200 rounded-lg px-3 py-1.5 text-sm text-slate-700 select-none" title="실제 YouTube 서버 할당량이 아니라 이 도구가 화면에 표시하는 추정 사용량만 백업합니다.">
+            <input id="backupQuotaEstimate" type="checkbox" checked>
+            쿼터 추정치 포함
+          </label>
+          <label class="inline-flex items-center gap-2 bg-white border border-purple-200 rounded-lg px-3 py-1.5 text-sm text-slate-700 select-none" title="24시간 이내의 YouTube API 응답 캐시만 백업합니다. 파일 크기가 커질 수 있어 필요할 때만 켜는 것을 권장합니다.">
+            <input id="backupApiCache" type="checkbox">
+            API 캐시 포함
+          </label>
+          <button id="btnSaveHistory" class="text-sm bg-amber-700 text-white px-3 py-1.5 rounded-lg hover:bg-amber-800 font-bold disabled:opacity-50" disabled>현재 히스토리 저장</button>
+          <button id="btnExportHistoryMd" class="text-sm bg-white border border-amber-200 text-amber-800 px-3 py-1.5 rounded-lg hover:bg-amber-100 disabled:opacity-50" disabled>히스토리 전체 MD</button>
+          <button id="btnExportHistoryCsv" class="text-sm bg-white border border-slate-300 text-slate-700 px-3 py-1.5 rounded-lg hover:bg-slate-50 disabled:opacity-50" disabled>히스토리 전체 CSV</button>
+          <button id="btnExportBackupJson" class="text-sm bg-white border border-blue-200 text-blue-700 px-3 py-1.5 rounded-lg hover:bg-blue-50 disabled:opacity-50" disabled>백업 JSON</button>
+          <label for="fileImportBackup" class="text-sm bg-white border border-blue-200 text-blue-700 px-3 py-1.5 rounded-lg hover:bg-blue-50 font-bold cursor-pointer">백업 가져오기</label>
+          <input id="fileImportBackup" type="file" accept=".json,application/json" class="hidden" />
+          <button id="btnClearHistory" class="text-sm bg-white border border-red-200 text-red-600 px-3 py-1.5 rounded-lg hover:bg-red-50 disabled:opacity-50" disabled>히스토리 비우기</button>
+        </div>
+      </div>
+      <div id="historyBox" class="space-y-3"><div class="text-slate-500">아직 저장된 히스토리가 없습니다.</div></div>
+      <p class="text-xs text-slate-500 mt-3">이 히스토리는 현재 브라우저의 로컬 저장소에만 남습니다. 브라우저 변경·PC 포맷 전에 백업 JSON을 내려받아두면 다른 브라우저에서도 다시 가져올 수 있습니다. 쿼터 추정치는 백업에 포함할 수 있지만, 날짜가 다른 백업은 가져오기 시 자동으로 적용하지 않습니다. API 캐시는 선택한 경우에만 포함되며, 24시간이 지난 항목은 가져오기 때 자동으로 버립니다.</p>
     </section>
 
     <section class="soft-card p-5 mb-5">
@@ -224,21 +348,22 @@
 
     <section class="soft-card overflow-hidden">
       <div class="overflow-x-auto">
-        <table class="w-full text-left">
+        <table class="results-table w-full text-left">
           <thead class="bg-slate-100 text-slate-700 uppercase text-sm border-b-2 border-slate-200">
             <tr>
-              <th class="p-4 sortable min-w-[420px]" data-sort="title">영상 정보 <span id="sortIcon-title"></span></th>
-              <th class="p-4 w-44 sortable" data-sort="subCount">채널/구독자 <span id="sortIcon-subCount"></span></th>
+              <th class="p-4 sortable col-video" data-sort="title">영상 정보 <span id="sortIcon-title"></span></th>
+              <th class="p-4 sortable col-channel" data-sort="subCount">채널/구독자 <span id="sortIcon-subCount"></span></th>
               <th class="p-4 w-32 text-center sortable" data-sort="vsRatio">V/S <span id="sortIcon-vsRatio"></span></th>
               <th class="p-4 w-36 text-right sortable" data-sort="viewCount">조회수 <span id="sortIcon-viewCount"></span></th>
               <th class="p-4 w-36 text-right sortable" data-sort="viewsPerDay">일평균 <span id="sortIcon-viewsPerDay"></span></th>
+              <th class="p-4 w-32 text-center sortable" data-sort="playlistScore">P-점수 <span id="sortIcon-playlistScore"></span></th>
               <th class="p-4 w-28 text-center sortable" data-sort="durationSec">길이 <span id="sortIcon-durationSec"></span></th>
               <th class="p-4 w-32 text-center sortable" data-sort="publishedAt">업로드 <span id="sortIcon-publishedAt"></span></th>
               <th class="p-4 w-24 text-center">저장</th>
             </tr>
           </thead>
           <tbody id="tbody" class="divide-y divide-slate-100 text-base">
-            <tr><td colspan="8" class="p-8 text-center text-slate-500">검색 결과가 이곳에 표시됩니다.</td></tr>
+            <tr><td colspan="9" class="p-8 text-center text-slate-500">검색 결과가 이곳에 표시됩니다.</td></tr>
           </tbody>
         </table>
       </div>
@@ -248,12 +373,17 @@
   <script>
     'use strict';
 
-    const APP_VERSION = '5.0';
+    const APP_VERSION = '5.8';
     const CACHE_PREFIX = 'ytlf_cache_v5_';
     const QUOTA_KEY = 'ytlf_quota_v5';
     const SAVED_KEY = 'ytlf_api_key_v5';
     const SESSIONS_KEY = 'ytlf_sessions_v5';
     const FAVORITES_KEY = 'ytlf_favorites_v5';
+    const SELECTED_KEYWORDS_KEY = 'ytlf_selected_keywords_v5';
+    const COMPARISONS_KEY = 'ytlf_comparisons_v5';
+    const PLANNING_KEY = 'ytlf_planning_notes_v5';
+    const HISTORY_KEY = 'ytlf_history_v5';
+    const AUTO_HISTORY_KEY = 'ytlf_auto_history_v5';
     const SEARCH_LIMIT = 100;
     const DETAIL_LIMIT = 10000;
     const CACHE_TTL = 1000 * 60 * 60 * 24;
@@ -262,6 +392,7 @@
       apiKey: document.getElementById('apiKey'),
       rememberKey: document.getElementById('rememberKey'),
       q: document.getElementById('q'),
+      researchMode: document.getElementById('researchMode'),
       order: document.getElementById('order'),
       videoDuration: document.getElementById('videoDuration'),
       datePreset: document.getElementById('datePreset'),
@@ -272,18 +403,50 @@
       btnSearch: document.getElementById('btnSearch'),
       btnExport: document.getElementById('btnExport'),
       btnExportIdeas: document.getElementById('btnExportIdeas'),
+      btnExportFull: document.getElementById('btnExportFull'),
+      btnExportCsv: document.getElementById('btnExportCsv'),
+      btnExportIdeasCsv: document.getElementById('btnExportIdeasCsv'),
+      btnExportFullCsv: document.getElementById('btnExportFullCsv'),
+      btnSaveComparison: document.getElementById('btnSaveComparison'),
+      btnExportComparisons: document.getElementById('btnExportComparisons'),
+      btnExportComparisonsCsv: document.getElementById('btnExportComparisonsCsv'),
+      btnClearComparisons: document.getElementById('btnClearComparisons'),
       btnCopyKeywords: document.getElementById('btnCopyKeywords'),
+      btnExportKeywords: document.getElementById('btnExportKeywords'),
+      btnExportKeywordsCsv: document.getElementById('btnExportKeywordsCsv'),
+      btnBuildSunoPrompt: document.getElementById('btnBuildSunoPrompt'),
+      btnCopySunoPrompt: document.getElementById('btnCopySunoPrompt'),
+      btnClearSelectedKeywords: document.getElementById('btnClearSelectedKeywords'),
+      btnAddManualKeyword: document.getElementById('btnAddManualKeyword'),
+      btnSearchActiveKeyword: document.getElementById('btnSearchActiveKeyword'),
       btnClearCache: document.getElementById('btnClearCache'),
       btnDeleteKey: document.getElementById('btnDeleteKey'),
       btnAddSeed: document.getElementById('btnAddSeed'),
       btnClearFavorites: document.getElementById('btnClearFavorites'),
       btnClearSessions: document.getElementById('btnClearSessions'),
+      btnSaveHistory: document.getElementById('btnSaveHistory'),
+      btnExportHistoryMd: document.getElementById('btnExportHistoryMd'),
+      btnExportHistoryCsv: document.getElementById('btnExportHistoryCsv'),
+      btnExportBackupJson: document.getElementById('btnExportBackupJson'),
+      fileImportBackup: document.getElementById('fileImportBackup'),
+      btnClearHistory: document.getElementById('btnClearHistory'),
       seedBox: document.getElementById('seedBox'),
       phraseBox: document.getElementById('phraseBox'),
       keywordBox: document.getElementById('keywordBox'),
+      selectedKeywordBox: document.getElementById('selectedKeywordBox'),
+      expansionBox: document.getElementById('expansionBox'),
+      titlePatternBox: document.getElementById('titlePatternBox'),
+      sunoPromptBox: document.getElementById('sunoPromptBox'),
+      sunoPromptSeed: document.getElementById('sunoPromptSeed'),
+      comparisonBox: document.getElementById('comparisonBox'),
+      manualKeyword: document.getElementById('manualKeyword'),
       ideasBox: document.getElementById('ideasBox'),
       favoritesBox: document.getElementById('favoritesBox'),
       sessionsBox: document.getElementById('sessionsBox'),
+      historyBox: document.getElementById('historyBox'),
+      autoHistory: document.getElementById('autoHistory'),
+      backupQuotaEstimate: document.getElementById('backupQuotaEstimate'),
+      backupApiCache: document.getElementById('backupApiCache'),
       tbody: document.getElementById('tbody'),
       quotaSearchText: document.getElementById('quotaSearchText'),
       quotaSearchBar: document.getElementById('quotaSearchBar'),
@@ -304,23 +467,64 @@
     let currentIdeas = [];
     let currentKeywords = [];
     let currentPhrases = [];
+    let currentPatterns = [];
+    let activeKeyword = null;
+    let currentExpansions = [];
     let currentSort = { key: null, order: 'asc' };
 
-    const seedQueries = [
-      '60대 노후 준비', '기초연금 수급', '국민연금 노후', '노후 파산', '요양병원 비용',
-      '무릎 통증 운동', '허리 통증 스트레칭', '당뇨 식단', '혈압 관리', '치매 예방',
-      '자식 갈등 노후', '황혼 이혼', '고독사 예방', '상속 분쟁', '주택연금'
+    const commonPhraseDictionary = [
+      '초보자 가이드', '돈 버는 법', '부업', '수익화', '자동화', '무료 강의', '튜토리얼', '추천', '후기', '리뷰',
+      'playlist', 'music playlist', 'lofi playlist', 'sleep music', 'study music', 'relaxing music', 'meditation music', 'ai music'
     ];
 
-    const basePhraseDictionary = [
-      '노후 준비', '기초연금', '국민연금', '노후 파산', '퇴직금', '생활비', '주택연금', '상속 분쟁', '부동산 상속',
-      '요양병원', '요양원', '간병비', '간병 보험', '치매 예방', '치매 증상', '무릎 통증', '허리 통증', '관절염', '당뇨 식단', '혈압 관리',
-      '자식 갈등', '부모 부양', '황혼 이혼', '사별 후', '외로움', '고독사', '재혼', '친구 만들기',
-      '스마트폰 사용법', '카카오톡 사용법', '임영웅', '트로트', '건강검진', '정부 지원금', '복지 혜택'
-    ];
+    const researchModes = {
+      general: {
+        label: '범용 트렌드',
+        seeds: [
+          'playlist', 'lofi playlist', 'sleep music', 'study playlist', 'relaxing music',
+          'AI music', '부업', '수익화', '초보자 가이드', '무료 강의', 'tutorial', 'how to'
+        ],
+        phrases: [
+          'playlist', 'lofi playlist', 'sleep music', 'study playlist', 'relaxing music', 'meditation music',
+          'AI music', 'royalty free music', 'background music', '부업', '수익화', '초보자 가이드', '무료 강의'
+        ]
+      },
+      music: {
+        label: 'AI 음악·플레이리스트',
+        seeds: [
+          'lofi playlist', 'sleep music playlist', 'study music playlist', 'relaxing piano music', 'meditation music',
+          'rain sounds sleep music', 'ambient music playlist', 'healing music playlist', 'jazz cafe playlist', 'AI generated music'
+        ],
+        phrases: [
+          'lofi playlist', 'sleep music', 'study music', 'relaxing music', 'meditation music', 'healing music',
+          'ambient music', 'piano music', 'jazz cafe', 'rain sounds', 'deep sleep', 'focus music', 'calm music',
+          'background music', 'royalty free music', 'AI generated music', 'AI music', 'music playlist'
+        ]
+      },
+      senior: {
+        label: '시니어 롱폼',
+        seeds: [
+          '60대 노후 준비', '기초연금 수급', '국민연금 노후', '노후 파산', '요양병원 비용',
+          '무릎 통증 운동', '허리 통증 스트레칭', '당뇨 식단', '혈압 관리', '치매 예방',
+          '자식 갈등 노후', '황혼 이혼', '고독사 예방', '상속 분쟁', '주택연금'
+        ],
+        phrases: [
+          '노후 준비', '기초연금', '국민연금', '노후 파산', '퇴직금', '생활비', '주택연금', '상속 분쟁', '부동산 상속',
+          '요양병원', '요양원', '간병비', '간병 보험', '치매 예방', '치매 증상', '무릎 통증', '허리 통증', '관절염', '당뇨 식단', '혈압 관리',
+          '자식 갈등', '부모 부양', '황혼 이혼', '사별 후', '외로움', '고독사', '재혼', '친구 만들기',
+          '스마트폰 사용법', '카카오톡 사용법', '임영웅', '트로트', '건강검진', '정부 지원금', '복지 혜택'
+        ]
+      }
+    };
+
+    const expansionPresets = {
+      general: ['trend', 'tutorial', 'review', 'how to', 'beginner', '2026', '추천', '비교', '후기', '수익화', '초보자', '무료', '자동화', '아이디어'],
+      music: ['playlist', 'music', 'sleep music', 'study music', 'deep sleep', 'focus', 'relaxing', 'ambient', 'rain sounds', 'lofi', 'piano', 'jazz cafe', 'no vocals', '3 hours', '10 hours', 'background music', 'AI generated'],
+      senior: ['노후', '60대', '70대', '정부 지원', '복지', '건강', '운동', '식단', '돈', '생활비', '연금', '자식', '혼자', '예방', '비용', '방법', '주의사항']
+    };
 
     const stopWords = new Set([
-      '영상','시니어','건강','유튜브','하는','합니다','있는','입니다','그리고','에서','으로','까지','정말','진짜','방법','이유','가지','티비','TV','오늘','이번','추천','사람','때문','바로','이렇게','저렇게','그런','이런','많은','대한','통해','위해','하면','해서','보다','가장','모든','우리','여러분','알아야','절대','꼭','반드시','공개','최초','최신'
+      '영상','시니어','건강','유튜브','하는','합니다','있는','입니다','그리고','에서','으로','까지','정말','진짜','방법','이유','가지','티비','TV','오늘','이번','추천','사람','때문','바로','이렇게','저렇게','그런','이런','많은','대한','통해','위해','하면','해서','보다','가장','모든','우리','여러분','알아야','절대','꼭','반드시','공개','최초','최신','the','and','with','for','from','your','you','how','what','why','this','that','official','video','full','new','best','mix','live','hour','hours'
     ]);
 
     function decodeEntities(str) {
@@ -383,6 +587,86 @@
       q[kind] += amount;
       writeJSON(QUOTA_KEY, q);
       updateQuotaUI();
+    }
+
+    function quotaEstimateSnapshot() {
+      const q = getQuota();
+      return {
+        date: q.date,
+        search: Number(q.search || 0),
+        detail: Number(q.detail || 0),
+        searchLimit: SEARCH_LIMIT,
+        detailLimit: DETAIL_LIMIT,
+        timezoneBasis: 'America/Los_Angeles',
+        meaning: '이 값은 실제 YouTube 서버 잔여 할당량이 아니라 이 웹툴이 로컬에서 추적한 추정 사용량입니다.'
+      };
+    }
+
+    function applyQuotaEstimateSnapshot(snapshot) {
+      if (!snapshot || typeof snapshot !== 'object') return { applied: false, reason: 'no_snapshot' };
+      const today = ptDateString();
+      if (snapshot.date !== today) {
+        return { applied: false, reason: 'date_mismatch', backupDate: snapshot.date, today };
+      }
+      const restored = {
+        date: today,
+        search: Math.max(0, Number(snapshot.search || 0)),
+        detail: Math.max(0, Number(snapshot.detail || 0))
+      };
+      writeJSON(QUOTA_KEY, restored);
+      updateQuotaUI();
+      return { applied: true, restored };
+    }
+
+    function apiCacheSnapshot() {
+      const now = Date.now();
+      const entries = [];
+      Object.keys(localStorage).forEach(key => {
+        if (!key.startsWith(CACHE_PREFIX)) return;
+        try {
+          const cached = JSON.parse(localStorage.getItem(key) || 'null');
+          if (!cached || typeof cached !== 'object') return;
+          const timestamp = Number(cached.timestamp || 0);
+          if (!timestamp || now - timestamp >= CACHE_TTL) return;
+          entries.push({
+            key,
+            timestamp,
+            expiresAt: new Date(timestamp + CACHE_TTL).toISOString(),
+            data: cached.data
+          });
+        } catch {
+          // 손상된 캐시는 백업하지 않습니다.
+        }
+      });
+      return {
+        ttlMs: CACHE_TTL,
+        exportedAt: new Date().toISOString(),
+        count: entries.length,
+        entries,
+        meaning: 'API 키는 포함하지 않습니다. 24시간 이내의 YouTube API 응답 캐시만 포함합니다.'
+      };
+    }
+
+    function applyApiCacheSnapshot(snapshot) {
+      if (!snapshot || typeof snapshot !== 'object' || !Array.isArray(snapshot.entries)) {
+        return { applied: 0, skipped: 0, reason: 'no_snapshot' };
+      }
+      const now = Date.now();
+      let applied = 0;
+      let skipped = 0;
+      snapshot.entries.forEach(entry => {
+        try {
+          if (!entry || typeof entry.key !== 'string' || !entry.key.startsWith(CACHE_PREFIX)) { skipped++; return; }
+          const timestamp = Number(entry.timestamp || 0);
+          if (!timestamp || now - timestamp >= CACHE_TTL) { skipped++; return; }
+          if (!entry.data || typeof entry.data !== 'object') { skipped++; return; }
+          localStorage.setItem(entry.key, JSON.stringify({ timestamp, data: entry.data }));
+          applied++;
+        } catch {
+          skipped++;
+        }
+      });
+      return { applied, skipped };
     }
 
     function cacheKeyFor(endpoint, params) {
@@ -457,9 +741,38 @@
       return word.replace(/(은|는|이|가|을|를|의|와|과|도|로|에|서|에게|께서|부터|까지|처럼|보다|만|만큼|라면|이라면|하고|하고는)$/u, '');
     }
 
+    function getModeConfig() {
+      return researchModes[els.researchMode.value] || researchModes.general;
+    }
+
     function getAllPhrases() {
       const custom = els.customPhrases.value.split(',').map(v => v.trim()).filter(Boolean);
-      return [...new Set([...basePhraseDictionary, ...custom])];
+      return [...new Set([...commonPhraseDictionary, ...getModeConfig().phrases, ...custom])];
+    }
+
+    function playlistScore(item) {
+      const title = String(item.title || '').toLowerCase();
+      const desc = String(item.desc || '').toLowerCase();
+      const text = `${title} ${desc}`;
+      const minutes = item.durationSec / 60;
+      let score = 0;
+
+      if (/playlist|mix|music|lofi|ambient|piano|jazz|rain|sleep|study|focus|relax|meditation|healing/.test(text)) score += 18;
+      if (/sleep|deep sleep|black screen|rain sounds|white noise|calm/.test(text)) score += 14;
+      if (/study|focus|work|coding|concentration/.test(text)) score += 11;
+      if (/relax|meditation|healing|peaceful|cozy/.test(text)) score += 10;
+      if (/no vocals|instrumental|background music|royalty free|copyright free/.test(text)) score += 9;
+      if (/\b(3|4|6|8|10|12|24)\s*(hour|hours|hr|hrs)\b/.test(text)) score += 12;
+
+      if (minutes >= 180) score += 18;
+      else if (minutes >= 60) score += 14;
+      else if (minutes >= 20) score += 8;
+      else if (minutes < 8) score -= 8;
+
+      score += Math.min(item.vsRatio, 6) * 5;
+      score += Math.log10(item.viewsPerDay + 10) * 8;
+      if (item.subCount > 0 && item.subCount < 50000 && item.viewCount >= 50000) score += 8;
+      return Math.max(0, Math.round(score));
     }
 
     function potentialScore(item) {
@@ -468,7 +781,8 @@
       const viewScore = Math.log10(item.viewCount + 10) * 8;
       const smallChannelBonus = item.subCount > 0 && item.subCount < 50000 && item.vsRatio >= 1.2 ? 15 : 0;
       const longFormBonus = item.durationSec >= 20 * 60 ? 8 : 0;
-      return Math.round(ratioScore + velocityScore + viewScore + smallChannelBonus + longFormBonus);
+      const musicBonus = els.researchMode.value === 'music' ? Math.min(playlistScore(item), 100) * 0.25 : 0;
+      return Math.round(ratioScore + velocityScore + viewScore + smallChannelBonus + longFormBonus + musicBonus);
     }
 
     function classifyItem(item) {
@@ -511,8 +825,10 @@
         durationSec,
         durationText: formatDuration(durationSec),
         score: 0,
+        playlistScore: 0,
         reason: ''
       };
+      out.playlistScore = playlistScore(out);
       out.score = potentialScore(out);
       out.reason = reasonFor(out);
       return out;
@@ -534,7 +850,7 @@
 
       els.btnSearch.disabled = true;
       els.btnSearch.textContent = '데이터 분석 중...';
-      els.tbody.innerHTML = '<tr><td colspan="8" class="p-8 text-center text-lg text-slate-500">YouTube 데이터를 가져오는 중입니다...</td></tr>';
+      els.tbody.innerHTML = '<tr><td colspan="9" class="p-8 text-center text-lg text-slate-500">YouTube 데이터를 가져오는 중입니다...</td></tr>';
 
       try {
         const maxResults = parseInt(els.maxResults.value, 10);
@@ -584,10 +900,11 @@
         updateSortIcons();
         renderAll(q);
         saveSession(q);
+        if (els.autoHistory?.checked) saveHistorySnapshot(false);
       } catch (err) {
         console.error(err);
         alert('오류 발생: ' + err.message);
-        els.tbody.innerHTML = '<tr><td colspan="8" class="p-8 text-center text-red-600 font-bold">오류가 발생했습니다. 콘솔 또는 API 키 제한 설정을 확인해 주세요.</td></tr>';
+        els.tbody.innerHTML = '<tr><td colspan="9" class="p-8 text-center text-red-600 font-bold">오류가 발생했습니다. 콘솔 또는 API 키 제한 설정을 확인해 주세요.</td></tr>';
       } finally {
         els.btnSearch.disabled = false;
         els.btnSearch.textContent = '분석 시작';
@@ -601,8 +918,20 @@
       renderTable(currentData);
       renderFavorites();
       renderSessions();
+      renderSelectedKeywords();
+      renderExpansions(activeKeyword);
+      renderTitlePatterns();
+      renderSunoPrompt();
+      renderComparisons();
+      renderHistory();
       els.btnExport.disabled = currentData.length === 0;
       els.btnExportIdeas.disabled = currentIdeas.length === 0;
+      els.btnExportFull.disabled = currentData.length === 0;
+      els.btnExportCsv.disabled = currentData.length === 0;
+      els.btnExportIdeasCsv.disabled = currentIdeas.length === 0;
+      els.btnExportFullCsv.disabled = currentData.length === 0;
+      els.btnSaveComparison.disabled = currentData.length === 0;
+      els.btnSaveHistory.disabled = currentData.length === 0;
     }
 
     function renderStats(query) {
@@ -670,12 +999,441 @@
           ? 'chip bg-emerald-50 border border-emerald-200 text-emerald-900 hover:bg-emerald-100'
           : 'chip bg-indigo-50 border border-indigo-200 text-indigo-900 hover:bg-indigo-100';
         chip.textContent = `${word} ${count}`;
+        chip.title = '클릭하면 선택 키워드로 저장하고 확장 후보를 만듭니다.';
         chip.addEventListener('click', () => {
-          els.q.value = word;
-          els.q.focus();
+          saveSelectedKeyword(word, color === 'emerald' ? 'phrase' : 'word', count);
         });
         box.appendChild(chip);
       });
+    }
+
+
+    function readSelectedKeywords() {
+      return readJSON(SELECTED_KEYWORDS_KEY, []);
+    }
+
+    function saveSelectedKeyword(word, type = 'manual', count = 0) {
+      const term = String(word || '').trim();
+      if (!term) return;
+      const selected = readSelectedKeywords();
+      const now = new Date().toISOString();
+      const existing = selected.find(k => k.term.toLowerCase() === term.toLowerCase());
+      if (existing) {
+        existing.lastSelectedAt = now;
+        existing.count = Math.max(Number(existing.count || 0), Number(count || 0));
+        existing.type = existing.type || type;
+        existing.mode = els.researchMode.value;
+        activeKeyword = existing.term;
+      } else {
+        selected.unshift({
+          term,
+          type,
+          count: Number(count || 0),
+          mode: els.researchMode.value,
+          sourceQuery: els.q.value.trim(),
+          selectedAt: now,
+          lastSelectedAt: now
+        });
+        activeKeyword = term;
+      }
+      writeJSON(SELECTED_KEYWORDS_KEY, selected.slice(0, 150));
+      renderSelectedKeywords();
+      renderExpansions(activeKeyword);
+      renderTitlePatterns();
+      renderSunoPrompt();
+      renderComparisons();
+    }
+
+    function removeSelectedKeyword(term) {
+      const selected = readSelectedKeywords().filter(k => k.term !== term);
+      writeJSON(SELECTED_KEYWORDS_KEY, selected);
+      if (activeKeyword === term) activeKeyword = selected[0]?.term || null;
+      renderSelectedKeywords();
+      renderExpansions(activeKeyword);
+      renderTitlePatterns();
+      renderSunoPrompt();
+      renderComparisons();
+    }
+
+    function extractContextTermsFor(seed) {
+      const normalizedSeed = String(seed || '').toLowerCase();
+      if (!normalizedSeed || !currentData.length) return [];
+      const matched = currentData.filter(item => (`${item.title} ${item.desc}`).toLowerCase().includes(normalizedSeed));
+      const source = matched.length ? matched : currentData;
+      const text = source.map(i => `${i.title} ${i.desc}`).join(' ');
+      const lowerText = text.toLowerCase();
+      const phraseCounts = {};
+      getAllPhrases().forEach(phrase => {
+        const term = phrase.trim();
+        if (!term || term.toLowerCase() === normalizedSeed) return;
+        if (normalizedSeed.includes(term.toLowerCase()) || term.toLowerCase().includes(normalizedSeed)) return;
+        const escaped = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const re = new RegExp(escaped, 'gi');
+        const matches = lowerText.match(re);
+        if (matches?.length) phraseCounts[term] = matches.length;
+      });
+
+      const words = text.replace(/https?:\/\/\S+/g, ' ').replace(/[^\w가-힣\s]/g, ' ').split(/\s+/);
+      const wordCounts = {};
+      words.forEach(w => {
+        let clean = cleanKoreanWord(w.trim());
+        if (!clean || clean.length < 2) return;
+        const lower = clean.toLowerCase();
+        if (/^\d+$/.test(clean)) return;
+        if (stopWords.has(clean) || stopWords.has(lower)) return;
+        if (lower === normalizedSeed || normalizedSeed.includes(lower) || lower.includes(normalizedSeed)) return;
+        wordCounts[clean] = (wordCounts[clean] || 0) + 1;
+      });
+
+      const merged = [
+        ...Object.entries(phraseCounts).map(([term, count]) => ({ term, count, kind: 'phrase' })),
+        ...Object.entries(wordCounts).map(([term, count]) => ({ term, count, kind: 'word' }))
+      ];
+      return merged
+        .sort((a, b) => b.count - a.count || a.term.localeCompare(b.term, 'ko'))
+        .slice(0, 18);
+    }
+
+    function isMostlyEnglish(text) {
+      const letters = String(text).replace(/[^A-Za-z가-힣]/g, '');
+      if (!letters) return false;
+      const latin = (letters.match(/[A-Za-z]/g) || []).length;
+      return latin / letters.length >= 0.55;
+    }
+
+    function buildKeywordExpansions(seed) {
+      if (!seed) return [];
+      const base = String(seed).trim();
+      const mode = els.researchMode.value;
+      const presets = expansionPresets[mode] || expansionPresets.general;
+      const contextTerms = extractContextTermsFor(base);
+      const english = isMostlyEnglish(base);
+      const candidates = [];
+      const add = (query, reason, score = 1) => {
+        const q = String(query || '').replace(/\s+/g, ' ').trim();
+        if (!q) return;
+        if (q.toLowerCase() === base.toLowerCase()) return;
+        if (candidates.some(c => c.query.toLowerCase() === q.toLowerCase())) return;
+        candidates.push({ query: q, reason, score });
+      };
+
+      contextTerms.forEach(t => {
+        add(`${base} ${t.term}`, `검색 결과 동반어 ${t.count}회`, 10 + t.count);
+        if (!english && t.kind === 'phrase') add(`${t.term} ${base}`, `역순 조합`, 8 + t.count);
+      });
+
+      presets.forEach((term, idx) => {
+        if (base.toLowerCase().includes(String(term).toLowerCase())) return;
+        add(`${base} ${term}`, `${getModeConfig().label} 확장`, 7 - Math.min(idx, 6) * 0.4);
+      });
+
+      // AI 음악/플레이리스트 모드에서는 사용 상황 중심 조합을 약간 더 보강합니다.
+      if (mode === 'music') {
+        ['for sleep', 'for study', 'for work', 'for relaxation', 'no vocals', 'calm background', 'deep focus', 'rainy night'].forEach(term => add(`${base} ${term}`, '사용 상황 확장', 6));
+      }
+
+      return candidates.sort((a, b) => b.score - a.score || a.query.localeCompare(b.query)).slice(0, 28);
+    }
+
+    function renderSelectedKeywords() {
+      const selected = readSelectedKeywords();
+      els.selectedKeywordBox.innerHTML = '';
+      els.btnClearSelectedKeywords.disabled = selected.length === 0;
+      els.btnExportKeywords.disabled = selected.length === 0;
+      els.btnExportKeywordsCsv.disabled = selected.length === 0;
+      if (!selected.length) {
+        const span = document.createElement('span');
+        span.className = 'text-slate-500';
+        span.textContent = '추출 키워드를 클릭하면 이곳에 저장됩니다.';
+        els.selectedKeywordBox.appendChild(span);
+        activeKeyword = null;
+        return;
+      }
+      if (!activeKeyword) activeKeyword = selected[0].term;
+      selected.slice(0, 40).forEach(k => {
+        const wrap = document.createElement('span');
+        wrap.className = `inline-flex items-center gap-1 rounded-xl border px-2.5 py-1.5 text-sm font-bold ${activeKeyword === k.term ? 'bg-emerald-700 text-white border-emerald-700' : 'bg-white text-emerald-900 border-emerald-200'}`;
+        const main = document.createElement('button');
+        main.type = 'button';
+        main.textContent = k.term;
+        main.title = '클릭하면 이 키워드 중심으로 확장 후보를 다시 만듭니다.';
+        main.addEventListener('click', () => {
+          activeKeyword = k.term;
+          renderSelectedKeywords();
+          renderExpansions(k.term);
+          renderSunoPrompt(k.term);
+        });
+        const del = document.createElement('button');
+        del.type = 'button';
+        del.textContent = '×';
+        del.className = activeKeyword === k.term ? 'ml-1 text-white/80 hover:text-white' : 'ml-1 text-emerald-500 hover:text-red-600';
+        del.title = '삭제';
+        del.addEventListener('click', e => {
+          e.stopPropagation();
+          removeSelectedKeyword(k.term);
+        });
+        wrap.append(main, del);
+        els.selectedKeywordBox.appendChild(wrap);
+      });
+      els.btnSearchActiveKeyword.disabled = !activeKeyword;
+    }
+
+    function renderExpansions(seed) {
+      currentExpansions = buildKeywordExpansions(seed);
+      els.expansionBox.innerHTML = '';
+      els.btnSearchActiveKeyword.disabled = !seed;
+      if (!seed) {
+        const span = document.createElement('span');
+        span.className = 'text-slate-500';
+        span.textContent = '저장 키워드를 선택하면 확장 후보가 표시됩니다.';
+        els.expansionBox.appendChild(span);
+        return;
+      }
+      if (!currentExpansions.length) {
+        const span = document.createElement('span');
+        span.className = 'text-slate-500';
+        span.textContent = '현재 검색 결과 안에서는 확장 후보가 부족합니다. 직접 키워드를 추가해보셔도 됩니다.';
+        els.expansionBox.appendChild(span);
+        return;
+      }
+      currentExpansions.forEach(c => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'chip bg-white border border-emerald-200 text-emerald-900 hover:bg-emerald-100';
+        btn.textContent = c.query;
+        btn.title = c.reason || '확장 검색 후보';
+        btn.addEventListener('click', () => {
+          els.q.value = c.query;
+          els.q.focus();
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+        els.expansionBox.appendChild(btn);
+      });
+    }
+
+    function extractTitlePatterns(data) {
+      const fixed = [
+        'for sleep','for study','for work','for relaxation','deep sleep','deep focus','no vocals','instrumental','black screen','rainy night','cozy jazz','lofi playlist','study music','sleep music','relaxing music','meditation music','rain sounds','white noise','ambient music','piano music','jazz cafe','background music','royalty free','copyright free','calm piano',
+        '수면 음악','공부 음악','집중 음악','명상 음악','힐링 음악','빗소리','광고 없음','검은 화면','플레이리스트','카페 음악','재즈 카페'
+      ];
+      const counts = {};
+      const add = term => {
+        const t = String(term || '').toLowerCase().replace(/\s+/g, ' ').trim();
+        if (!t || t.length < 3) return;
+        counts[t] = (counts[t] || 0) + 1;
+      };
+      data.forEach(item => {
+        const title = String(item.title || '').toLowerCase();
+        fixed.forEach(p => { if (title.includes(p.toLowerCase())) add(p); });
+        const durationMatches = title.match(/\b\d{1,2}\s*(hour|hours|hr|hrs)\b/g) || [];
+        durationMatches.forEach(add);
+        const minuteMatches = title.match(/\b\d{2,3}\s*(min|mins|minutes)\b/g) || [];
+        minuteMatches.forEach(add);
+        let m;
+        const forRe = /\bfor\s+([a-z0-9]+(?:\s+[a-z0-9]+){0,3})/g;
+        while ((m = forRe.exec(title)) !== null) add(`for ${m[1]}`);
+        const noRe = /\bno\s+([a-z0-9]+(?:\s+[a-z0-9]+){0,2})/g;
+        while ((m = noRe.exec(title)) !== null) add(`no ${m[1]}`);
+        const deepRe = /\b(deep|soft|calm|cozy|relaxing)\s+([a-z0-9]+(?:\s+[a-z0-9]+){0,2})/g;
+        while ((m = deepRe.exec(title)) !== null) add(`${m[1]} ${m[2]}`);
+      });
+      return Object.entries(counts).sort((a,b) => b[1] - a[1] || a[0].localeCompare(b[0])).slice(0, 24);
+    }
+
+    function renderTitlePatterns() {
+      currentPatterns = extractTitlePatterns(currentData);
+      const box = els.titlePatternBox;
+      box.innerHTML = '';
+      if (!currentPatterns.length) {
+        const span = document.createElement('span');
+        span.className = 'text-slate-500';
+        span.textContent = currentData.length ? '반복 패턴이 뚜렷하게 잡히지 않았습니다.' : '검색 결과가 나오면 제목 패턴이 표시됩니다.';
+        box.appendChild(span);
+        return;
+      }
+      currentPatterns.forEach(([pattern, count]) => {
+        const chip = document.createElement('button');
+        chip.type = 'button';
+        chip.className = 'chip bg-violet-100 border border-violet-200 text-violet-900 hover:bg-violet-200';
+        chip.textContent = `${pattern} ${count}`;
+        chip.title = '클릭하면 선택 키워드로 저장됩니다.';
+        chip.addEventListener('click', () => saveSelectedKeyword(pattern, 'pattern', count));
+        box.appendChild(chip);
+      });
+    }
+
+    function buildSunoPrompt(seed = null) {
+      const base = String(seed || activeKeyword || els.q.value || currentPhrases[0]?.[0] || 'ambient music playlist').trim();
+      const patterns = currentPatterns.slice(0, 8).map(p => p[0]);
+      const phrases = currentPhrases.slice(0, 8).map(p => p[0]);
+      const pool = [...new Set([base, ...patterns, ...phrases])].join(', ');
+      const lower = pool.toLowerCase();
+      const isSleep = /sleep|deep sleep|rain|수면|빗소리/.test(lower);
+      const isStudy = /study|focus|work|집중|공부/.test(lower);
+      const isJazz = /jazz|cafe|cozy|재즈|카페/.test(lower);
+      const isRain = /rain|빗소리|white noise/.test(lower);
+
+      const style = isJazz ? 'warm cozy jazz cafe instrumental' : isStudy ? 'minimal lofi ambient instrumental' : isSleep ? 'soft ambient sleep instrumental' : 'calm cinematic ambient instrumental';
+      const tempo = isSleep ? 'very slow tempo, gentle dynamics' : isStudy ? 'steady slow-mid tempo, unobtrusive groove' : 'slow tempo, relaxed pacing';
+      const texture = isRain ? 'subtle rain ambience, warm pads, soft piano, no harsh transients' : 'warm pads, soft piano, gentle texture, smooth atmosphere';
+      const useCase = isSleep ? 'designed for deep sleep and relaxation' : isStudy ? 'designed for study, focus, and background listening' : 'designed for long background listening and calm mood';
+
+      return `${style}, ${tempo}, ${texture}, ${useCase}, no vocals, no lead melody that distracts, seamless loop friendly, clean mix, warm low end, soft high frequencies, peaceful mood, 60 to 90 minutes playlist concept, inspired by keywords: ${pool}`;
+    }
+
+    function renderSunoPrompt(seed = null) {
+      const prompt = buildSunoPrompt(seed);
+      els.sunoPromptBox.value = currentData.length || activeKeyword ? prompt : '';
+      els.sunoPromptSeed.textContent = currentData.length || activeKeyword ? `기준: ${String(seed || activeKeyword || els.q.value || '').slice(0, 60)}` : '';
+      els.btnBuildSunoPrompt.disabled = !(currentData.length || activeKeyword || els.q.value.trim());
+      els.btnCopySunoPrompt.disabled = !els.sunoPromptBox.value;
+    }
+
+    function readComparisons() {
+      return readJSON(COMPARISONS_KEY, []);
+    }
+
+    function makeSearchSummary(query) {
+      const count = currentData.length;
+      const sortedViews = [...currentData].sort((a,b) => a.viewCount - b.viewCount);
+      const medianViews = count ? sortedViews[Math.floor(count / 2)].viewCount : 0;
+      const topVelocity = count ? Math.max(...currentData.map(i => i.viewsPerDay)) : 0;
+      const avgScore = count ? currentData.reduce((a,b) => a + b.score, 0) / count : 0;
+      const avgPlaylistScore = count ? currentData.reduce((a,b) => a + (b.playlistScore || 0), 0) / count : 0;
+      const breakouts = currentData.filter(i => classifyItem(i).isBreakout).length;
+      const smallBreakouts = currentData.filter(i => i.subCount > 0 && i.subCount < 50000 && i.viewCount >= 50000).length;
+      return {
+        ts: new Date().toISOString(),
+        query,
+        mode: els.researchMode.value,
+        modeLabel: getModeConfig().label,
+        duration: els.videoDuration.value,
+        datePreset: els.datePreset.value,
+        count,
+        medianViews,
+        topVelocity: Math.round(topVelocity),
+        avgScore: Math.round(avgScore),
+        avgPlaylistScore: Math.round(avgPlaylistScore),
+        breakouts,
+        smallBreakouts,
+        topPhrases: currentPhrases.slice(0, 6).map(p => p[0]),
+        topPatterns: currentPatterns.slice(0, 6).map(p => p[0]),
+        topVideo: [...currentData].sort((a,b) => b.score - a.score)[0]?.title || ''
+      };
+    }
+
+    function saveComparisonSnapshot() {
+      if (!currentData.length) { alert('먼저 검색 결과를 만든 뒤 비교 저장을 눌러 주세요.'); return; }
+      const item = makeSearchSummary(els.q.value.trim());
+      const list = readComparisons().filter(c => !(c.query === item.query && c.mode === item.mode && c.datePreset === item.datePreset && c.duration === item.duration));
+      list.unshift(item);
+      writeJSON(COMPARISONS_KEY, list.slice(0, 40));
+      renderComparisons();
+      alert('현재 검색 결과를 비교 목록에 저장했습니다.');
+    }
+
+    function renderComparisons() {
+      const list = readComparisons();
+      els.comparisonBox.innerHTML = '';
+      els.btnExportComparisons.disabled = list.length === 0;
+      els.btnExportComparisonsCsv.disabled = list.length === 0;
+      els.btnClearComparisons.disabled = list.length === 0;
+      if (!list.length) {
+        const div = document.createElement('div');
+        div.className = 'text-slate-500';
+        div.textContent = '비교 저장한 검색 결과가 없습니다.';
+        els.comparisonBox.appendChild(div);
+        return;
+      }
+      const table = document.createElement('table');
+      table.className = 'min-w-[1100px] w-full text-sm text-left';
+      const thead = document.createElement('thead');
+      thead.className = 'bg-white/70 text-slate-700 border-b border-fuchsia-100';
+      thead.innerHTML = '<tr><th class="p-3">검색어</th><th class="p-3">모드</th><th class="p-3 text-right">결과</th><th class="p-3 text-right">중앙 조회</th><th class="p-3 text-right">최고 일평균</th><th class="p-3 text-right">돌파</th><th class="p-3 text-right">P-점수</th><th class="p-3">상위 패턴/복합어</th><th class="p-3">복원</th></tr>';
+      const tbody = document.createElement('tbody');
+      tbody.className = 'divide-y divide-fuchsia-100 bg-white';
+      list.forEach(c => {
+        const tr = document.createElement('tr');
+        const terms = [...(c.topPatterns || []), ...(c.topPhrases || [])].slice(0, 8).join(', ');
+        tr.innerHTML = `
+          <td class="p-3 font-black text-fuchsia-950 wrap"></td>
+          <td class="p-3 text-slate-600"></td>
+          <td class="p-3 text-right font-bold">${fmtFull.format(c.count || 0)}</td>
+          <td class="p-3 text-right font-bold">${fmtCompact.format(c.medianViews || 0)}</td>
+          <td class="p-3 text-right font-bold">${fmtCompact.format(c.topVelocity || 0)}</td>
+          <td class="p-3 text-right font-bold">${fmtFull.format(c.breakouts || 0)}</td>
+          <td class="p-3 text-right font-bold">${fmtFull.format(c.avgPlaylistScore || 0)}</td>
+          <td class="p-3 text-slate-600 wrap"></td>
+          <td class="p-3"></td>`;
+        tr.children[0].textContent = c.query || '';
+        tr.children[1].textContent = `${c.modeLabel || c.mode || ''} · ${c.datePreset || ''}`;
+        tr.children[7].textContent = terms || '-';
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'px-2.5 py-1 rounded-lg bg-fuchsia-700 text-white hover:bg-fuchsia-800 font-bold';
+        btn.textContent = '복원';
+        btn.addEventListener('click', () => {
+          els.q.value = c.query || '';
+          els.researchMode.value = c.mode || 'general';
+          els.videoDuration.value = c.duration || 'long';
+          els.datePreset.value = c.datePreset || '1year';
+          renderSeeds();
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+        tr.children[8].appendChild(btn);
+        tbody.appendChild(tr);
+      });
+      table.append(thead, tbody);
+      els.comparisonBox.appendChild(table);
+    }
+
+    function exportComparisons() {
+      const list = readComparisons();
+      const headers = ['검색어','모드','기간','길이','결과수','중앙조회수','최고일평균','평균점수','평균P-점수','돌파후보','소형채널돌파','상위복합어','상위제목패턴','대표영상','저장일'];
+      const rows = list.map(c => [
+        c.query,
+        c.modeLabel || c.mode,
+        c.datePreset,
+        c.duration,
+        c.count,
+        c.medianViews,
+        c.topVelocity,
+        c.avgScore,
+        c.avgPlaylistScore,
+        c.breakouts,
+        c.smallBreakouts,
+        (c.topPhrases || []).join(', '),
+        (c.topPatterns || []).join(', '),
+        c.topVideo || '',
+        c.ts || ''
+      ]);
+      const md = exportHeader('유튜브 검색 결과 비교', [`- 비교 항목 수: ${list.length}`]) + mdTable(headers, rows) + '\n';
+      downloadMarkdown(`youtube_trend_comparison_v${APP_VERSION}_${new Date().toISOString().slice(0,10)}.md`, md);
+    }
+
+    function readPlanningNotes() {
+      return readJSON(PLANNING_KEY, {});
+    }
+
+    function savePlanningNote(id, note) {
+      const all = readPlanningNotes();
+      all[id] = { ...(all[id] || {}), ...note, updatedAt: new Date().toISOString() };
+      writeJSON(PLANNING_KEY, all);
+    }
+
+    function getPlanningNote(id) {
+      return readPlanningNotes()[id] || {};
+    }
+
+    function exportSelectedKeywords() {
+      const selected = readSelectedKeywords();
+      const headers = ['키워드','유형','빈도','모드','원 검색어','선택일','마지막 선택일','확장 후보'];
+      const rows = selected.map(k => {
+        const expansions = buildKeywordExpansions(k.term).slice(0, 12).map(e => e.query).join(', ');
+        return [k.term, k.type, k.count, k.mode, k.sourceQuery || '', k.selectedAt || '', k.lastSelectedAt || '', expansions];
+      });
+      const md = exportHeader('선택 키워드와 확장 후보', [`- 선택 키워드 수: ${selected.length}`]) + mdTable(headers, rows) + '\n';
+      downloadMarkdown(`youtube_trend_keywords_v${APP_VERSION}_${new Date().toISOString().slice(0,10)}.md`, md);
     }
 
     function buildIdeas(data) {
@@ -692,6 +1450,7 @@
           subCount: item.subCount,
           vsRatio: item.vsRatio,
           viewsPerDay: item.viewsPerDay,
+          playlistScore: item.playlistScore || 0,
           publishedAt: item.publishedAt,
           url: `https://youtu.be/${item.id}`
         }));
@@ -731,7 +1490,7 @@
 
         const meta = document.createElement('p');
         meta.className = 'text-sm text-slate-500 mt-1';
-        meta.textContent = `${idea.channelTitle} · 조회 ${fmtCompact.format(idea.viewCount)} · V/S ${fmtOne.format(idea.vsRatio)}x · 일평균 ${fmtCompact.format(Math.round(idea.viewsPerDay))}`;
+        meta.textContent = `${idea.channelTitle} · 조회 ${fmtCompact.format(idea.viewCount)} · V/S ${fmtOne.format(idea.vsRatio)}x · 일평균 ${fmtCompact.format(Math.round(idea.viewsPerDay))} · P ${fmtFull.format(idea.playlistScore || 0)}`;
 
         const reason = document.createElement('p');
         reason.className = 'text-sm text-slate-700 mt-2';
@@ -745,7 +1504,7 @@
     function renderTable(data) {
       els.tbody.innerHTML = '';
       if (!data.length) {
-        els.tbody.innerHTML = '<tr><td colspan="8" class="p-8 text-center text-slate-500">조건에 맞는 결과가 없습니다.</td></tr>';
+        els.tbody.innerHTML = '<tr><td colspan="9" class="p-8 text-center text-slate-500">조건에 맞는 결과가 없습니다.</td></tr>';
         return;
       }
       const favs = readFavorites();
@@ -759,7 +1518,7 @@
         const tdInfo = document.createElement('td');
         tdInfo.className = 'p-4';
         const infoWrap = document.createElement('div');
-        infoWrap.className = 'flex gap-4 min-w-[380px]';
+        infoWrap.className = 'flex gap-4 min-w-[430px]';
         const img = document.createElement('img');
         img.src = item.thumb;
         img.alt = '';
@@ -786,9 +1545,9 @@
         tdInfo.appendChild(infoWrap);
 
         const tdChannel = document.createElement('td');
-        tdChannel.className = 'p-4';
+        tdChannel.className = 'p-4 col-channel align-top';
         const ch = document.createElement('div');
-        ch.className = 'font-bold text-slate-800 wrap';
+        ch.className = 'font-bold text-slate-800 wrap line-clamp-2 leading-snug';
         ch.textContent = item.channelTitle;
         const sub = document.createElement('div');
         sub.className = 'text-sm text-slate-500';
@@ -809,6 +1568,11 @@
         const tdVel = document.createElement('td');
         tdVel.className = 'p-4 text-right mono text-base font-bold text-slate-700';
         tdVel.textContent = fmtFull.format(Math.round(item.viewsPerDay));
+
+        const tdPlaylist = document.createElement('td');
+        tdPlaylist.className = 'p-4 text-center font-black text-violet-800';
+        tdPlaylist.textContent = fmtFull.format(item.playlistScore || 0);
+        tdPlaylist.title = 'AI 음악·플레이리스트 관점 점수입니다. 다른 장르 검색에서는 참고값으로만 보시면 됩니다.';
 
         const tdDuration = document.createElement('td');
         tdDuration.className = 'p-4 text-center';
@@ -831,7 +1595,7 @@
         btn.addEventListener('click', () => saveFavoriteById(item.id));
         tdSave.appendChild(btn);
 
-        tr.append(tdInfo, tdChannel, tdVs, tdView, tdVel, tdDuration, tdPublished, tdSave);
+        tr.append(tdInfo, tdChannel, tdVs, tdView, tdVel, tdPlaylist, tdDuration, tdPublished, tdSave);
         els.tbody.appendChild(tr);
       });
     }
@@ -906,6 +1670,7 @@
           subCount: item.subCount,
           vsRatio: item.vsRatio,
           viewsPerDay: item.viewsPerDay,
+          playlistScore: item.playlistScore || 0,
           publishedAt: item.publishedAt,
           score: item.score,
           reason: item.reason,
@@ -943,7 +1708,69 @@
         const reason = document.createElement('p');
         reason.className = 'text-sm text-slate-700 mt-2';
         reason.textContent = f.reason || '';
-        card.append(a, meta, reason);
+
+        const note = getPlanningNote(f.id);
+        const planner = document.createElement('div');
+        planner.className = 'mt-3 border-t border-slate-100 pt-3 grid grid-cols-1 md:grid-cols-2 gap-2';
+        const fields = [
+          ['songDirection', '곡 방향', '예: warm rainy sleep ambient'],
+          ['sunoHint', 'SUNO 힌트', '예: soft piano, no vocals, slow tempo'],
+          ['thumbnailConcept', '썸네일 콘셉트', '예: rainy window, dark blue, calm'],
+          ['targetLength', '목표 길이', '예: 60분 / 3시간 / 10시간']
+        ];
+        const fieldEls = {};
+        fields.forEach(([key, label, placeholder]) => {
+          const wrap = document.createElement('label');
+          wrap.className = 'text-xs font-bold text-slate-600';
+          const input = document.createElement('input');
+          input.className = 'mt-1 w-full rounded-lg border border-slate-200 p-2 text-sm bg-white';
+          input.placeholder = placeholder;
+          input.value = note[key] || '';
+          fieldEls[key] = input;
+          wrap.append(label, input);
+          planner.appendChild(wrap);
+        });
+        const memoWrap = document.createElement('label');
+        memoWrap.className = 'text-xs font-bold text-slate-600 md:col-span-2';
+        const memo = document.createElement('textarea');
+        memo.className = 'mt-1 w-full rounded-lg border border-slate-200 p-2 text-sm bg-white';
+        memo.rows = 2;
+        memo.placeholder = '제작 메모: 제목 방향, 영상 구성, 업로드 시 주의점 등';
+        memo.value = note.memo || '';
+        fieldEls.memo = memo;
+        memoWrap.append('메모', memo);
+        planner.appendChild(memoWrap);
+
+        const actions = document.createElement('div');
+        actions.className = 'md:col-span-2 flex flex-wrap gap-2';
+        const saveNote = document.createElement('button');
+        saveNote.type = 'button';
+        saveNote.className = 'text-sm px-3 py-1.5 rounded-lg bg-slate-900 text-white hover:bg-slate-800 font-bold';
+        saveNote.textContent = '기획 메모 저장';
+        saveNote.addEventListener('click', () => {
+          savePlanningNote(f.id, {
+            songDirection: fieldEls.songDirection.value,
+            sunoHint: fieldEls.sunoHint.value,
+            thumbnailConcept: fieldEls.thumbnailConcept.value,
+            targetLength: fieldEls.targetLength.value,
+            memo: fieldEls.memo.value,
+            playlistScore: f.playlistScore || 0
+          });
+          alert('기획 메모를 저장했습니다.');
+        });
+        const promptBtn = document.createElement('button');
+        promptBtn.type = 'button';
+        promptBtn.className = 'text-sm px-3 py-1.5 rounded-lg border border-violet-200 text-violet-800 hover:bg-violet-50 font-bold';
+        promptBtn.textContent = '이 후보로 SUNO 초안';
+        promptBtn.addEventListener('click', () => {
+          activeKeyword = f.title;
+          renderSunoPrompt(f.title);
+          window.scrollTo({ top: document.getElementById('sunoPromptBox').offsetTop - 160, behavior: 'smooth' });
+        });
+        actions.append(saveNote, promptBtn);
+        planner.appendChild(actions);
+
+        card.append(a, meta, reason, planner);
         els.favoritesBox.appendChild(card);
       });
     }
@@ -953,6 +1780,7 @@
       const item = {
         ts: new Date().toISOString(),
         query,
+        mode: els.researchMode.value,
         order: els.order.value,
         duration: els.videoDuration.value,
         datePreset: els.datePreset.value,
@@ -986,6 +1814,8 @@
         btn.title = s.topPhrases?.length ? `상위 복합어: ${s.topPhrases.join(', ')}` : '';
         btn.addEventListener('click', () => {
           els.q.value = s.query;
+          els.researchMode.value = s.mode || 'general';
+          renderSeeds();
           els.order.value = s.order || 'viewCount';
           els.videoDuration.value = s.duration || 'long';
           els.datePreset.value = s.datePreset || '1year';
@@ -996,15 +1826,24 @@
       });
     }
 
-    function csvEscape(value) {
-      const str = String(value ?? '');
-      return /[",\n]/.test(str) ? `"${str.replaceAll('"', '""')}"` : str;
+    function mdCell(value) {
+      return String(value ?? '')
+        .replaceAll('\\', '\\\\')
+        .replaceAll('|', '\\|')
+        .replaceAll('\r\n', '<br>')
+        .replaceAll('\n', '<br>')
+        .trim();
     }
 
-    function downloadCSV(filename, rows) {
-      const bom = '\ufeff';
-      const csv = bom + rows.map(row => row.map(csvEscape).join(',')).join('\n');
-      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    function mdTable(headers, rows) {
+      const head = `| ${headers.map(mdCell).join(' | ')} |`;
+      const sep = `| ${headers.map(() => '---').join(' | ')} |`;
+      const body = rows.map(row => `| ${row.map(mdCell).join(' | ')} |`).join('\n');
+      return [head, sep, body].filter(Boolean).join('\n');
+    }
+
+    function downloadMarkdown(filename, content) {
+      const blob = new Blob(['\ufeff' + content], { type: 'text/markdown;charset=utf-8;' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
@@ -1015,24 +1854,665 @@
       URL.revokeObjectURL(url);
     }
 
+
+    function csvCell(value) {
+      const str = String(value ?? '').replaceAll('\r\n', '\n').replaceAll('\r', '\n');
+      return '"' + str.replaceAll('"', '""') + '"';
+    }
+
+    function downloadCsv(filename, headers, rows) {
+      const lines = [headers, ...rows].map(row => row.map(csvCell).join(','));
+      const blob = new Blob(['\ufeff' + lines.join('\n')], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    }
+
+
+    function downloadJson(filename, payload) {
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    function resultExportRows(data = currentData) {
+      return data.map(i => [
+        i.id,
+        i.title,
+        i.channelTitle,
+        i.subCount,
+        i.viewCount,
+        Number(i.vsRatio || 0).toFixed(2),
+        Math.round(i.viewsPerDay || 0),
+        i.playlistScore || 0,
+        i.durationText,
+        i.publishedAt,
+        i.score,
+        i.reason,
+        i.url || `https://youtu.be/${i.id}`
+      ]);
+    }
+
+    function ideaExportRows(source = null) {
+      const favs = readFavorites();
+      const list = source || (favs.length ? favs : currentIdeas);
+      const notes = readPlanningNotes();
+      return list.map(i => {
+        const n = notes[i.id] || {};
+        return [
+          i.id,
+          i.title,
+          i.channelTitle,
+          i.score,
+          i.playlistScore || n.playlistScore || 0,
+          i.reason,
+          i.subCount,
+          i.viewCount,
+          Number(i.vsRatio || 0).toFixed(2),
+          Math.round(i.viewsPerDay || 0),
+          i.publishedAt,
+          n.songDirection || '',
+          n.sunoHint || '',
+          n.thumbnailConcept || '',
+          n.targetLength || '',
+          n.memo || '',
+          i.url || `https://youtu.be/${i.id}`
+        ];
+      });
+    }
+
+    function exportHeader(title, extra = []) {
+      const mode = researchModes[els.researchMode.value]?.label || els.researchMode.value;
+      const lines = [
+        `# ${title}`,
+        '',
+        `- 생성일: ${new Date().toISOString()}`,
+        `- 도구 버전: v${APP_VERSION}`,
+        `- 검색어: ${els.q.value.trim() || '-'}`,
+        `- 리서치 모드: ${mode}`,
+        `- 기간: ${els.datePreset.value}`,
+        `- 길이: ${els.videoDuration.value}`,
+        `- 정렬: ${els.order.value}`,
+        ...extra,
+        '',
+        '> 개인 리서치용 내보내기입니다. API 키는 포함하지 않습니다.',
+        ''
+      ];
+      return lines.join('\n');
+    }
+
     function exportResults() {
-      const rows = [[
-        'ID','제목','채널명','구독자','조회수','V/S비율','일평균조회','길이','게시일','점수','이유','URL'
-      ]];
-      currentData.forEach(i => rows.push([
-        i.id, i.title, i.channelTitle, i.subCount, i.viewCount, i.vsRatio.toFixed(2), Math.round(i.viewsPerDay), i.durationText, i.publishedAt, i.score, i.reason, `https://youtu.be/${i.id}`
-      ]));
-      downloadCSV(`youtube_longform_results_v${APP_VERSION}_${new Date().toISOString().slice(0,10)}.csv`, rows);
+      const headers = ['ID','제목','채널명','구독자','조회수','V/S','일평균','P-점수','길이','게시일','후보점수','이유','URL'];
+      const rows = currentData.map(i => [
+        i.id,
+        i.title,
+        i.channelTitle,
+        i.subCount,
+        i.viewCount,
+        Number(i.vsRatio || 0).toFixed(2),
+        Math.round(i.viewsPerDay || 0),
+        i.playlistScore || 0,
+        i.durationText,
+        i.publishedAt,
+        i.score,
+        i.reason,
+        `https://youtu.be/${i.id}`
+      ]);
+      const md = exportHeader('유튜브 트렌드 검색 결과', [`- 결과 수: ${currentData.length}`]) + mdTable(headers, rows) + '\n';
+      downloadMarkdown(`youtube_trend_results_v${APP_VERSION}_${new Date().toISOString().slice(0,10)}.md`, md);
     }
 
     function exportIdeas() {
       const favs = readFavorites();
       const source = favs.length ? favs : currentIdeas;
-      const rows = [['ID','제목','채널명','점수','이유','구독자','조회수','V/S비율','일평균조회','게시일','URL']];
-      source.forEach(i => rows.push([
-        i.id, i.title, i.channelTitle, i.score, i.reason, i.subCount, i.viewCount, Number(i.vsRatio).toFixed(2), Math.round(i.viewsPerDay), i.publishedAt, i.url || `https://youtu.be/${i.id}`
-      ]));
-      downloadCSV(`youtube_longform_ideas_v${APP_VERSION}_${new Date().toISOString().slice(0,10)}.csv`, rows);
+      const headers = ['ID','제목','채널명','후보점수','P-점수','이유','구독자','조회수','V/S','일평균','게시일','곡 방향','SUNO 힌트','썸네일 콘셉트','목표 길이','메모','URL'];
+      const notes = readPlanningNotes();
+      const rows = source.map(i => {
+        const n = notes[i.id] || {};
+        return [
+          i.id,
+          i.title,
+          i.channelTitle,
+          i.score,
+          i.playlistScore || n.playlistScore || 0,
+          i.reason,
+          i.subCount,
+          i.viewCount,
+          Number(i.vsRatio || 0).toFixed(2),
+          Math.round(i.viewsPerDay || 0),
+          i.publishedAt,
+          n.songDirection || '',
+          n.sunoHint || '',
+          n.thumbnailConcept || '',
+          n.targetLength || '',
+          n.memo || '',
+          i.url || `https://youtu.be/${i.id}`
+        ];
+      });
+      const md = exportHeader('유튜브 소재 후보·기획 메모', [`- 내보내기 기준: ${favs.length ? '저장한 후보' : '자동 추출 후보'}`, `- 후보 수: ${source.length}`]) + mdTable(headers, rows) + '\n';
+      downloadMarkdown(`youtube_trend_ideas_v${APP_VERSION}_${new Date().toISOString().slice(0,10)}.md`, md);
+    }
+
+
+    function exportFullReport() {
+      const favs = readFavorites();
+      const comparisons = readComparisons();
+      const selected = readSelectedKeywords();
+      const notes = readPlanningNotes();
+      const parts = [exportHeader('유튜브 트렌드 인사이트 통합 리포트', [
+        `- 검색 결과 수: ${currentData.length}`,
+        `- 자동 후보 수: ${currentIdeas.length}`,
+        `- 저장 후보 수: ${favs.length}`,
+        `- 선택 키워드 수: ${selected.length}`,
+        `- 비교 저장 수: ${comparisons.length}`
+      ])];
+
+      parts.push('## 1. 검색 결과\n');
+      parts.push(mdTable(
+        ['제목','채널','조회수','V/S','일평균','P-점수','길이','게시일','이유','URL'],
+        currentData.map(i => [i.title, i.channelTitle, i.viewCount, Number(i.vsRatio || 0).toFixed(2), Math.round(i.viewsPerDay || 0), i.playlistScore || 0, i.durationText, i.publishedAt, i.reason, `https://youtu.be/${i.id}`])
+      ));
+
+      parts.push('\n## 2. 자동 추출 후보\n');
+      parts.push(mdTable(
+        ['제목','채널','후보점수','P-점수','이유','URL'],
+        currentIdeas.map(i => [i.title, i.channelTitle, i.score, i.playlistScore || 0, i.reason, i.url || `https://youtu.be/${i.id}`])
+      ));
+
+      parts.push('\n## 3. 저장 후보와 기획 메모\n');
+      parts.push(mdTable(
+        ['제목','채널','곡 방향','SUNO 힌트','썸네일 콘셉트','목표 길이','메모','URL'],
+        favs.map(i => {
+          const n = notes[i.id] || {};
+          return [i.title, i.channelTitle, n.songDirection || '', n.sunoHint || '', n.thumbnailConcept || '', n.targetLength || '', n.memo || '', i.url || `https://youtu.be/${i.id}`];
+        })
+      ));
+
+      parts.push('\n## 4. 추출 복합어·단어·제목 패턴\n');
+      parts.push('### 핵심 복합어\n');
+      parts.push(mdTable(['복합어','빈도'], currentPhrases.map(p => [p[0], p[1]])));
+      parts.push('\n### 단어 빈도\n');
+      parts.push(mdTable(['단어','빈도'], currentKeywords.map(k => [k[0], k[1]])));
+      parts.push('\n### 제목 패턴\n');
+      parts.push(mdTable(['패턴','빈도'], currentPatterns.map(p => [p[0], p[1]])));
+
+      parts.push('\n## 5. 선택 키워드와 확장 후보\n');
+      parts.push(mdTable(
+        ['키워드','유형','빈도','원 검색어','확장 후보'],
+        selected.map(k => [k.term, k.type, k.count, k.sourceQuery || '', buildKeywordExpansions(k.term).slice(0, 12).map(e => e.query).join(', ')])
+      ));
+
+      parts.push('\n## 6. 검색 결과 비교\n');
+      parts.push(mdTable(
+        ['검색어','모드','결과수','중앙조회수','최고일평균','평균P-점수','돌파후보','상위패턴','저장일'],
+        comparisons.map(c => [c.query, c.modeLabel || c.mode, c.count, c.medianViews, c.topVelocity, c.avgPlaylistScore, c.breakouts, (c.topPatterns || []).join(', '), c.ts || ''])
+      ));
+
+      parts.push('\n## 7. SUNO 프롬프트 초안\n');
+      parts.push('```text\n' + (els.sunoPromptBox.value || '아직 생성된 SUNO 프롬프트 초안이 없습니다.') + '\n```\n');
+
+      downloadMarkdown(`youtube_trend_full_report_v${APP_VERSION}_${new Date().toISOString().slice(0,10)}.md`, parts.join('\n'));
+    }
+
+
+    function exportResultsCsv() {
+      const headers = ['ID','제목','채널명','구독자','조회수','V/S','일평균','P-점수','길이','게시일','후보점수','이유','URL'];
+      downloadCsv(`youtube_trend_results_v${APP_VERSION}_${new Date().toISOString().slice(0,10)}.csv`, headers, resultExportRows(currentData));
+    }
+
+    function exportIdeasCsv() {
+      const headers = ['ID','제목','채널명','후보점수','P-점수','이유','구독자','조회수','V/S','일평균','게시일','곡 방향','SUNO 힌트','썸네일 콘셉트','목표 길이','메모','URL'];
+      downloadCsv(`youtube_trend_ideas_v${APP_VERSION}_${new Date().toISOString().slice(0,10)}.csv`, headers, ideaExportRows());
+    }
+
+    function comparisonRows(list = readComparisons()) {
+      return list.map(c => [
+        c.query,
+        c.modeLabel || c.mode,
+        c.datePreset,
+        c.duration,
+        c.count,
+        c.medianViews,
+        c.topVelocity,
+        c.avgScore,
+        c.avgPlaylistScore,
+        c.breakouts,
+        c.smallBreakouts,
+        (c.topPhrases || []).join(', '),
+        (c.topPatterns || []).join(', '),
+        c.topVideo || '',
+        c.ts || ''
+      ]);
+    }
+
+    function exportComparisonsCsv() {
+      const headers = ['검색어','모드','기간','길이','결과수','중앙조회수','최고일평균','평균점수','평균P-점수','돌파후보','소형채널돌파','상위복합어','상위제목패턴','대표영상','저장일'];
+      downloadCsv(`youtube_trend_comparison_v${APP_VERSION}_${new Date().toISOString().slice(0,10)}.csv`, headers, comparisonRows());
+    }
+
+    function exportSelectedKeywordsCsv() {
+      const selected = readSelectedKeywords();
+      const headers = ['키워드','유형','빈도','모드','원 검색어','선택일','마지막 선택일','확장 후보'];
+      const rows = selected.map(k => {
+        const expansions = buildKeywordExpansions(k.term).slice(0, 12).map(e => e.query).join(', ');
+        return [k.term, k.type, k.count, k.mode, k.sourceQuery || '', k.selectedAt || '', k.lastSelectedAt || '', expansions];
+      });
+      downloadCsv(`youtube_trend_keywords_v${APP_VERSION}_${new Date().toISOString().slice(0,10)}.csv`, headers, rows);
+    }
+
+    function exportFullSummaryCsv() {
+      const selected = readSelectedKeywords();
+      const comparisons = readComparisons();
+      const rows = [];
+      rows.push(['summary', '생성일', new Date().toISOString(), '', '', '']);
+      rows.push(['summary', '검색어', els.q.value.trim() || '-', '', '', '']);
+      rows.push(['summary', '모드', getModeConfig().label, '', '', '']);
+      rows.push(['summary', '검색 결과 수', currentData.length, '', '', '']);
+      rows.push(['summary', '자동 후보 수', currentIdeas.length, '', '', '']);
+      currentPhrases.forEach(([term, count]) => rows.push(['phrase', term, count, '', '', '']));
+      currentKeywords.forEach(([term, count]) => rows.push(['keyword', term, count, '', '', '']));
+      currentPatterns.forEach(([term, count]) => rows.push(['title_pattern', term, count, '', '', '']));
+      selected.forEach(k => rows.push(['selected_keyword', k.term, k.type, k.count, k.sourceQuery || '', k.selectedAt || '']));
+      comparisons.forEach(c => rows.push(['comparison', c.query, c.modeLabel || c.mode, c.count, c.medianViews, c.ts || '']));
+      rows.push(['suno_prompt', els.sunoPromptBox.value || '', '', '', '', '']);
+      downloadCsv(`youtube_trend_summary_v${APP_VERSION}_${new Date().toISOString().slice(0,10)}.csv`, ['section','field1','field2','field3','field4','field5'], rows);
+    }
+
+    function readHistory() {
+      return readJSON(HISTORY_KEY, []);
+    }
+
+    function restoreVideoFromHistory(item) {
+      const id = item.id || '';
+      return {
+        id,
+        title: item.title || '',
+        desc: item.desc || '히스토리 백업에서 복원된 항목입니다.',
+        channelTitle: item.channelTitle || '',
+        subCount: Number(item.subCount || 0),
+        viewCount: Number(item.viewCount || 0),
+        vsRatio: Number(item.vsRatio || 0),
+        viewsPerDay: Number(item.viewsPerDay || 0),
+        playlistScore: Number(item.playlistScore || 0),
+        score: Number(item.score || 0),
+        durationText: item.durationText || '',
+        publishedAt: item.publishedAt || '',
+        reason: item.reason || '',
+        url: item.url || (id ? `https://youtu.be/${id}` : ''),
+        thumb: item.thumb || (id ? `https://i.ytimg.com/vi/${id}/hqdefault.jpg` : ''),
+        age: Number(item.age || 0)
+      };
+    }
+
+    function dedupeBy(list, keyFn) {
+      const seen = new Set();
+      return (Array.isArray(list) ? list : []).filter(item => {
+        const key = keyFn(item);
+        if (!key || seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      });
+    }
+
+    function mergeBy(existing, incoming, keyFn, limit = 200) {
+      return dedupeBy([...(Array.isArray(incoming) ? incoming : []), ...(Array.isArray(existing) ? existing : [])], keyFn).slice(0, limit);
+    }
+
+    function makePortableBackupPayload() {
+      return {
+        format: 'yt-lf-sc-portable-backup',
+        backupVersion: 3,
+        appVersion: APP_VERSION,
+        exportedAt: new Date().toISOString(),
+        note: 'API 키는 포함하지 않습니다. 쿼터 추정치와 API 캐시는 선택한 경우에만 포함됩니다. API 캐시는 24시간 이내의 항목만 가져오기 때 복원됩니다.',
+        data: {
+          history: readHistory(),
+          selectedKeywords: readSelectedKeywords(),
+          favorites: readFavorites(),
+          comparisons: readComparisons(),
+          sessions: readJSON(SESSIONS_KEY, []),
+          planningNotes: readPlanningNotes(),
+          customPhrases: els.customPhrases.value || '',
+          quotaEstimate: els.backupQuotaEstimate?.checked ? quotaEstimateSnapshot() : null,
+          apiCache: els.backupApiCache?.checked ? apiCacheSnapshot() : null
+        }
+      };
+    }
+
+    function exportPortableBackupJson() {
+      const payload = makePortableBackupPayload();
+      downloadJson(`youtube_trend_backup_v${APP_VERSION}_${new Date().toISOString().slice(0,10)}.json`, payload);
+    }
+
+    function applyPortableBackup(payload) {
+      if (!payload || payload.format !== 'yt-lf-sc-portable-backup' || !payload.data) {
+        throw new Error('이 도구의 백업 JSON 형식이 아닙니다.');
+      }
+      const data = payload.data;
+      const replace = confirm('백업 내용을 현재 브라우저 저장소에 적용합니다.\n\n확인: 기존 히스토리/후보/키워드를 백업 내용으로 교체\n취소: 기존 자료를 유지하고 백업 내용을 병합');
+
+      if (replace) {
+        writeJSON(HISTORY_KEY, Array.isArray(data.history) ? data.history.slice(0, 200) : []);
+        writeJSON(SELECTED_KEYWORDS_KEY, Array.isArray(data.selectedKeywords) ? data.selectedKeywords.slice(0, 300) : []);
+        writeJSON(FAVORITES_KEY, Array.isArray(data.favorites) ? data.favorites.slice(0, 300) : []);
+        writeJSON(COMPARISONS_KEY, Array.isArray(data.comparisons) ? data.comparisons.slice(0, 200) : []);
+        writeJSON(SESSIONS_KEY, Array.isArray(data.sessions) ? data.sessions.slice(0, 80) : []);
+        writeJSON(PLANNING_KEY, data.planningNotes && typeof data.planningNotes === 'object' ? data.planningNotes : {});
+      } else {
+        writeJSON(HISTORY_KEY, mergeBy(readHistory(), data.history, h => h.id || `${h.ts}|${h.query}`, 200));
+        writeJSON(SELECTED_KEYWORDS_KEY, mergeBy(readSelectedKeywords(), data.selectedKeywords, k => String(k.term || '').toLowerCase(), 300));
+        writeJSON(FAVORITES_KEY, mergeBy(readFavorites(), data.favorites, f => f.id, 300));
+        writeJSON(COMPARISONS_KEY, mergeBy(readComparisons(), data.comparisons, c => c.id || `${c.ts}|${c.query}`, 200));
+        writeJSON(SESSIONS_KEY, mergeBy(readJSON(SESSIONS_KEY, []), data.sessions, s => `${s.query}|${s.mode}|${s.datePreset}|${s.videoDuration}`, 80));
+        writeJSON(PLANNING_KEY, { ...readPlanningNotes(), ...(data.planningNotes && typeof data.planningNotes === 'object' ? data.planningNotes : {}) });
+      }
+
+      let quotaMessage = '';
+      if (data.quotaEstimate) {
+        const quotaResult = applyQuotaEstimateSnapshot(data.quotaEstimate);
+        if (quotaResult.applied) {
+          quotaMessage = '\n쿼터 추정치도 오늘 날짜 기준으로 복원했습니다.';
+        } else if (quotaResult.reason === 'date_mismatch') {
+          quotaMessage = `\n쿼터 추정치는 백업 날짜(${quotaResult.backupDate})와 오늘 기준 날짜(${quotaResult.today})가 달라 적용하지 않았습니다.`;
+        }
+      }
+
+      let cacheMessage = '';
+      if (data.apiCache) {
+        const cacheResult = applyApiCacheSnapshot(data.apiCache);
+        cacheMessage = `
+API 캐시는 ${cacheResult.applied}개 복원했고 ${cacheResult.skipped}개는 만료 또는 오류로 건너뛰었습니다.`;
+      }
+
+      if (typeof data.customPhrases === 'string' && data.customPhrases.trim()) {
+        els.customPhrases.value = data.customPhrases;
+      }
+      renderFavorites();
+      renderSessions();
+      renderSelectedKeywords();
+      renderExpansions(activeKeyword);
+      renderComparisons();
+      renderHistory();
+      alert('백업 JSON을 가져왔습니다. API 키는 변경하지 않았습니다.' + quotaMessage + cacheMessage);
+    }
+
+    function importPortableBackupJson(file) {
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          applyPortableBackup(JSON.parse(String(reader.result || '')));
+        } catch (err) {
+          alert('백업 가져오기 실패: ' + err.message);
+        } finally {
+          els.fileImportBackup.value = '';
+        }
+      };
+      reader.onerror = () => alert('파일을 읽지 못했습니다.');
+      reader.readAsText(file, 'utf-8');
+    }
+
+    function compactVideo(item) {
+      return {
+        id: item.id,
+        title: item.title,
+        channelTitle: item.channelTitle,
+        subCount: Number(item.subCount || 0),
+        viewCount: Number(item.viewCount || 0),
+        vsRatio: Number(item.vsRatio || 0),
+        viewsPerDay: Number(item.viewsPerDay || 0),
+        playlistScore: Number(item.playlistScore || 0),
+        score: Number(item.score || 0),
+        durationText: item.durationText || '',
+        publishedAt: item.publishedAt || '',
+        reason: item.reason || '',
+        url: item.url || `https://youtu.be/${item.id}`
+      };
+    }
+
+    function makeHistorySnapshot() {
+      const summary = makeSearchSummary(els.q.value.trim());
+      return {
+        id: `${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+        ts: new Date().toISOString(),
+        query: els.q.value.trim(),
+        mode: els.researchMode.value,
+        modeLabel: getModeConfig().label,
+        order: els.order.value,
+        duration: els.videoDuration.value,
+        datePreset: els.datePreset.value,
+        maxResults: els.maxResults.value,
+        minViews: els.minViews.value || '',
+        minRatio: els.minRatio.value || '',
+        summary,
+        results: currentData.map(compactVideo),
+        ideas: currentIdeas.map(compactVideo),
+        phrases: currentPhrases,
+        keywords: currentKeywords,
+        patterns: currentPatterns,
+        selectedKeywords: readSelectedKeywords().slice(0, 80),
+        sunoPrompt: els.sunoPromptBox.value || ''
+      };
+    }
+
+    function saveHistorySnapshot(showAlert = true) {
+      if (!currentData.length) {
+        if (showAlert) alert('먼저 검색 결과를 만든 뒤 히스토리에 저장해 주세요.');
+        return;
+      }
+      const snapshot = makeHistorySnapshot();
+      const list = readHistory();
+      list.unshift(snapshot);
+      writeJSON(HISTORY_KEY, list.slice(0, 30));
+      renderHistory();
+      if (showAlert) alert('현재 검색 지점을 히스토리에 저장했습니다.');
+    }
+
+    function historySnapshotToMarkdown(h) {
+      const lines = [
+        `# 유튜브 트렌드 히스토리: ${h.query || '-'}`,
+        '',
+        `- 저장일: ${h.ts || ''}`,
+        `- 도구 버전: v${APP_VERSION}`,
+        `- 리서치 모드: ${h.modeLabel || h.mode || ''}`,
+        `- 기간: ${h.datePreset || ''}`,
+        `- 길이: ${h.duration || ''}`,
+        `- 정렬: ${h.order || ''}`,
+        `- 결과 수: ${h.results?.length || 0}`,
+        '',
+        '> 이 파일은 히스토리에서 보존용으로 내보낸 개인 리서치 기록입니다. API 키는 포함하지 않습니다.',
+        ''
+      ];
+      lines.push('## 검색 결과\n');
+      lines.push(mdTable(['제목','채널','조회수','V/S','일평균','P-점수','길이','게시일','이유','URL'], (h.results || []).map(i => [i.title, i.channelTitle, i.viewCount, Number(i.vsRatio || 0).toFixed(2), Math.round(i.viewsPerDay || 0), i.playlistScore || 0, i.durationText, i.publishedAt, i.reason, i.url || `https://youtu.be/${i.id}`])));
+      lines.push('\n## 자동 추출 후보\n');
+      lines.push(mdTable(['제목','채널','후보점수','P-점수','이유','URL'], (h.ideas || []).map(i => [i.title, i.channelTitle, i.score, i.playlistScore || 0, i.reason, i.url || `https://youtu.be/${i.id}`])));
+      lines.push('\n## 키워드·제목 패턴\n');
+      lines.push('### 핵심 복합어\n');
+      lines.push(mdTable(['복합어','빈도'], h.phrases || []));
+      lines.push('\n### 단어 빈도\n');
+      lines.push(mdTable(['단어','빈도'], h.keywords || []));
+      lines.push('\n### 제목 패턴\n');
+      lines.push(mdTable(['패턴','빈도'], h.patterns || []));
+      lines.push('\n## 선택 키워드\n');
+      lines.push(mdTable(['키워드','유형','빈도','원 검색어','선택일'], (h.selectedKeywords || []).map(k => [k.term, k.type, k.count, k.sourceQuery || '', k.selectedAt || ''])));
+      lines.push('\n## SUNO 프롬프트 초안\n');
+      lines.push('```text\n' + (h.sunoPrompt || '저장된 SUNO 초안이 없습니다.') + '\n```\n');
+      return lines.join('\n');
+    }
+
+    function historySnapshotRows(h) {
+      return (h.results || []).map(i => [
+        h.ts || '',
+        h.query || '',
+        h.modeLabel || h.mode || '',
+        i.id,
+        i.title,
+        i.channelTitle,
+        i.subCount,
+        i.viewCount,
+        Number(i.vsRatio || 0).toFixed(2),
+        Math.round(i.viewsPerDay || 0),
+        i.playlistScore || 0,
+        i.score || 0,
+        i.durationText || '',
+        i.publishedAt || '',
+        i.reason || '',
+        i.url || `https://youtu.be/${i.id}`
+      ]);
+    }
+
+    function exportHistoryItemMd(id) {
+      const h = readHistory().find(x => x.id === id);
+      if (!h) return;
+      const safeQuery = (h.query || 'history').replace(/[^a-zA-Z0-9가-힣_-]+/g, '_').slice(0, 40) || 'history';
+      downloadMarkdown(`youtube_trend_history_${safeQuery}_${(h.ts || '').slice(0,10)}.md`, historySnapshotToMarkdown(h));
+    }
+
+    function exportHistoryItemCsv(id) {
+      const h = readHistory().find(x => x.id === id);
+      if (!h) return;
+      const headers = ['히스토리저장일','검색어','모드','ID','제목','채널명','구독자','조회수','V/S','일평균','P-점수','후보점수','길이','게시일','이유','URL'];
+      const safeQuery = (h.query || 'history').replace(/[^a-zA-Z0-9가-힣_-]+/g, '_').slice(0, 40) || 'history';
+      downloadCsv(`youtube_trend_history_${safeQuery}_${(h.ts || '').slice(0,10)}.csv`, headers, historySnapshotRows(h));
+    }
+
+    function exportHistoryAllMd() {
+      const list = readHistory();
+      const parts = [`# 유튜브 트렌드 히스토리 전체 내보내기`, '', `- 생성일: ${new Date().toISOString()}`, `- 항목 수: ${list.length}`, ''];
+      list.forEach((h, idx) => {
+        parts.push(`\n---\n\n## ${idx + 1}. ${h.query || '-'}\n`);
+        parts.push(historySnapshotToMarkdown(h));
+      });
+      downloadMarkdown(`youtube_trend_history_all_v${APP_VERSION}_${new Date().toISOString().slice(0,10)}.md`, parts.join('\n'));
+    }
+
+    function exportHistoryAllCsv() {
+      const list = readHistory();
+      const headers = ['히스토리저장일','검색어','모드','ID','제목','채널명','구독자','조회수','V/S','일평균','P-점수','후보점수','길이','게시일','이유','URL'];
+      const rows = list.flatMap(historySnapshotRows);
+      downloadCsv(`youtube_trend_history_all_v${APP_VERSION}_${new Date().toISOString().slice(0,10)}.csv`, headers, rows);
+    }
+
+    function deleteHistoryItem(id) {
+      const list = readHistory().filter(h => h.id !== id);
+      writeJSON(HISTORY_KEY, list);
+      renderHistory();
+    }
+
+    function restoreHistoryQuery(id) {
+      const h = readHistory().find(x => x.id === id);
+      if (!h) return;
+      els.q.value = h.query || '';
+      els.researchMode.value = h.mode || 'general';
+      els.order.value = h.order || 'viewCount';
+      els.videoDuration.value = h.duration || 'long';
+      els.datePreset.value = h.datePreset || '1year';
+      els.maxResults.value = h.maxResults || '25';
+      els.minViews.value = h.minViews || '';
+      els.minRatio.value = h.minRatio || '';
+
+      currentData = (h.results || []).map(restoreVideoFromHistory);
+      currentIdeas = (h.ideas || []).map(restoreVideoFromHistory);
+      currentPhrases = Array.isArray(h.phrases) ? h.phrases : [];
+      currentKeywords = Array.isArray(h.keywords) ? h.keywords : [];
+      currentPatterns = Array.isArray(h.patterns) ? h.patterns : [];
+      currentSort = { key: null, order: 'asc' };
+
+      renderSeeds();
+      renderStats(h.query || '');
+      renderChips(els.phraseBox, currentPhrases, 'emerald');
+      renderChips(els.keywordBox, currentKeywords, 'indigo');
+      els.btnCopyKeywords.disabled = currentPhrases.length + currentKeywords.length === 0;
+      els.btnCopyKeywords.onclick = () => {
+        const merged = [...currentPhrases.map(i => i[0]), ...currentKeywords.map(i => i[0])];
+        navigator.clipboard.writeText(merged.join(', '));
+        alert('키워드 복사 완료!');
+      };
+      renderIdeas();
+      renderTable(currentData);
+      renderFavorites();
+      renderSessions();
+      renderSelectedKeywords();
+      renderExpansions(activeKeyword);
+      renderTitlePatterns();
+      renderSunoPrompt();
+      renderComparisons();
+      renderHistory();
+      els.btnExport.disabled = currentData.length === 0;
+      els.btnExportIdeas.disabled = currentIdeas.length === 0;
+      els.btnExportFull.disabled = currentData.length === 0;
+      els.btnExportCsv.disabled = currentData.length === 0;
+      els.btnExportIdeasCsv.disabled = currentIdeas.length === 0;
+      els.btnExportFullCsv.disabled = currentData.length === 0;
+      els.btnSaveComparison.disabled = currentData.length === 0;
+      els.btnSaveHistory.disabled = currentData.length === 0;
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      alert('히스토리를 복원했습니다. API를 다시 호출하지 않고 저장된 스냅샷을 화면에 올렸습니다.');
+    }
+
+    function renderHistory() {
+      const list = readHistory();
+      els.historyBox.innerHTML = '';
+      els.btnExportHistoryMd.disabled = list.length === 0;
+      els.btnExportHistoryCsv.disabled = list.length === 0;
+      els.btnExportBackupJson.disabled = list.length === 0 && readSelectedKeywords().length === 0 && readFavorites().length === 0 && readComparisons().length === 0;
+      els.btnClearHistory.disabled = list.length === 0;
+      if (!list.length) {
+        const div = document.createElement('div');
+        div.className = 'text-slate-500';
+        div.textContent = '아직 저장된 히스토리가 없습니다.';
+        els.historyBox.appendChild(div);
+        return;
+      }
+      list.slice(0, 30).forEach(h => {
+        const card = document.createElement('div');
+        card.className = 'bg-white border border-amber-200 rounded-xl p-4 shadow-sm';
+        const top = document.createElement('div');
+        top.className = 'flex flex-col lg:flex-row lg:justify-between gap-3';
+        const info = document.createElement('div');
+        const title = document.createElement('div');
+        title.className = 'font-black text-amber-950 wrap';
+        title.textContent = h.query || '-';
+        const meta = document.createElement('div');
+        meta.className = 'text-xs text-slate-500 mt-1 wrap';
+        const summary = h.summary || {};
+        meta.textContent = `${(h.ts || '').replace('T',' ').slice(0,16)} · ${h.modeLabel || h.mode || ''} · 결과 ${fmtFull.format(h.results?.length || 0)}개 · 중앙조회 ${fmtCompact.format(summary.medianViews || 0)} · 최고일평균 ${fmtCompact.format(summary.topVelocity || 0)}`;
+        info.append(title, meta);
+        const actions = document.createElement('div');
+        actions.className = 'flex flex-wrap gap-2 shrink-0';
+        const buttons = [
+          ['복원', 'bg-amber-700 text-white hover:bg-amber-800', () => restoreHistoryQuery(h.id)],
+          ['MD', 'bg-white border border-amber-200 text-amber-800 hover:bg-amber-50', () => exportHistoryItemMd(h.id)],
+          ['CSV', 'bg-white border border-slate-300 text-slate-700 hover:bg-slate-50', () => exportHistoryItemCsv(h.id)],
+          ['삭제', 'bg-white border border-red-200 text-red-600 hover:bg-red-50', () => { if (confirm('이 히스토리 항목을 삭제할까요?')) deleteHistoryItem(h.id); }]
+        ];
+        buttons.forEach(([label, cls, fn]) => {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = `text-sm px-3 py-1.5 rounded-lg font-bold ${cls}`;
+          btn.textContent = label;
+          btn.addEventListener('click', fn);
+          actions.appendChild(btn);
+        });
+        top.append(info, actions);
+        const terms = document.createElement('div');
+        terms.className = 'text-xs text-slate-600 mt-3 wrap';
+        terms.textContent = `상위 키워드/패턴: ${[...(h.patterns || []).slice(0,4).map(x => x[0]), ...(h.phrases || []).slice(0,4).map(x => x[0])].join(', ') || '-'}`;
+        card.append(top, terms);
+        els.historyBox.appendChild(card);
+      });
     }
 
     function clearCacheAndQuota() {
@@ -1054,7 +2534,7 @@
 
     function renderSeeds() {
       els.seedBox.innerHTML = '';
-      seedQueries.forEach(seed => {
+      getModeConfig().seeds.forEach(seed => {
         const btn = document.createElement('button');
         btn.type = 'button';
         btn.className = 'px-2.5 py-1 rounded-lg bg-white border border-slate-200 hover:bg-indigo-50 hover:border-indigo-200 text-slate-700';
@@ -1074,18 +2554,85 @@
         els.apiKey.value = saved;
         els.rememberKey.checked = Boolean(localStorage.getItem(SAVED_KEY));
       }
+      els.autoHistory.checked = localStorage.getItem(AUTO_HISTORY_KEY) !== 'false';
       updateQuotaUI();
       renderSeeds();
       renderFavorites();
       renderSessions();
+      renderSelectedKeywords();
+      renderExpansions(activeKeyword);
+      renderTitlePatterns();
+      renderSunoPrompt();
+      renderComparisons();
+      renderHistory();
 
+      els.researchMode.addEventListener('change', () => { renderSeeds(); renderExpansions(activeKeyword); renderSunoPrompt(); });
       els.btnSearch.addEventListener('click', runSearch);
       els.q.addEventListener('keydown', e => { if (e.key === 'Enter') runSearch(); });
       els.btnExport.addEventListener('click', exportResults);
       els.btnExportIdeas.addEventListener('click', exportIdeas);
+      els.btnExportFull.addEventListener('click', exportFullReport);
+      els.btnExportCsv.addEventListener('click', exportResultsCsv);
+      els.btnExportIdeasCsv.addEventListener('click', exportIdeasCsv);
+      els.btnExportFullCsv.addEventListener('click', exportFullSummaryCsv);
+      els.btnSaveComparison.addEventListener('click', saveComparisonSnapshot);
+      els.btnExportComparisons.addEventListener('click', exportComparisons);
+      els.btnExportComparisonsCsv.addEventListener('click', exportComparisonsCsv);
+      els.btnClearComparisons.addEventListener('click', () => {
+        if (confirm('비교 저장 목록을 모두 삭제할까요?')) {
+          localStorage.removeItem(COMPARISONS_KEY);
+          renderComparisons();
+        }
+      });
+      els.btnExportKeywords.addEventListener('click', exportSelectedKeywords);
+      els.btnExportKeywordsCsv.addEventListener('click', exportSelectedKeywordsCsv);
+      els.btnBuildSunoPrompt.addEventListener('click', () => renderSunoPrompt());
+      els.btnCopySunoPrompt.addEventListener('click', () => {
+        if (!els.sunoPromptBox.value) return;
+        navigator.clipboard.writeText(els.sunoPromptBox.value);
+        alert('SUNO 프롬프트 초안을 복사했습니다.');
+      });
+      els.btnSaveHistory.addEventListener('click', () => saveHistorySnapshot(true));
+      els.btnExportHistoryMd.addEventListener('click', exportHistoryAllMd);
+      els.btnExportHistoryCsv.addEventListener('click', exportHistoryAllCsv);
+      els.btnExportBackupJson.addEventListener('click', exportPortableBackupJson);
+      els.fileImportBackup.addEventListener('change', e => importPortableBackupJson(e.target.files && e.target.files[0]));
+      els.btnClearHistory.addEventListener('click', () => {
+        if (confirm('히스토리 전체를 삭제할까요? 보존할 항목은 먼저 MD/CSV로 내보내는 편이 안전합니다.')) {
+          localStorage.removeItem(HISTORY_KEY);
+          renderHistory();
+        }
+      });
+      els.autoHistory.addEventListener('change', () => {
+        localStorage.setItem(AUTO_HISTORY_KEY, els.autoHistory.checked ? 'true' : 'false');
+      });
       els.btnClearCache.addEventListener('click', clearCacheAndQuota);
       els.btnDeleteKey.addEventListener('click', deleteSavedKey);
       els.btnAddSeed.addEventListener('click', () => els.seedBox.classList.toggle('hidden'));
+      els.btnAddManualKeyword.addEventListener('click', () => {
+        saveSelectedKeyword(els.manualKeyword.value, 'manual', 0);
+        els.manualKeyword.value = '';
+      });
+      els.manualKeyword.addEventListener('keydown', e => {
+        if (e.key === 'Enter') {
+          saveSelectedKeyword(els.manualKeyword.value, 'manual', 0);
+          els.manualKeyword.value = '';
+        }
+      });
+      els.btnSearchActiveKeyword.addEventListener('click', () => {
+        if (!activeKeyword) return;
+        els.q.value = activeKeyword;
+        runSearch();
+      });
+      els.btnClearSelectedKeywords.addEventListener('click', () => {
+        if (confirm('저장한 선택 키워드를 모두 삭제할까요?')) {
+          localStorage.removeItem(SELECTED_KEYWORDS_KEY);
+          activeKeyword = null;
+          currentExpansions = [];
+          renderSelectedKeywords();
+          renderExpansions(null);
+        }
+      });
       els.btnClearFavorites.addEventListener('click', () => {
         if (confirm('저장한 소재 후보를 모두 삭제할까요?')) {
           localStorage.removeItem(FAVORITES_KEY);
