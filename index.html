@@ -3,454 +3,1116 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>시니어 롱폼 인사이트 툴 v4.0 (헤더 정렬)</title>
+  <meta name="referrer" content="strict-origin-when-cross-origin" />
+  <title>시니어 롱폼 인사이트 툴 v5.0</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     html { scroll-behavior: smooth; }
     body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
     .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
-    .wrap { word-break: break-word; }
-    .high-potential { background-color: #f0fdf4; border-left: 4px solid #16a34a; }
+    .wrap { overflow-wrap: anywhere; word-break: break-word; }
+    .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .line-clamp-1 { display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
     th.sortable:hover { background-color: #e5e7eb; cursor: pointer; user-select: none; }
+    .row-high { background-color: #fff7ed; border-left: 4px solid #f97316; }
+    .row-breakout { background-color: #f0fdf4; border-left: 4px solid #16a34a; }
+    .chip { display: inline-flex; align-items: center; gap: .35rem; border-radius: .65rem; padding: .35rem .6rem; font-size: .9rem; font-weight: 650; }
+    .soft-card { border: 1px solid #e5e7eb; background: white; border-radius: 1rem; box-shadow: 0 1px 2px rgba(0,0,0,.04); }
+    input[type="checkbox"] { width: 1rem; height: 1rem; }
   </style>
 </head>
-<body class="bg-gray-100 text-gray-900">
+<body class="bg-slate-100 text-slate-900">
   <div class="max-w-7xl mx-auto p-4 sm:p-8">
-    
-    <header class="mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+    <header class="mb-6 grid grid-cols-1 xl:grid-cols-[1fr_460px] gap-4 items-start">
       <div>
-        <h1 class="text-3xl font-extrabold text-indigo-900">시니어 롱폼 인사이트 v4.0</h1>
-        <p class="text-base text-gray-600 mt-2">표제 헤더 클릭 정렬 기능 탑재</p>
+        <div class="flex flex-wrap items-center gap-3">
+          <h1 class="text-3xl font-extrabold text-indigo-950">시니어 롱폼 인사이트 v5.0</h1>
+          <span class="chip bg-indigo-100 text-indigo-800 border border-indigo-200">개인 리서치용</span>
+        </div>
+        <p class="text-base text-slate-600 mt-2">쿼터 분리 표시 · 보안형 캐시 · 복합어 키워드 · 소재 후보 저장 · 성과 지표 강화</p>
       </div>
-      
-      <div class="bg-white p-4 rounded-xl shadow-sm border border-gray-200 w-full sm:w-80">
-        <div class="flex justify-between text-sm font-bold mb-1">
-          <span class="text-gray-600">오늘 사용량 (예상)</span>
-          <span id="quotaText" class="text-indigo-600">0 / 10,000</span>
+
+      <div class="soft-card p-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <div class="flex justify-between text-sm font-bold mb-1">
+              <span class="text-slate-600">검색 호출</span>
+              <span id="quotaSearchText" class="text-indigo-700">0 / 100</span>
+            </div>
+            <div class="w-full bg-slate-200 rounded-full h-3 overflow-hidden">
+              <div id="quotaSearchBar" class="bg-green-500 h-3 rounded-full transition-all duration-500" style="width: 0%"></div>
+            </div>
+            <p class="text-xs text-slate-500 mt-1">search.list: 1회 호출 = 검색 버킷 1</p>
+          </div>
+          <div>
+            <div class="flex justify-between text-sm font-bold mb-1">
+              <span class="text-slate-600">상세 조회</span>
+              <span id="quotaDetailText" class="text-indigo-700">0 / 10,000</span>
+            </div>
+            <div class="w-full bg-slate-200 rounded-full h-3 overflow-hidden">
+              <div id="quotaDetailBar" class="bg-green-500 h-3 rounded-full transition-all duration-500" style="width: 0%"></div>
+            </div>
+            <p class="text-xs text-slate-500 mt-1">videos.list + channels.list: 보통 검색 1회당 2</p>
+          </div>
         </div>
-        <div class="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
-          <div id="quotaBar" class="bg-green-500 h-3 rounded-full transition-all duration-500" style="width: 0%"></div>
-        </div>
-        <p class="text-xs text-gray-400 mt-1 text-right">*검색 1회당 약 160~200 차감</p>
+        <p class="text-xs text-slate-500 mt-3">브라우저 표시값은 실제 Google Cloud 콘솔이 아니라, 이 도구가 호출한 횟수를 태평양 시간 기준 날짜로 추적한 참고값입니다.</p>
       </div>
     </header>
 
-    <section class="bg-white rounded-2xl shadow-md p-6 mb-8 border border-indigo-100">
-      <div class="flex justify-end mb-4">
-         <button id="btnClearCache" class="text-sm bg-white border border-red-200 text-red-600 px-3 py-1 rounded hover:bg-red-50 transition">🗑️ 캐시 및 쿼터 초기화</button>
+    <section class="soft-card p-5 mb-5 border-indigo-100">
+      <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-3 mb-4">
+        <div class="text-sm text-slate-600">
+          <strong class="text-slate-800">보안 메모:</strong> API 키는 코드·CSV·캐시 키에 넣지 않습니다. 체크할 때만 이 브라우저에 저장합니다.
+        </div>
+        <div class="flex flex-wrap gap-2">
+          <button id="btnDeleteKey" class="text-sm bg-white border border-slate-300 text-slate-700 px-3 py-1.5 rounded-lg hover:bg-slate-50 transition">API 키 삭제</button>
+          <button id="btnClearCache" class="text-sm bg-white border border-red-200 text-red-600 px-3 py-1.5 rounded-lg hover:bg-red-50 transition">캐시·쿼터 초기화</button>
+        </div>
       </div>
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
         <div class="col-span-1 md:col-span-2">
-          <label class="block text-sm font-bold text-gray-700 mb-2">YOUTUBE API KEY</label>
-          <input id="apiKey" type="password" class="w-full rounded-xl border-gray-300 focus:ring-indigo-500 p-3 text-base shadow-sm" placeholder="API 키 입력" />
+          <label for="apiKey" class="block text-sm font-bold text-slate-700 mb-2">YouTube API Key</label>
+          <input id="apiKey" type="password" autocomplete="off" spellcheck="false" class="w-full rounded-xl border border-slate-300 focus:ring-indigo-500 p-3 text-base shadow-sm" placeholder="API 키 입력" />
+          <label class="mt-2 inline-flex items-center gap-2 text-sm text-slate-600 select-none">
+            <input id="rememberKey" type="checkbox" class="rounded border-slate-300" />
+            이 브라우저에 API 키 저장
+          </label>
         </div>
+
         <div class="col-span-1 md:col-span-2">
-          <label class="block text-sm font-bold text-gray-700 mb-2">검색어</label>
-          <input id="q" type="text" class="w-full rounded-xl border-gray-300 focus:ring-indigo-500 p-3 text-base font-bold text-indigo-900 shadow-sm" placeholder="예: 60대 노후, 무릎 통증" />
+          <label for="q" class="block text-sm font-bold text-slate-700 mb-2">검색어</label>
+          <div class="flex gap-2">
+            <input id="q" type="text" class="flex-1 rounded-xl border border-slate-300 focus:ring-indigo-500 p-3 text-base font-bold text-indigo-950 shadow-sm" placeholder="예: 60대 노후, 무릎 통증, 기초연금" />
+            <button id="btnAddSeed" class="px-4 bg-slate-900 text-white rounded-xl hover:bg-slate-800 font-bold">추천어</button>
+          </div>
+          <div id="seedBox" class="hidden mt-2 flex flex-wrap gap-2 text-sm"></div>
         </div>
+
         <div>
-          <label class="block text-sm font-bold text-gray-700 mb-2">정렬 기준 (API)</label>
-          <select id="order" class="w-full rounded-xl border-gray-300 p-3 text-base shadow-sm">
-            <option value="viewCount">조회수순 (검증된 대박)</option>
+          <label for="order" class="block text-sm font-bold text-slate-700 mb-2">정렬 기준(API)</label>
+          <select id="order" class="w-full rounded-xl border border-slate-300 p-3 text-base shadow-sm">
+            <option value="viewCount">조회수순</option>
             <option value="relevance">관련성순</option>
-            <option value="date">최신순 (트렌드)</option>
+            <option value="date">최신순</option>
+            <option value="rating">평점순</option>
           </select>
         </div>
+
         <div>
-          <label class="block text-sm font-bold text-gray-700 mb-2">영상 길이</label>
-          <select id="videoDuration" class="w-full rounded-xl border-gray-300 p-3 text-base shadow-sm">
-            <option value="medium">중간 (4~20분)</option>
-            <option value="long" selected>롱폼 (20분 이상)</option>
+          <label for="videoDuration" class="block text-sm font-bold text-slate-700 mb-2">영상 길이</label>
+          <select id="videoDuration" class="w-full rounded-xl border border-slate-300 p-3 text-base shadow-sm">
+            <option value="medium">중간 4~20분</option>
+            <option value="long" selected>롱폼 20분 이상</option>
             <option value="any">전체</option>
           </select>
         </div>
-        
+
         <div>
-          <label class="block text-sm font-bold text-gray-700 mb-2">기간 설정</label>
-          <select id="datePreset" class="w-full rounded-xl border-gray-300 p-3 text-base shadow-sm bg-indigo-50 text-indigo-900 font-bold">
-            <option value="1year" selected>📅 최근 1년 (추천)</option>
-            <option value="1month">🔥 최근 1개월 (트렌드)</option>
-            <option value="all">🌐 전체 기간</option>
+          <label for="datePreset" class="block text-sm font-bold text-slate-700 mb-2">기간 설정</label>
+          <select id="datePreset" class="w-full rounded-xl border border-slate-300 p-3 text-base shadow-sm bg-indigo-50 text-indigo-950 font-bold">
+            <option value="1month">최근 1개월</option>
+            <option value="3month">최근 3개월</option>
+            <option value="6month">최근 6개월</option>
+            <option value="1year" selected>최근 1년</option>
+            <option value="2year">최근 2년</option>
+            <option value="all">전체 기간</option>
           </select>
         </div>
 
         <div>
-          <label class="block text-sm font-bold text-gray-700 mb-2">검색 개수</label>
-          <select id="maxResults" class="w-full rounded-xl border-gray-300 p-3 text-base shadow-sm">
-            <option value="10">10개 (절약)</option>
-            <option value="25" selected>25개 (추천)</option>
-            <option value="50">50개 (쿼터 주의)</option>
+          <label for="maxResults" class="block text-sm font-bold text-slate-700 mb-2">검색 개수</label>
+          <select id="maxResults" class="w-full rounded-xl border border-slate-300 p-3 text-base shadow-sm">
+            <option value="10">10개</option>
+            <option value="25" selected>25개</option>
+            <option value="50">50개</option>
           </select>
         </div>
+
+        <div>
+          <label for="minViews" class="block text-sm font-bold text-slate-700 mb-2">최소 조회수 필터</label>
+          <input id="minViews" type="number" min="0" step="1000" class="w-full rounded-xl border border-slate-300 p-3 text-base shadow-sm" placeholder="예: 50000" />
+        </div>
+
+        <div>
+          <label for="minRatio" class="block text-sm font-bold text-slate-700 mb-2">최소 성과비율(V/S)</label>
+          <input id="minRatio" type="number" min="0" step="0.1" class="w-full rounded-xl border border-slate-300 p-3 text-base shadow-sm" placeholder="예: 1.5" />
+        </div>
+
+        <div class="lg:col-span-2">
+          <label for="customPhrases" class="block text-sm font-bold text-slate-700 mb-2">추가 복합어 사전</label>
+          <input id="customPhrases" type="text" class="w-full rounded-xl border border-slate-300 p-3 text-base shadow-sm" placeholder="쉼표로 구분: 노후 파산, 요양병원 비용, 자식 갈등" />
+        </div>
       </div>
-      
-      <div class="mt-6 flex gap-3">
-        <button id="btnSearch" class="flex-1 bg-indigo-700 text-white py-3 rounded-xl hover:bg-indigo-800 font-bold text-lg shadow-md transition transform active:scale-95">🚀 분석 시작</button>
-        <button id="btnExport" class="px-8 bg-gray-800 text-white py-3 rounded-xl hover:bg-gray-900 font-bold text-lg shadow-md" disabled>CSV 저장</button>
+
+      <div class="mt-6 grid grid-cols-1 md:grid-cols-[1fr_auto_auto] gap-3">
+        <button id="btnSearch" class="bg-indigo-700 text-white py-3 rounded-xl hover:bg-indigo-800 font-bold text-lg shadow-md transition transform active:scale-95">분석 시작</button>
+        <button id="btnExport" class="px-8 bg-slate-800 text-white py-3 rounded-xl hover:bg-slate-900 font-bold text-lg shadow-md disabled:opacity-50" disabled>결과 CSV</button>
+        <button id="btnExportIdeas" class="px-8 bg-emerald-700 text-white py-3 rounded-xl hover:bg-emerald-800 font-bold text-lg shadow-md disabled:opacity-50" disabled>후보 CSV</button>
       </div>
     </section>
 
-    <section class="bg-indigo-50 rounded-2xl p-6 mb-8 border border-indigo-200 shadow-inner">
-      <div class="flex justify-between items-center mb-4">
-        <h2 class="text-lg font-bold text-indigo-900">🔥 상위 노출 키워드</h2>
-        <button id="btnCopyKeywords" class="text-sm bg-white border border-gray-300 px-3 py-1.5 rounded hover:bg-gray-50 font-medium" disabled>키워드 복사</button>
+    <section class="grid grid-cols-1 lg:grid-cols-4 gap-4 mb-5">
+      <div class="soft-card p-4">
+        <div class="text-sm text-slate-500 font-bold">검색 결과</div>
+        <div id="statCount" class="text-2xl font-black text-slate-900 mt-1">0개</div>
+        <div id="statQuery" class="text-xs text-slate-500 mt-1 wrap">검색 전입니다.</div>
       </div>
-      <div id="keywordsBox" class="flex flex-wrap gap-3 text-sm min-h-[50px]">
-        <span class="text-gray-500 text-base flex items-center">검색 결과가 나오면 이곳에 주요 키워드가 표시됩니다.</span>
+      <div class="soft-card p-4">
+        <div class="text-sm text-slate-500 font-bold">중앙 조회수</div>
+        <div id="statMedianViews" class="text-2xl font-black text-slate-900 mt-1">-</div>
+        <div class="text-xs text-slate-500 mt-1">극단값 영향을 줄인 기준점</div>
+      </div>
+      <div class="soft-card p-4">
+        <div class="text-sm text-slate-500 font-bold">최고 일평균 조회</div>
+        <div id="statTopVelocity" class="text-2xl font-black text-slate-900 mt-1">-</div>
+        <div class="text-xs text-slate-500 mt-1">조회수 ÷ 업로드 후 경과일</div>
+      </div>
+      <div class="soft-card p-4">
+        <div class="text-sm text-slate-500 font-bold">돌파 후보</div>
+        <div id="statBreakouts" class="text-2xl font-black text-slate-900 mt-1">0개</div>
+        <div class="text-xs text-slate-500 mt-1">성과비율·일평균·소형 채널 기준</div>
       </div>
     </section>
 
-    <section class="bg-white rounded-2xl shadow-lg overflow-hidden">
+    <section class="soft-card p-5 mb-5 bg-indigo-50 border-indigo-200">
+      <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-4">
+        <h2 class="text-lg font-black text-indigo-950">키워드·복합어 인사이트</h2>
+        <button id="btnCopyKeywords" class="text-sm bg-white border border-slate-300 px-3 py-1.5 rounded-lg hover:bg-slate-50 font-medium disabled:opacity-50" disabled>키워드 복사</button>
+      </div>
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div>
+          <h3 class="text-sm font-bold text-slate-700 mb-2">핵심 복합어</h3>
+          <div id="phraseBox" class="flex flex-wrap gap-2 min-h-[42px]"><span class="text-slate-500">검색 결과가 나오면 표시됩니다.</span></div>
+        </div>
+        <div>
+          <h3 class="text-sm font-bold text-slate-700 mb-2">단어 빈도</h3>
+          <div id="keywordBox" class="flex flex-wrap gap-2 min-h-[42px]"><span class="text-slate-500">검색 결과가 나오면 표시됩니다.</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="soft-card p-5 mb-5">
+      <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-4">
+        <h2 class="text-lg font-black text-slate-950">자동 추출 소재 후보</h2>
+        <span class="text-sm text-slate-500">점수는 절대값이 아니라 후보 정렬용입니다.</span>
+      </div>
+      <div id="ideasBox" class="grid grid-cols-1 lg:grid-cols-2 gap-3">
+        <div class="text-slate-500">분석 후 이곳에 후보가 표시됩니다.</div>
+      </div>
+    </section>
+
+    <section class="soft-card p-5 mb-5">
+      <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-4">
+        <h2 class="text-lg font-black text-slate-950">저장한 소재 후보</h2>
+        <button id="btnClearFavorites" class="text-sm bg-white border border-red-200 text-red-600 px-3 py-1.5 rounded-lg hover:bg-red-50 disabled:opacity-50" disabled>저장 후보 비우기</button>
+      </div>
+      <div id="favoritesBox" class="grid grid-cols-1 lg:grid-cols-2 gap-3">
+        <div class="text-slate-500">아직 저장한 후보가 없습니다.</div>
+      </div>
+    </section>
+
+    <section class="soft-card p-5 mb-5">
+      <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-4">
+        <h2 class="text-lg font-black text-slate-950">최근 검색 기록</h2>
+        <button id="btnClearSessions" class="text-sm bg-white border border-slate-300 text-slate-700 px-3 py-1.5 rounded-lg hover:bg-slate-50 disabled:opacity-50" disabled>검색 기록 비우기</button>
+      </div>
+      <div id="sessionsBox" class="flex flex-wrap gap-2">
+        <span class="text-slate-500">아직 검색 기록이 없습니다.</span>
+      </div>
+    </section>
+
+    <section class="soft-card overflow-hidden">
       <div class="overflow-x-auto">
         <table class="w-full text-left">
-          <thead class="bg-gray-100 text-gray-700 uppercase text-sm border-b-2 border-gray-200">
+          <thead class="bg-slate-100 text-slate-700 uppercase text-sm border-b-2 border-slate-200">
             <tr>
-              <th class="p-4 sortable" data-sort="title">영상 정보 (제목) <span id="sortIcon-title"></span></th>
-              <th class="p-4 w-40 sortable" data-sort="subCount">채널 / 구독자 <span id="sortIcon-subCount"></span></th>
-              <th class="p-4 w-32 text-center sortable" data-sort="vsRatio">성과(V/S) <span id="sortIcon-vsRatio"></span></th>
-              <th class="p-4 w-32 text-right sortable" data-sort="viewCount">조회수 <span id="sortIcon-viewCount"></span></th>
-              <th class="p-4 w-28 text-center sortable" data-sort="duration">시간 <span id="sortIcon-duration"></span></th>
+              <th class="p-4 sortable min-w-[420px]" data-sort="title">영상 정보 <span id="sortIcon-title"></span></th>
+              <th class="p-4 w-44 sortable" data-sort="subCount">채널/구독자 <span id="sortIcon-subCount"></span></th>
+              <th class="p-4 w-32 text-center sortable" data-sort="vsRatio">V/S <span id="sortIcon-vsRatio"></span></th>
+              <th class="p-4 w-36 text-right sortable" data-sort="viewCount">조회수 <span id="sortIcon-viewCount"></span></th>
+              <th class="p-4 w-36 text-right sortable" data-sort="viewsPerDay">일평균 <span id="sortIcon-viewsPerDay"></span></th>
+              <th class="p-4 w-28 text-center sortable" data-sort="durationSec">길이 <span id="sortIcon-durationSec"></span></th>
               <th class="p-4 w-32 text-center sortable" data-sort="publishedAt">업로드 <span id="sortIcon-publishedAt"></span></th>
+              <th class="p-4 w-24 text-center">저장</th>
             </tr>
           </thead>
-          <tbody id="tbody" class="divide-y divide-gray-100 text-base"></tbody>
+          <tbody id="tbody" class="divide-y divide-slate-100 text-base">
+            <tr><td colspan="8" class="p-8 text-center text-slate-500">검색 결과가 이곳에 표시됩니다.</td></tr>
+          </tbody>
         </table>
       </div>
     </section>
   </div>
 
   <script>
-    // --- 설정 및 유틸 ---
-    const CACHE_KEY_PREFIX = 'yt_tool_v3_';
-    const QUOTA_KEY = 'yt_quota_usage';
-    const DAILY_LIMIT = 10000;
-    
-    function cleanKoreanWord(word) {
-      if (word.length < 2) return word;
-      return word.replace(/(은|는|이|가|을|를|의|와|과|도|로|에|서)$/, '');
-    }
+    'use strict';
 
-    function parseDuration(iso) {
-        if (!iso) return "";
-        const match = iso.match(/PT(\d+H)?(\d+M)?(\d+S)?/);
-        if (!match) return iso;
-        const h = parseInt((match[1]||'').replace('H','')) || 0;
-        const m = parseInt((match[2]||'').replace('M','')) || 0;
-        const s = parseInt((match[3]||'').replace('S','')) || 0;
-        const pad = n => n.toString().padStart(2,'0');
-        return h > 0 ? `${h}:${pad(m)}:${pad(s)}` : `${m}:${pad(s)}`;
-    }
-
-    function getPublishedAfterDate(preset) {
-        const now = new Date();
-        if (preset === '1year') {
-            now.setFullYear(now.getFullYear() - 1);
-            return now.toISOString();
-        } else if (preset === '1month') {
-            now.setMonth(now.getMonth() - 1);
-            return now.toISOString();
-        }
-        return null;
-    }
+    const APP_VERSION = '5.0';
+    const CACHE_PREFIX = 'ytlf_cache_v5_';
+    const QUOTA_KEY = 'ytlf_quota_v5';
+    const SAVED_KEY = 'ytlf_api_key_v5';
+    const SESSIONS_KEY = 'ytlf_sessions_v5';
+    const FAVORITES_KEY = 'ytlf_favorites_v5';
+    const SEARCH_LIMIT = 100;
+    const DETAIL_LIMIT = 10000;
+    const CACHE_TTL = 1000 * 60 * 60 * 24;
 
     const els = {
       apiKey: document.getElementById('apiKey'),
+      rememberKey: document.getElementById('rememberKey'),
       q: document.getElementById('q'),
       order: document.getElementById('order'),
       videoDuration: document.getElementById('videoDuration'),
       datePreset: document.getElementById('datePreset'),
       maxResults: document.getElementById('maxResults'),
+      minViews: document.getElementById('minViews'),
+      minRatio: document.getElementById('minRatio'),
+      customPhrases: document.getElementById('customPhrases'),
       btnSearch: document.getElementById('btnSearch'),
       btnExport: document.getElementById('btnExport'),
-      keywordsBox: document.getElementById('keywordsBox'),
-      tbody: document.getElementById('tbody'),
+      btnExportIdeas: document.getElementById('btnExportIdeas'),
       btnCopyKeywords: document.getElementById('btnCopyKeywords'),
       btnClearCache: document.getElementById('btnClearCache'),
-      quotaText: document.getElementById('quotaText'),
-      quotaBar: document.getElementById('quotaBar')
+      btnDeleteKey: document.getElementById('btnDeleteKey'),
+      btnAddSeed: document.getElementById('btnAddSeed'),
+      btnClearFavorites: document.getElementById('btnClearFavorites'),
+      btnClearSessions: document.getElementById('btnClearSessions'),
+      seedBox: document.getElementById('seedBox'),
+      phraseBox: document.getElementById('phraseBox'),
+      keywordBox: document.getElementById('keywordBox'),
+      ideasBox: document.getElementById('ideasBox'),
+      favoritesBox: document.getElementById('favoritesBox'),
+      sessionsBox: document.getElementById('sessionsBox'),
+      tbody: document.getElementById('tbody'),
+      quotaSearchText: document.getElementById('quotaSearchText'),
+      quotaSearchBar: document.getElementById('quotaSearchBar'),
+      quotaDetailText: document.getElementById('quotaDetailText'),
+      quotaDetailBar: document.getElementById('quotaDetailBar'),
+      statCount: document.getElementById('statCount'),
+      statQuery: document.getElementById('statQuery'),
+      statMedianViews: document.getElementById('statMedianViews'),
+      statTopVelocity: document.getElementById('statTopVelocity'),
+      statBreakouts: document.getElementById('statBreakouts')
     };
 
-    const savedKey = localStorage.getItem('yt_api_key');
-    if(savedKey) els.apiKey.value = savedKey;
+    const fmtCompact = new Intl.NumberFormat('ko-KR', { notation: 'compact', maximumFractionDigits: 1 });
+    const fmtFull = new Intl.NumberFormat('ko-KR');
+    const fmtOne = new Intl.NumberFormat('ko-KR', { maximumFractionDigits: 1 });
 
     let currentData = [];
-    const fmt = n => new Intl.NumberFormat('ko-KR', { notation: "compact", maximumFractionDigits: 1 }).format(n);
-    const fmtFull = n => new Intl.NumberFormat('ko-KR').format(n);
+    let currentIdeas = [];
+    let currentKeywords = [];
+    let currentPhrases = [];
+    let currentSort = { key: null, order: 'asc' };
 
-    // --- 쿼터 관리 ---
-    function updateQuotaUI() {
-        const today = new Date().toDateString();
-        let qData = JSON.parse(localStorage.getItem(QUOTA_KEY) || '{}');
-        if (qData.date !== today) {
-            qData = { date: today, used: 0 };
-            localStorage.setItem(QUOTA_KEY, JSON.stringify(qData));
-        }
-        const used = qData.used;
-        const pct = Math.min((used / DAILY_LIMIT) * 100, 100);
-        els.quotaText.textContent = `${used.toLocaleString()} / 10,000`;
-        els.quotaBar.style.width = `${pct}%`;
-        
-        if(pct > 80) els.quotaBar.className = "h-3 rounded-full transition-all duration-500 bg-red-500";
-        else if(pct > 50) els.quotaBar.className = "h-3 rounded-full transition-all duration-500 bg-yellow-400";
-        else els.quotaBar.className = "h-3 rounded-full transition-all duration-500 bg-green-500";
+    const seedQueries = [
+      '60대 노후 준비', '기초연금 수급', '국민연금 노후', '노후 파산', '요양병원 비용',
+      '무릎 통증 운동', '허리 통증 스트레칭', '당뇨 식단', '혈압 관리', '치매 예방',
+      '자식 갈등 노후', '황혼 이혼', '고독사 예방', '상속 분쟁', '주택연금'
+    ];
+
+    const basePhraseDictionary = [
+      '노후 준비', '기초연금', '국민연금', '노후 파산', '퇴직금', '생활비', '주택연금', '상속 분쟁', '부동산 상속',
+      '요양병원', '요양원', '간병비', '간병 보험', '치매 예방', '치매 증상', '무릎 통증', '허리 통증', '관절염', '당뇨 식단', '혈압 관리',
+      '자식 갈등', '부모 부양', '황혼 이혼', '사별 후', '외로움', '고독사', '재혼', '친구 만들기',
+      '스마트폰 사용법', '카카오톡 사용법', '임영웅', '트로트', '건강검진', '정부 지원금', '복지 혜택'
+    ];
+
+    const stopWords = new Set([
+      '영상','시니어','건강','유튜브','하는','합니다','있는','입니다','그리고','에서','으로','까지','정말','진짜','방법','이유','가지','티비','TV','오늘','이번','추천','사람','때문','바로','이렇게','저렇게','그런','이런','많은','대한','통해','위해','하면','해서','보다','가장','모든','우리','여러분','알아야','절대','꼭','반드시','공개','최초','최신'
+    ]);
+
+    function decodeEntities(str) {
+      const textarea = document.createElement('textarea');
+      textarea.innerHTML = str || '';
+      return textarea.value;
     }
 
-    function addQuotaUsage(cost) {
-        const today = new Date().toDateString();
-        let qData = JSON.parse(localStorage.getItem(QUOTA_KEY) || '{}');
-        if (qData.date !== today) qData = { date: today, used: 0 };
-        qData.used += cost;
-        localStorage.setItem(QUOTA_KEY, JSON.stringify(qData));
-        updateQuotaUI();
+    function ptDateString() {
+      return new Intl.DateTimeFormat('en-CA', {
+        timeZone: 'America/Los_Angeles', year: 'numeric', month: '2-digit', day: '2-digit'
+      }).format(new Date());
     }
-    updateQuotaUI();
 
-    // --- API 호출 ---
-    async function fetchWithCache(url, cost) {
-      const cacheKey = CACHE_KEY_PREFIX + url;
-      const cached = localStorage.getItem(cacheKey);
-      if (cached) {
-        const parsed = JSON.parse(cached);
-        if (Date.now() - parsed.timestamp < 1000 * 60 * 60 * 24) {
-          console.log("Using Cache (No Cost):", url);
-          return parsed.data;
-        }
+    function readJSON(key, fallback) {
+      try { return JSON.parse(localStorage.getItem(key) || 'null') ?? fallback; }
+      catch { return fallback; }
+    }
+
+    function writeJSON(key, value) {
+      localStorage.setItem(key, JSON.stringify(value));
+    }
+
+    function hashString(str) {
+      let h = 2166136261;
+      for (let i = 0; i < str.length; i++) {
+        h ^= str.charCodeAt(i);
+        h = Math.imul(h, 16777619);
       }
-      const res = await fetch(url);
-      if (!res.ok) throw new Error(`API Error: ${res.status}`);
-      const data = await res.json();
+      return (h >>> 0).toString(36);
+    }
+
+    function getQuota() {
+      const today = ptDateString();
+      let q = readJSON(QUOTA_KEY, { date: today, search: 0, detail: 0 });
+      if (q.date !== today) q = { date: today, search: 0, detail: 0 };
+      q.search = Number(q.search || 0);
+      q.detail = Number(q.detail || 0);
+      writeJSON(QUOTA_KEY, q);
+      return q;
+    }
+
+    function setBar(el, pct) {
+      el.style.width = `${Math.min(Math.max(pct, 0), 100)}%`;
+      el.className = 'h-3 rounded-full transition-all duration-500 ' + (pct > 80 ? 'bg-red-500' : pct > 50 ? 'bg-yellow-400' : 'bg-green-500');
+    }
+
+    function updateQuotaUI() {
+      const q = getQuota();
+      const searchPct = (q.search / SEARCH_LIMIT) * 100;
+      const detailPct = (q.detail / DETAIL_LIMIT) * 100;
+      els.quotaSearchText.textContent = `${fmtFull.format(q.search)} / ${fmtFull.format(SEARCH_LIMIT)}`;
+      els.quotaDetailText.textContent = `${fmtFull.format(q.detail)} / ${fmtFull.format(DETAIL_LIMIT)}`;
+      setBar(els.quotaSearchBar, searchPct);
+      setBar(els.quotaDetailBar, detailPct);
+    }
+
+    function addQuotaUsage(kind, amount) {
+      const q = getQuota();
+      q[kind] += amount;
+      writeJSON(QUOTA_KEY, q);
+      updateQuotaUI();
+    }
+
+    function cacheKeyFor(endpoint, params) {
+      const safeParams = new URLSearchParams(params);
+      safeParams.delete('key');
+      return CACHE_PREFIX + endpoint + '_' + hashString(safeParams.toString());
+    }
+
+    async function fetchYouTube(endpoint, params, quotaKind, quotaCost) {
+      const url = `https://www.googleapis.com/youtube/v3/${endpoint}?${params.toString()}`;
+      const cacheKey = cacheKeyFor(endpoint, params);
+      const cachedRaw = localStorage.getItem(cacheKey);
+      if (cachedRaw) {
+        try {
+          const cached = JSON.parse(cachedRaw);
+          if (Date.now() - cached.timestamp < CACHE_TTL) {
+            return { data: cached.data, fromCache: true };
+          }
+        } catch { localStorage.removeItem(cacheKey); }
+      }
+
+      const res = await fetch(url, { method: 'GET' });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || data.error) {
+        const message = data?.error?.message || `HTTP ${res.status}`;
+        throw new Error(message);
+      }
+
       try {
-        localStorage.setItem(cacheKey, JSON.stringify({ timestamp: Date.now(), data: data }));
-        addQuotaUsage(cost);
-      } catch (e) { console.warn("Cache full"); }
-      return data;
+        localStorage.setItem(cacheKey, JSON.stringify({ timestamp: Date.now(), data }));
+      } catch (err) {
+        console.warn('캐시 저장 공간 부족 또는 저장 실패:', err);
+      }
+      addQuotaUsage(quotaKind, quotaCost);
+      return { data, fromCache: false };
+    }
+
+    function getPublishedAfterDate(preset) {
+      if (preset === 'all') return null;
+      const now = new Date();
+      if (preset === '1month') now.setMonth(now.getMonth() - 1);
+      if (preset === '3month') now.setMonth(now.getMonth() - 3);
+      if (preset === '6month') now.setMonth(now.getMonth() - 6);
+      if (preset === '1year') now.setFullYear(now.getFullYear() - 1);
+      if (preset === '2year') now.setFullYear(now.getFullYear() - 2);
+      return now.toISOString();
+    }
+
+    function parseISO8601DurationToSeconds(iso) {
+      if (!iso) return 0;
+      const match = iso.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
+      if (!match) return 0;
+      return (parseInt(match[1] || '0', 10) * 3600) + (parseInt(match[2] || '0', 10) * 60) + parseInt(match[3] || '0', 10);
+    }
+
+    function formatDuration(seconds) {
+      const h = Math.floor(seconds / 3600);
+      const m = Math.floor((seconds % 3600) / 60);
+      const s = seconds % 60;
+      const pad = n => String(n).padStart(2, '0');
+      return h > 0 ? `${h}:${pad(m)}:${pad(s)}` : `${m}:${pad(s)}`;
+    }
+
+    function ageDays(publishedAt) {
+      const created = new Date(publishedAt);
+      const diff = Date.now() - created.getTime();
+      return Math.max(1, Math.floor(diff / 86400000));
+    }
+
+    function cleanKoreanWord(word) {
+      if (!word || word.length < 2) return word;
+      return word.replace(/(은|는|이|가|을|를|의|와|과|도|로|에|서|에게|께서|부터|까지|처럼|보다|만|만큼|라면|이라면|하고|하고는)$/u, '');
+    }
+
+    function getAllPhrases() {
+      const custom = els.customPhrases.value.split(',').map(v => v.trim()).filter(Boolean);
+      return [...new Set([...basePhraseDictionary, ...custom])];
+    }
+
+    function potentialScore(item) {
+      const ratioScore = Math.min(item.vsRatio, 10) * 12;
+      const velocityScore = Math.log10(item.viewsPerDay + 10) * 18;
+      const viewScore = Math.log10(item.viewCount + 10) * 8;
+      const smallChannelBonus = item.subCount > 0 && item.subCount < 50000 && item.vsRatio >= 1.2 ? 15 : 0;
+      const longFormBonus = item.durationSec >= 20 * 60 ? 8 : 0;
+      return Math.round(ratioScore + velocityScore + viewScore + smallChannelBonus + longFormBonus);
+    }
+
+    function classifyItem(item) {
+      const isBreakout = item.vsRatio >= 1.5 || item.viewsPerDay >= 2000 || (item.subCount < 50000 && item.viewCount >= 50000);
+      const isHigh = item.vsRatio >= 3 || item.viewsPerDay >= 10000 || (item.subCount < 10000 && item.viewCount >= 100000);
+      return { isBreakout, isHigh };
+    }
+
+    function reasonFor(item) {
+      const reasons = [];
+      if (item.vsRatio >= 3) reasons.push(`구독자 대비 ${fmtOne.format(item.vsRatio)}배 조회`);
+      else if (item.vsRatio >= 1.5) reasons.push(`구독자 대비 ${fmtOne.format(item.vsRatio)}배 반응`);
+      if (item.viewsPerDay >= 10000) reasons.push(`일평균 ${fmtCompact.format(item.viewsPerDay)} 조회`);
+      else if (item.viewsPerDay >= 2000) reasons.push(`일평균 ${fmtCompact.format(item.viewsPerDay)} 조회`);
+      if (item.subCount < 10000 && item.viewCount >= 50000) reasons.push('소형 채널 돌파 사례');
+      if (item.durationSec >= 20 * 60) reasons.push('롱폼 검증');
+      return reasons.length ? reasons.join(' · ') : '검색 조건 내 참고 후보';
+    }
+
+    function normalizeVideo(item, video, channelStats) {
+      const viewCount = parseInt(video?.statistics?.viewCount || '0', 10);
+      const subRaw = channelStats?.hiddenSubscriberCount ? null : channelStats?.subscriberCount;
+      const subCount = subRaw ? parseInt(subRaw, 10) : 0;
+      const publishedAt = video?.snippet?.publishedAt || item.snippet.publishedAt;
+      const days = ageDays(publishedAt);
+      const durationSec = parseISO8601DurationToSeconds(video?.contentDetails?.duration || '');
+      const vsRatio = subCount > 0 ? viewCount / subCount : 0;
+      const viewsPerDay = viewCount / days;
+      const title = decodeEntities(video?.snippet?.title || item.snippet.title || '제목 없음');
+      const desc = decodeEntities(video?.snippet?.description || item.snippet.description || '');
+      const channelTitle = decodeEntities(video?.snippet?.channelTitle || item.snippet.channelTitle || '채널명 없음');
+      const thumb = video?.snippet?.thumbnails?.medium?.url || item.snippet?.thumbnails?.medium?.url || '';
+      const out = {
+        id: item.id.videoId,
+        title, desc, thumb, channelTitle,
+        channelId: item.snippet.channelId,
+        publishedAt: publishedAt.split('T')[0],
+        viewCount, subCount, vsRatio,
+        viewsPerDay, ageDays: days,
+        durationSec,
+        durationText: formatDuration(durationSec),
+        score: 0,
+        reason: ''
+      };
+      out.score = potentialScore(out);
+      out.reason = reasonFor(out);
+      return out;
+    }
+
+    function applyLocalFilters(results) {
+      const minViews = parseInt(els.minViews.value || '0', 10) || 0;
+      const minRatio = parseFloat(els.minRatio.value || '0') || 0;
+      return results.filter(item => item.viewCount >= minViews && item.vsRatio >= minRatio);
     }
 
     async function runSearch() {
       const key = els.apiKey.value.trim();
       const q = els.q.value.trim();
-      if (!key || !q) return alert('API Key와 검색어를 입력하세요.');
-      localStorage.setItem('yt_api_key', key);
-      
+      if (!key || !q) { alert('API Key와 검색어를 입력해 주세요.'); return; }
+
+      if (els.rememberKey.checked) localStorage.setItem(SAVED_KEY, key);
+      else sessionStorage.setItem(SAVED_KEY, key);
+
       els.btnSearch.disabled = true;
       els.btnSearch.textContent = '데이터 분석 중...';
-      els.tbody.innerHTML = '<tr><td colspan="6" class="p-8 text-center text-lg text-gray-500">데이터를 가져오는 중입니다...</td></tr>';
+      els.tbody.innerHTML = '<tr><td colspan="8" class="p-8 text-center text-lg text-slate-500">YouTube 데이터를 가져오는 중입니다...</td></tr>';
 
       try {
-        const maxResults = parseInt(els.maxResults.value);
+        const maxResults = parseInt(els.maxResults.value, 10);
         const publishedAfter = getPublishedAfterDate(els.datePreset.value);
-
-        const params = new URLSearchParams({
+        const searchParams = new URLSearchParams({
           part: 'snippet', type: 'video', q, key,
-          maxResults: maxResults,
+          maxResults: String(maxResults),
           order: els.order.value,
           videoDuration: els.videoDuration.value,
-          regionCode: 'KR', relevanceLanguage: 'ko'
+          regionCode: 'KR', relevanceLanguage: 'ko', safeSearch: 'none',
+          fields: 'items(id/videoId,snippet(channelId,channelTitle,title,description,publishedAt,thumbnails/medium/url))'
         });
-        if (publishedAfter) params.append('publishedAfter', publishedAfter);
+        if (publishedAfter) searchParams.append('publishedAfter', publishedAfter);
 
-        const searchData = await fetchWithCache(`https://www.googleapis.com/youtube/v3/search?${params}`, 100);
-        if (!searchData.items?.length) throw new Error('결과가 없습니다.');
+        const { data: searchData } = await fetchYouTube('search', searchParams, 'search', 1);
+        if (!searchData.items?.length) throw new Error('검색 결과가 없습니다.');
 
-        const videoIds = searchData.items.map(i => i.id.videoId);
-        const channelIds = [...new Set(searchData.items.map(i => i.snippet.channelId))];
+        const videoIds = searchData.items.map(i => i.id.videoId).filter(Boolean);
+        const channelIds = [...new Set(searchData.items.map(i => i.snippet.channelId).filter(Boolean))];
 
-        const vParams = new URLSearchParams({ part: 'statistics,contentDetails,snippet', id: videoIds.join(','), key });
-        const videoDetails = await fetchWithCache(`https://www.googleapis.com/youtube/v3/videos?${vParams}`, videoIds.length);
-        
-        const cParams = new URLSearchParams({ part: 'statistics', id: channelIds.join(','), key });
-        const channelDetails = await fetchWithCache(`https://www.googleapis.com/youtube/v3/channels?${cParams}`, channelIds.length);
+        const videoParams = new URLSearchParams({
+          part: 'statistics,contentDetails,snippet', id: videoIds.join(','), key,
+          fields: 'items(id,snippet(title,description,publishedAt,channelId,channelTitle,thumbnails/medium/url),statistics(viewCount,likeCount,commentCount),contentDetails(duration))'
+        });
+        const channelParams = new URLSearchParams({
+          part: 'statistics', id: channelIds.join(','), key,
+          fields: 'items(id,statistics(subscriberCount,hiddenSubscriberCount))'
+        });
 
-        const vMap = new Map(videoDetails.items.map(i => [i.id, i]));
-        const cMap = new Map(channelDetails.items.map(i => [i.id, i.statistics]));
+        const [{ data: videoDetails }, { data: channelDetails }] = await Promise.all([
+          fetchYouTube('videos', videoParams, 'detail', 1),
+          fetchYouTube('channels', channelParams, 'detail', 1)
+        ]);
 
-        const results = searchData.items.map(item => {
-          const v = vMap.get(item.id.videoId);
-          const cStats = cMap.get(item.snippet.channelId);
-          if (!v) return null;
+        const vMap = new Map((videoDetails.items || []).map(i => [i.id, i]));
+        const cMap = new Map((channelDetails.items || []).map(i => [i.id, i.statistics]));
 
-          const viewCount = parseInt(v.statistics.viewCount || 0);
-          const subCount = parseInt(cStats?.subscriberCount || 1);
-          const vsRatio = subCount > 0 ? (viewCount / subCount) : 0;
-          
-          return {
-            id: item.id.videoId,
-            title: item.snippet.title,
-            desc: item.snippet.description,
-            thumb: item.snippet.thumbnails.medium.url,
-            channelTitle: item.snippet.channelTitle,
-            publishedAt: item.snippet.publishedAt.split('T')[0],
-            viewCount,
-            subCount,
-            vsRatio,
-            duration: v.contentDetails.duration,
-            durationSec: parseISO8601DurationToSeconds(v.contentDetails.duration) // 정렬용 초 단위 시간
-          };
+        let results = searchData.items.map(item => {
+          const video = vMap.get(item.id.videoId);
+          if (!video) return null;
+          return normalizeVideo(item, video, cMap.get(item.snippet.channelId));
         }).filter(Boolean);
-        
+
+        results = applyLocalFilters(results);
         currentData = results;
-        // 초기 정렬 상태 (기본: API 검색 결과 순)
         currentSort = { key: null, order: 'asc' };
         updateSortIcons();
-        renderTable(results);
-        analyzeKeywords(results);
-        els.btnExport.disabled = false;
-
+        renderAll(q);
+        saveSession(q);
       } catch (err) {
-        alert('오류 발생: ' + err.message);
         console.error(err);
+        alert('오류 발생: ' + err.message);
+        els.tbody.innerHTML = '<tr><td colspan="8" class="p-8 text-center text-red-600 font-bold">오류가 발생했습니다. 콘솔 또는 API 키 제한 설정을 확인해 주세요.</td></tr>';
       } finally {
         els.btnSearch.disabled = false;
-        els.btnSearch.textContent = '🚀 분석 시작';
+        els.btnSearch.textContent = '분석 시작';
       }
     }
 
-    // --- 정렬 로직 추가 ---
-    let currentSort = { key: null, order: 'asc' }; // 현재 정렬 상태
+    function renderAll(query) {
+      renderStats(query);
+      analyzeKeywords(currentData);
+      buildIdeas(currentData);
+      renderTable(currentData);
+      renderFavorites();
+      renderSessions();
+      els.btnExport.disabled = currentData.length === 0;
+      els.btnExportIdeas.disabled = currentIdeas.length === 0;
+    }
+
+    function renderStats(query) {
+      const count = currentData.length;
+      const sortedViews = [...currentData].sort((a, b) => a.viewCount - b.viewCount);
+      const median = count ? sortedViews[Math.floor(count / 2)].viewCount : 0;
+      const topVelocity = count ? Math.max(...currentData.map(i => i.viewsPerDay)) : 0;
+      const breakouts = currentData.filter(i => classifyItem(i).isBreakout).length;
+      els.statCount.textContent = `${fmtFull.format(count)}개`;
+      els.statQuery.textContent = query ? `검색어: ${query}` : '검색 전입니다.';
+      els.statMedianViews.textContent = count ? fmtCompact.format(median) : '-';
+      els.statTopVelocity.textContent = count ? fmtCompact.format(Math.round(topVelocity)) : '-';
+      els.statBreakouts.textContent = `${fmtFull.format(breakouts)}개`;
+    }
+
+    function analyzeKeywords(data) {
+      const text = data.map(i => `${i.title} ${i.desc}`).join(' ');
+      const lowerText = text.toLowerCase();
+      const phraseCounts = {};
+      getAllPhrases().forEach(phrase => {
+        const normalized = phrase.trim();
+        if (!normalized) return;
+        const escaped = normalized.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const re = new RegExp(escaped, 'gi');
+        const matches = lowerText.match(re);
+        if (matches?.length) phraseCounts[normalized] = matches.length;
+      });
+
+      const words = text.replace(/https?:\/\/\S+/g, ' ').replace(/[^\w가-힣\s]/g, ' ').split(/\s+/);
+      const counts = {};
+      words.forEach(w => {
+        let clean = cleanKoreanWord(w.trim());
+        if (!clean || clean.length < 2) return;
+        if (/^\d+$/.test(clean)) return;
+        if (stopWords.has(clean)) return;
+        counts[clean] = (counts[clean] || 0) + 1;
+      });
+
+      currentPhrases = Object.entries(phraseCounts).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])).slice(0, 20);
+      currentKeywords = Object.entries(counts).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])).slice(0, 25);
+
+      renderChips(els.phraseBox, currentPhrases, 'emerald');
+      renderChips(els.keywordBox, currentKeywords, 'indigo');
+      els.btnCopyKeywords.disabled = currentPhrases.length + currentKeywords.length === 0;
+      els.btnCopyKeywords.onclick = () => {
+        const merged = [...currentPhrases.map(i => i[0]), ...currentKeywords.map(i => i[0])];
+        navigator.clipboard.writeText(merged.join(', '));
+        alert('키워드 복사 완료!');
+      };
+    }
+
+    function renderChips(box, list, color) {
+      box.innerHTML = '';
+      if (!list.length) {
+        const span = document.createElement('span');
+        span.className = 'text-slate-500';
+        span.textContent = '표시할 항목이 없습니다.';
+        box.appendChild(span);
+        return;
+      }
+      list.forEach(([word, count]) => {
+        const chip = document.createElement('button');
+        chip.type = 'button';
+        chip.className = color === 'emerald'
+          ? 'chip bg-emerald-50 border border-emerald-200 text-emerald-900 hover:bg-emerald-100'
+          : 'chip bg-indigo-50 border border-indigo-200 text-indigo-900 hover:bg-indigo-100';
+        chip.textContent = `${word} ${count}`;
+        chip.addEventListener('click', () => {
+          els.q.value = word;
+          els.q.focus();
+        });
+        box.appendChild(chip);
+      });
+    }
+
+    function buildIdeas(data) {
+      currentIdeas = [...data]
+        .sort((a, b) => b.score - a.score)
+        .slice(0, 8)
+        .map(item => ({
+          id: item.id,
+          title: item.title,
+          channelTitle: item.channelTitle,
+          score: item.score,
+          reason: item.reason,
+          viewCount: item.viewCount,
+          subCount: item.subCount,
+          vsRatio: item.vsRatio,
+          viewsPerDay: item.viewsPerDay,
+          publishedAt: item.publishedAt,
+          url: `https://youtu.be/${item.id}`
+        }));
+      renderIdeas();
+    }
+
+    function renderIdeas() {
+      els.ideasBox.innerHTML = '';
+      if (!currentIdeas.length) {
+        const div = document.createElement('div');
+        div.className = 'text-slate-500';
+        div.textContent = '분석 후 이곳에 후보가 표시됩니다.';
+        els.ideasBox.appendChild(div);
+        return;
+      }
+      currentIdeas.forEach((idea, idx) => {
+        const card = document.createElement('div');
+        card.className = 'border border-slate-200 rounded-xl p-4 bg-white hover:bg-slate-50';
+
+        const top = document.createElement('div');
+        top.className = 'flex justify-between gap-3 items-start mb-2';
+        const rank = document.createElement('span');
+        rank.className = 'chip bg-orange-100 border border-orange-200 text-orange-900';
+        rank.textContent = `#${idx + 1} 점수 ${idea.score}`;
+        const save = document.createElement('button');
+        save.className = 'text-sm px-3 py-1 rounded-lg border border-emerald-200 text-emerald-700 hover:bg-emerald-50 font-bold';
+        save.textContent = '후보 저장';
+        save.addEventListener('click', () => saveFavoriteById(idea.id));
+        top.append(rank, save);
+
+        const a = document.createElement('a');
+        a.href = idea.url;
+        a.target = '_blank';
+        a.rel = 'noopener noreferrer';
+        a.className = 'block text-indigo-800 font-black text-lg hover:underline line-clamp-2';
+        a.textContent = idea.title;
+
+        const meta = document.createElement('p');
+        meta.className = 'text-sm text-slate-500 mt-1';
+        meta.textContent = `${idea.channelTitle} · 조회 ${fmtCompact.format(idea.viewCount)} · V/S ${fmtOne.format(idea.vsRatio)}x · 일평균 ${fmtCompact.format(Math.round(idea.viewsPerDay))}`;
+
+        const reason = document.createElement('p');
+        reason.className = 'text-sm text-slate-700 mt-2';
+        reason.textContent = idea.reason;
+
+        card.append(top, a, meta, reason);
+        els.ideasBox.appendChild(card);
+      });
+    }
+
+    function renderTable(data) {
+      els.tbody.innerHTML = '';
+      if (!data.length) {
+        els.tbody.innerHTML = '<tr><td colspan="8" class="p-8 text-center text-slate-500">조건에 맞는 결과가 없습니다.</td></tr>';
+        return;
+      }
+      const favs = readFavorites();
+      const favSet = new Set(favs.map(f => f.id));
+
+      data.forEach(item => {
+        const cls = classifyItem(item);
+        const tr = document.createElement('tr');
+        tr.className = `border-b border-slate-100 hover:bg-slate-50 transition-colors ${cls.isHigh ? 'row-high' : cls.isBreakout ? 'row-breakout' : ''}`;
+
+        const tdInfo = document.createElement('td');
+        tdInfo.className = 'p-4';
+        const infoWrap = document.createElement('div');
+        infoWrap.className = 'flex gap-4 min-w-[380px]';
+        const img = document.createElement('img');
+        img.src = item.thumb;
+        img.alt = '';
+        img.loading = 'lazy';
+        img.className = 'w-32 h-20 object-cover rounded-lg shadow-md bg-slate-200 flex-shrink-0';
+        const textWrap = document.createElement('div');
+        textWrap.className = 'flex-1 min-w-0';
+        const a = document.createElement('a');
+        a.href = `https://youtu.be/${item.id}`;
+        a.target = '_blank';
+        a.rel = 'noopener noreferrer';
+        a.className = 'text-indigo-800 font-bold text-lg hover:underline line-clamp-2 leading-snug';
+        a.textContent = item.title;
+        const desc = document.createElement('p');
+        desc.className = 'text-sm text-slate-500 mt-1 line-clamp-1';
+        desc.textContent = item.desc;
+        const tags = document.createElement('div');
+        tags.className = 'mt-2 flex flex-wrap gap-1';
+        if (cls.isHigh) tags.appendChild(makeSmallBadge('강후보', 'orange'));
+        else if (cls.isBreakout) tags.appendChild(makeSmallBadge('돌파', 'green'));
+        tags.appendChild(makeSmallBadge(`점수 ${item.score}`, 'slate'));
+        textWrap.append(a, desc, tags);
+        infoWrap.append(img, textWrap);
+        tdInfo.appendChild(infoWrap);
+
+        const tdChannel = document.createElement('td');
+        tdChannel.className = 'p-4';
+        const ch = document.createElement('div');
+        ch.className = 'font-bold text-slate-800 wrap';
+        ch.textContent = item.channelTitle;
+        const sub = document.createElement('div');
+        sub.className = 'text-sm text-slate-500';
+        sub.textContent = item.subCount ? `구독자: ${fmtCompact.format(item.subCount)}` : '구독자: 비공개/확인불가';
+        tdChannel.append(ch, sub);
+
+        const tdVs = document.createElement('td');
+        tdVs.className = 'p-4 text-center';
+        const vs = document.createElement('div');
+        vs.className = `font-extrabold text-xl ${cls.isHigh ? 'text-orange-600' : cls.isBreakout ? 'text-emerald-700' : 'text-indigo-700'}`;
+        vs.textContent = item.subCount ? `${fmtOne.format(item.vsRatio)}x` : '-';
+        tdVs.appendChild(vs);
+
+        const tdView = document.createElement('td');
+        tdView.className = 'p-4 text-right mono text-lg font-bold text-slate-700';
+        tdView.textContent = fmtFull.format(item.viewCount);
+
+        const tdVel = document.createElement('td');
+        tdVel.className = 'p-4 text-right mono text-base font-bold text-slate-700';
+        tdVel.textContent = fmtFull.format(Math.round(item.viewsPerDay));
+
+        const tdDuration = document.createElement('td');
+        tdDuration.className = 'p-4 text-center';
+        const d = document.createElement('span');
+        d.className = 'mono text-base bg-slate-100 px-2 py-1 rounded text-slate-700 inline-block font-bold';
+        d.textContent = item.durationText;
+        tdDuration.appendChild(d);
+
+        const tdPublished = document.createElement('td');
+        tdPublished.className = 'p-4 text-center text-sm text-slate-500';
+        tdPublished.textContent = item.publishedAt;
+
+        const tdSave = document.createElement('td');
+        tdSave.className = 'p-4 text-center';
+        const btn = document.createElement('button');
+        btn.className = favSet.has(item.id)
+          ? 'px-3 py-1 rounded-lg bg-emerald-100 text-emerald-800 border border-emerald-200 font-bold'
+          : 'px-3 py-1 rounded-lg bg-white text-slate-700 border border-slate-300 hover:bg-slate-50 font-bold';
+        btn.textContent = favSet.has(item.id) ? '저장됨' : '저장';
+        btn.addEventListener('click', () => saveFavoriteById(item.id));
+        tdSave.appendChild(btn);
+
+        tr.append(tdInfo, tdChannel, tdVs, tdView, tdVel, tdDuration, tdPublished, tdSave);
+        els.tbody.appendChild(tr);
+      });
+    }
+
+    function makeSmallBadge(text, tone) {
+      const span = document.createElement('span');
+      const map = {
+        orange: 'bg-orange-100 text-orange-800 border-orange-200',
+        green: 'bg-emerald-100 text-emerald-800 border-emerald-200',
+        slate: 'bg-slate-100 text-slate-700 border-slate-200'
+      };
+      span.className = `text-xs px-2 py-0.5 rounded-full border font-bold ${map[tone] || map.slate}`;
+      span.textContent = text;
+      return span;
+    }
+
+    function sortData(key, order) {
+      if (!currentData.length) return;
+      currentData.sort((a, b) => {
+        let av = a[key];
+        let bv = b[key];
+        if (key === 'publishedAt') {
+          av = new Date(av).getTime();
+          bv = new Date(bv).getTime();
+        }
+        if (typeof av === 'string') {
+          const res = av.localeCompare(bv, 'ko');
+          return order === 'asc' ? res : -res;
+        }
+        return order === 'asc' ? av - bv : bv - av;
+      });
+      renderTable(currentData);
+    }
+
+    function updateSortIcons() {
+      document.querySelectorAll('th.sortable span').forEach(span => { span.textContent = ''; });
+      if (currentSort.key) {
+        const icon = currentSort.order === 'asc' ? ' ▲' : ' ▼';
+        const target = document.getElementById(`sortIcon-${currentSort.key}`);
+        if (target) target.textContent = icon;
+      }
+    }
 
     document.querySelectorAll('th.sortable').forEach(th => {
       th.addEventListener('click', () => {
         const key = th.dataset.sort;
-        if (currentSort.key === key) {
-          currentSort.order = currentSort.order === 'asc' ? 'desc' : 'asc';
-        } else {
+        if (currentSort.key === key) currentSort.order = currentSort.order === 'asc' ? 'desc' : 'asc';
+        else {
           currentSort.key = key;
-          currentSort.order = 'desc'; // 기본 내림차순 (높은게 위로)
-          if (key === 'title' || key === 'publishedAt') currentSort.order = 'asc'; // 텍스트, 날짜는 오름차순 기본
+          currentSort.order = (key === 'title' || key === 'publishedAt') ? 'asc' : 'desc';
         }
         sortData(key, currentSort.order);
         updateSortIcons();
       });
     });
 
-    function sortData(key, order) {
-      if (!currentData.length) return;
-      
-      currentData.sort((a, b) => {
-        let valA = a[key];
-        let valB = b[key];
-        
-        // 문자열 비교
-        if (typeof valA === 'string') {
-          valA = valA.toLowerCase();
-          valB = valB.toLowerCase();
-          if (valA < valB) return order === 'asc' ? -1 : 1;
-          if (valA > valB) return order === 'asc' ? 1 : -1;
-          return 0;
-        }
-        
-        // 숫자 비교
-        return order === 'asc' ? valA - valB : valB - valA;
-      });
+    function readFavorites() {
+      return readJSON(FAVORITES_KEY, []);
+    }
+
+    function saveFavoriteById(id) {
+      const item = currentData.find(v => v.id === id) || currentIdeas.find(v => v.id === id);
+      if (!item) return;
+      const favs = readFavorites();
+      if (!favs.some(f => f.id === id)) {
+        favs.unshift({
+          id,
+          savedAt: new Date().toISOString(),
+          title: item.title,
+          channelTitle: item.channelTitle,
+          viewCount: item.viewCount,
+          subCount: item.subCount,
+          vsRatio: item.vsRatio,
+          viewsPerDay: item.viewsPerDay,
+          publishedAt: item.publishedAt,
+          score: item.score,
+          reason: item.reason,
+          url: `https://youtu.be/${id}`
+        });
+        writeJSON(FAVORITES_KEY, favs.slice(0, 100));
+      }
+      renderFavorites();
       renderTable(currentData);
     }
 
-    function updateSortIcons() {
-      document.querySelectorAll('th.sortable span').forEach(span => span.textContent = '');
-      if (currentSort.key) {
-        const icon = currentSort.order === 'asc' ? ' ▲' : ' ▼';
-        document.getElementById(`sortIcon-${currentSort.key}`).textContent = icon;
+    function renderFavorites() {
+      const favs = readFavorites();
+      els.favoritesBox.innerHTML = '';
+      els.btnClearFavorites.disabled = favs.length === 0;
+      if (!favs.length) {
+        const div = document.createElement('div');
+        div.className = 'text-slate-500';
+        div.textContent = '아직 저장한 후보가 없습니다.';
+        els.favoritesBox.appendChild(div);
+        return;
       }
-    }
-    
-    // ISO 8601 duration을 초 단위로 변환 (정렬용)
-    function parseISO8601DurationToSeconds(iso) {
-        if (!iso) return 0;
-        const match = iso.match(/PT(\d+H)?(\d+M)?(\d+S)?/);
-        if (!match) return 0;
-        const h = parseInt((match[1]||'').replace('H','')) || 0;
-        const m = parseInt((match[2]||'').replace('M','')) || 0;
-        const s = parseInt((match[3]||'').replace('S','')) || 0;
-        return h * 3600 + m * 60 + s;
-    }
-
-
-    function renderTable(data) {
-      els.tbody.innerHTML = '';
-      data.forEach(item => {
-        const isViral = item.vsRatio > 1.5; 
-        const rowClass = isViral ? 'high-potential' : '';
-        const badge = isViral ? `<br><span class="bg-red-600 text-white text-xs px-2 py-0.5 rounded-full font-bold shadow-sm">떡상🔥</span>` : '';
-
-        const tr = document.createElement('tr');
-        tr.className = `border-b border-gray-100 hover:bg-gray-50 transition-colors ${rowClass}`;
-        tr.innerHTML = `
-          <td class="p-4">
-            <div class="flex gap-4">
-              <img src="${item.thumb}" class="w-32 h-20 object-cover rounded-lg shadow-md" />
-              <div class="flex-1">
-                <a href="https://youtu.be/${item.id}" target="_blank" class="text-indigo-800 font-bold text-lg hover:underline line-clamp-2 leading-snug">${item.title}</a>
-                <p class="text-sm text-gray-500 mt-1 line-clamp-1">${item.desc}</p>
-              </div>
-            </div>
-          </td>
-          <td class="p-4">
-            <div class="font-bold text-gray-800">${item.channelTitle}</div>
-            <div class="text-sm text-gray-500">구독자: ${fmt(item.subCount)}</div>
-          </td>
-          <td class="p-4 text-center">
-            <div class="font-extrabold text-xl text-indigo-700 ${isViral ? 'text-red-600' : ''}">${item.vsRatio.toFixed(1)}x</div>
-            ${badge}
-          </td>
-          <td class="p-4 text-right">
-            <div class="font-mono text-lg font-bold text-gray-700">${fmtFull(item.viewCount)}</div>
-          </td>
-          <td class="p-4 text-center">
-            <div class="font-mono text-base bg-gray-100 px-2 py-1 rounded text-gray-700 inline-block font-bold">${parseDuration(item.duration)}</div>
-          </td>
-          <td class="p-4 text-center text-sm text-gray-500">
-            ${item.publishedAt}
-          </td>
-        `;
-        els.tbody.appendChild(tr);
+      favs.slice(0, 12).forEach(f => {
+        const card = document.createElement('div');
+        card.className = 'border border-slate-200 rounded-xl p-4 bg-white';
+        const a = document.createElement('a');
+        a.href = f.url;
+        a.target = '_blank';
+        a.rel = 'noopener noreferrer';
+        a.className = 'block text-indigo-800 font-black hover:underline line-clamp-2';
+        a.textContent = f.title;
+        const meta = document.createElement('p');
+        meta.className = 'text-sm text-slate-500 mt-1';
+        meta.textContent = `${f.channelTitle} · 조회 ${fmtCompact.format(f.viewCount)} · V/S ${fmtOne.format(f.vsRatio)}x · 저장 ${f.savedAt.split('T')[0]}`;
+        const reason = document.createElement('p');
+        reason.className = 'text-sm text-slate-700 mt-2';
+        reason.textContent = f.reason || '';
+        card.append(a, meta, reason);
+        els.favoritesBox.appendChild(card);
       });
     }
 
-    function analyzeKeywords(data) {
-      const text = data.map(i => i.title + ' ' + i.desc).join(' ');
-      const words = text.replace(/[^\w가-힣\s]/g, '').split(/\s+/);
-      const counts = {};
-      const stopWords = new Set(['영상','시니어','건강','유튜브','하는','합니다','있는','입니다','그리고','에서','으로','까지','정말','진짜','방법','이유','가지','티비','TV']);
-
-      words.forEach(w => {
-        if(w.length < 2) return;
-        const clean = cleanKoreanWord(w);
-        if(stopWords.has(clean)) return;
-        counts[clean] = (counts[clean] || 0) + 1;
-      });
-
-      const sorted = Object.entries(counts).sort((a,b) => b[1] - a[1]).slice(0, 20);
-      els.keywordsBox.innerHTML = sorted.map(([k, v]) => 
-        `<span class="bg-indigo-50 border border-indigo-200 text-indigo-900 px-3 py-1.5 rounded-lg shadow-sm text-base font-medium cursor-pointer hover:bg-indigo-100 transition">${k} <span class="text-indigo-400 text-xs ml-1">${v}</span></span>`
-      ).join('');
-      els.btnCopyKeywords.disabled = false;
-      els.btnCopyKeywords.onclick = () => {
-        navigator.clipboard.writeText(sorted.map(i=>i[0]).join(', '));
-        alert('키워드 복사 완료!');
+    function saveSession(query) {
+      const sessions = readJSON(SESSIONS_KEY, []);
+      const item = {
+        ts: new Date().toISOString(),
+        query,
+        order: els.order.value,
+        duration: els.videoDuration.value,
+        datePreset: els.datePreset.value,
+        maxResults: els.maxResults.value,
+        resultCount: currentData.length,
+        topPhrases: currentPhrases.slice(0, 8).map(p => p[0]),
+        topVideo: currentData[0]?.title || ''
       };
+      const deduped = sessions.filter(s => !(s.query === item.query && s.datePreset === item.datePreset && s.duration === item.duration));
+      deduped.unshift(item);
+      writeJSON(SESSIONS_KEY, deduped.slice(0, 30));
+      renderSessions();
     }
 
-    els.btnExport.onclick = () => {
-      const header = ['ID,제목,채널명,구독자,조회수,VS비율,길이,게시일\n'];
-      const rows = currentData.map(i => `${i.id},"${i.title.replaceAll('"','""')}","${i.channelTitle}",${i.subCount},${i.viewCount},${i.vsRatio.toFixed(2)},${parseDuration(i.duration)},${i.publishedAt}`);
-      const blob = new Blob([header + rows.join('\n')], {type: 'text/csv;charset=utf-8;'});
+    function renderSessions() {
+      const sessions = readJSON(SESSIONS_KEY, []);
+      els.sessionsBox.innerHTML = '';
+      els.btnClearSessions.disabled = sessions.length === 0;
+      if (!sessions.length) {
+        const span = document.createElement('span');
+        span.className = 'text-slate-500';
+        span.textContent = '아직 검색 기록이 없습니다.';
+        els.sessionsBox.appendChild(span);
+        return;
+      }
+      sessions.slice(0, 12).forEach(s => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'px-3 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-left';
+        btn.textContent = `${s.query} · ${s.resultCount}개 · ${s.ts.split('T')[0]}`;
+        btn.title = s.topPhrases?.length ? `상위 복합어: ${s.topPhrases.join(', ')}` : '';
+        btn.addEventListener('click', () => {
+          els.q.value = s.query;
+          els.order.value = s.order || 'viewCount';
+          els.videoDuration.value = s.duration || 'long';
+          els.datePreset.value = s.datePreset || '1year';
+          els.maxResults.value = s.maxResults || '25';
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+        els.sessionsBox.appendChild(btn);
+      });
+    }
+
+    function csvEscape(value) {
+      const str = String(value ?? '');
+      return /[",\n]/.test(str) ? `"${str.replaceAll('"', '""')}"` : str;
+    }
+
+    function downloadCSV(filename, rows) {
+      const bom = '\ufeff';
+      const csv = bom + rows.map(row => row.map(csvEscape).join(',')).join('\n');
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
-      a.href = url; a.download = 'youtube_analysis_v4.0.csv';
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
       a.click();
-    };
+      a.remove();
+      URL.revokeObjectURL(url);
+    }
 
-    els.btnClearCache.onclick = () => {
-      if(confirm('캐시 데이터와 오늘의 쿼터 사용량을 모두 초기화하시겠습니까?')) {
-        Object.keys(localStorage).forEach(k => {
-          if(k.startsWith(CACHE_KEY_PREFIX) || k === QUOTA_KEY) localStorage.removeItem(k);
+    function exportResults() {
+      const rows = [[
+        'ID','제목','채널명','구독자','조회수','V/S비율','일평균조회','길이','게시일','점수','이유','URL'
+      ]];
+      currentData.forEach(i => rows.push([
+        i.id, i.title, i.channelTitle, i.subCount, i.viewCount, i.vsRatio.toFixed(2), Math.round(i.viewsPerDay), i.durationText, i.publishedAt, i.score, i.reason, `https://youtu.be/${i.id}`
+      ]));
+      downloadCSV(`youtube_longform_results_v${APP_VERSION}_${new Date().toISOString().slice(0,10)}.csv`, rows);
+    }
+
+    function exportIdeas() {
+      const favs = readFavorites();
+      const source = favs.length ? favs : currentIdeas;
+      const rows = [['ID','제목','채널명','점수','이유','구독자','조회수','V/S비율','일평균조회','게시일','URL']];
+      source.forEach(i => rows.push([
+        i.id, i.title, i.channelTitle, i.score, i.reason, i.subCount, i.viewCount, Number(i.vsRatio).toFixed(2), Math.round(i.viewsPerDay), i.publishedAt, i.url || `https://youtu.be/${i.id}`
+      ]));
+      downloadCSV(`youtube_longform_ideas_v${APP_VERSION}_${new Date().toISOString().slice(0,10)}.csv`, rows);
+    }
+
+    function clearCacheAndQuota() {
+      if (!confirm('캐시 데이터와 이 도구가 추적한 쿼터 사용량을 초기화할까요? API 키와 저장 후보는 유지됩니다.')) return;
+      Object.keys(localStorage).forEach(k => {
+        if (k.startsWith(CACHE_PREFIX) || k === QUOTA_KEY) localStorage.removeItem(k);
+      });
+      updateQuotaUI();
+      alert('캐시와 쿼터 표시를 초기화했습니다.');
+    }
+
+    function deleteSavedKey() {
+      localStorage.removeItem(SAVED_KEY);
+      sessionStorage.removeItem(SAVED_KEY);
+      els.apiKey.value = '';
+      els.rememberKey.checked = false;
+      alert('저장된 API 키를 삭제했습니다.');
+    }
+
+    function renderSeeds() {
+      els.seedBox.innerHTML = '';
+      seedQueries.forEach(seed => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'px-2.5 py-1 rounded-lg bg-white border border-slate-200 hover:bg-indigo-50 hover:border-indigo-200 text-slate-700';
+        btn.textContent = seed;
+        btn.addEventListener('click', () => {
+          els.q.value = seed;
+          els.seedBox.classList.add('hidden');
+          els.q.focus();
         });
-        alert('초기화 완료.');
-        location.reload();
-      }
-    };
+        els.seedBox.appendChild(btn);
+      });
+    }
 
-    els.btnSearch.addEventListener('click', runSearch);
+    function init() {
+      const saved = localStorage.getItem(SAVED_KEY) || sessionStorage.getItem(SAVED_KEY);
+      if (saved) {
+        els.apiKey.value = saved;
+        els.rememberKey.checked = Boolean(localStorage.getItem(SAVED_KEY));
+      }
+      updateQuotaUI();
+      renderSeeds();
+      renderFavorites();
+      renderSessions();
+
+      els.btnSearch.addEventListener('click', runSearch);
+      els.q.addEventListener('keydown', e => { if (e.key === 'Enter') runSearch(); });
+      els.btnExport.addEventListener('click', exportResults);
+      els.btnExportIdeas.addEventListener('click', exportIdeas);
+      els.btnClearCache.addEventListener('click', clearCacheAndQuota);
+      els.btnDeleteKey.addEventListener('click', deleteSavedKey);
+      els.btnAddSeed.addEventListener('click', () => els.seedBox.classList.toggle('hidden'));
+      els.btnClearFavorites.addEventListener('click', () => {
+        if (confirm('저장한 소재 후보를 모두 삭제할까요?')) {
+          localStorage.removeItem(FAVORITES_KEY);
+          renderFavorites();
+          renderTable(currentData);
+        }
+      });
+      els.btnClearSessions.addEventListener('click', () => {
+        if (confirm('최근 검색 기록을 모두 삭제할까요?')) {
+          localStorage.removeItem(SESSIONS_KEY);
+          renderSessions();
+        }
+      });
+      els.rememberKey.addEventListener('change', () => {
+        const key = els.apiKey.value.trim();
+        if (!key) return;
+        if (els.rememberKey.checked) {
+          localStorage.setItem(SAVED_KEY, key);
+          sessionStorage.removeItem(SAVED_KEY);
+        } else {
+          localStorage.removeItem(SAVED_KEY);
+          sessionStorage.setItem(SAVED_KEY, key);
+        }
+      });
+    }
+
+    init();
   </script>
 </body>
 </html>
