@@ -1,386 +1,292 @@
-<!doctype html>
-<html lang="ko">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="referrer" content="strict-origin-when-cross-origin" />
-  <title>유튜브 트렌드 인사이트 툴 v5.9</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <style>
-    html { scroll-behavior: smooth; }
-    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
-    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
-    .wrap { overflow-wrap: anywhere; word-break: break-word; }
-    .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-    .line-clamp-1 { display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
-    .results-table { min-width: 1640px; table-layout: auto; }
-    .col-video { min-width: 460px; }
-    .col-channel { min-width: 260px; width: 280px; }
-    .col-playlist { min-width: 112px; width: 120px; white-space: nowrap; }
-    .no-wrap { white-space: nowrap; }
-    .drag-scroll { cursor: default; overscroll-behavior-x: contain; }
-    .drag-scroll tbody { cursor: grab; }
-    .drag-scroll.dragging { cursor: grabbing; user-select: none; }
-    .drag-scroll.dragging * { user-select: none !important; }
-    th.sortable:hover { background-color: #e5e7eb; cursor: pointer; user-select: none; }
-    .row-high { background-color: #fff7ed; border-left: 4px solid #f97316; }
-    .row-breakout { background-color: #f0fdf4; border-left: 4px solid #16a34a; }
-    .chip { display: inline-flex; align-items: center; gap: .35rem; border-radius: .65rem; padding: .35rem .6rem; font-size: .9rem; font-weight: 650; }
-    .soft-card { border: 1px solid #e5e7eb; background: white; border-radius: 1rem; box-shadow: 0 1px 2px rgba(0,0,0,.04); }
-    input[type="checkbox"] { width: 1rem; height: 1rem; }
-  </style>
-</head>
-<body class="bg-slate-100 text-slate-900">
-  <div class="max-w-7xl mx-auto p-4 sm:p-8">
-    <header class="mb-6 grid grid-cols-1 xl:grid-cols-[1fr_460px] gap-4 items-start">
-      <div>
-        <div class="flex flex-wrap items-center gap-3">
-          <h1 class="text-3xl font-extrabold text-indigo-950">유튜브 트렌드 인사이트 v5.9</h1>
-          <span class="chip bg-indigo-100 text-indigo-800 border border-indigo-200">개인 리서치용</span>
-        </div>
-        <p class="text-base text-slate-600 mt-2">범용 유튜브 검색 · 리서치 모드 · 키워드 선택/저장 · 확장 검색 · 비교 분석 · MD/CSV 내보내기 · 히스토리 백업/복원 · 쿼터/캐시 선택 백업 · SUNO 초안</p>
-      </div>
+<!DOCTYPE html>
+<html lang="ko"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1" name="viewport"/><meta content="strict-origin-when-cross-origin" name="referrer"/><title>유튜브 트렌드 인사이트 툴 v6.0</title><script src="https://cdn.tailwindcss.com"></script><style>
+html{scroll-behavior:smooth}body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif}.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace}.wrap{overflow-wrap:anywhere;word-break:break-word}.line-clamp-2{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}.line-clamp-1{display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden}.results-table{min-width:1540px;table-layout:auto}.col-video{min-width:460px}.col-channel{min-width:260px;width:280px}.col-playlist{min-width:112px;width:120px;white-space:nowrap}.no-wrap{white-space:nowrap}.drag-scroll{cursor:default;overscroll-behavior-x:contain}.drag-scroll tbody{cursor:grab}.drag-scroll.dragging{cursor:grabbing;user-select:none}.drag-scroll.dragging *{user-select:none!important}th.sortable:hover{background-color:#e5e7eb;cursor:pointer;user-select:none}.row-high{background-color:#fff7ed;border-left:4px solid #f97316}.row-breakout{background-color:#f0fdf4;border-left:4px solid #16a34a}.chip{display:inline-flex;align-items:center;gap:.35rem;border-radius:.65rem;padding:.35rem .6rem;font-size:.9rem;font-weight:650}.soft-card{border:1px solid #e5e7eb;background:white;border-radius:1rem;box-shadow:0 1px 2px rgba(0,0,0,.04)}input[type="checkbox"]{width:1rem;height:1rem}.field-label{display:block;font-size:.875rem;line-height:1.25rem;font-weight:700;color:#334155;margin-bottom:.375rem}.field-control{width:100%;border-radius:.75rem;border:1px solid #cbd5e1;padding:.75rem;font-size:1rem;line-height:1.5rem;background:white;box-shadow:0 1px 2px rgba(0,0,0,.04)}.preset-chip{border:1px solid #c7d2fe;background:#fff;color:#3730a3;border-radius:999px;padding:.4rem .75rem;font-size:.8rem;font-weight:700}.preset-chip:hover{background:#eef2ff}.action-secondary{display:inline-flex;align-items:center;border-width:1px;background:#fff;padding:.65rem 1rem;border-radius:.75rem;font-weight:700}.workspace-tabs{position:sticky;top:0;z-index:40;display:flex;gap:.35rem;overflow-x:auto;padding:.55rem;margin:0 0 1rem;background:rgba(241,245,249,.94);backdrop-filter:blur(10px);border:1px solid #e2e8f0;border-radius:1rem}.workspace-tab{white-space:nowrap;border-radius:.75rem;padding:.7rem 1rem;font-weight:800;color:#475569}.workspace-tab:hover{background:#fff}.workspace-tab.active{background:#312e81;color:#fff;box-shadow:0 2px 6px rgba(49,46,129,.22)}.tab-panel{display:none}.tab-panel.active{display:block}.export-popover{position:absolute;left:0;top:calc(100% + .4rem);z-index:60;width:230px;padding:.65rem;border:1px solid #cbd5e1;border-radius:.85rem;background:white;box-shadow:0 12px 30px rgba(15,23,42,.16)}.export-popover button{display:block;width:100%;text-align:left;padding:.55rem .7rem;border-radius:.55rem;font-size:.875rem}.export-popover button:hover:not(:disabled){background:#f1f5f9}.export-popover button:disabled{opacity:.4}.export-group-title{padding:.25rem .7rem;font-size:.72rem;font-weight:900;letter-spacing:.04em;color:#64748b;text-transform:uppercase}.help-dot{display:inline-flex;align-items:center;justify-content:center;width:1rem;height:1rem;margin-left:.2rem;border-radius:999px;background:#e2e8f0;color:#475569;font-size:.65rem;cursor:help}.sticky-table-head{position:sticky;top:0;z-index:20}.sticky-table-head th{background:#f1f5f9}.sticky-col{position:sticky;left:0;background:inherit;box-shadow:2px 0 0 rgba(226,232,240,.9)}tbody .sticky-col{z-index:10}thead .sticky-col{z-index:30!important}.mode-music-only{display:none}body.mode-music .mode-music-only{display:block}.playlist-col{display:none}body.mode-music .playlist-col{display:table-cell}.tab-empty-note{border:1px dashed #cbd5e1;background:#f8fafc;border-radius:.9rem;padding:1rem;color:#64748b;font-size:.9rem}@media(max-width:640px){.results-table{min-width:1420px}.workspace-tabs{border-radius:.75rem}.quota-card{display:none}.export-popover{position:fixed;left:1rem;right:1rem;top:auto;bottom:1rem;width:auto}}
+</style></head><body class="bg-slate-100 text-slate-900"><div class="max-w-[1500px] mx-auto p-3 sm:p-6">
+<header class="mb-4 grid grid-cols-1 xl:grid-cols-[1fr_420px] gap-4 items-start">
+<div class="pt-1">
+<div class="flex flex-wrap items-center gap-3">
+<h1 class="text-3xl font-extrabold text-indigo-950">유튜브 트렌드 인사이트 v6.0</h1>
+<span class="chip bg-indigo-100 text-indigo-800 border border-indigo-200">개인 리서치 작업대</span>
+</div>
+<p class="text-base text-slate-600 mt-2">검색 결과를 먼저 보고, 키워드 연구·후보 기획·비교·히스토리를 탭으로 오가는 구조로 재편했습니다.</p>
+</div>
+<div class="soft-card p-4 quota-card">
+<div class="grid grid-cols-2 gap-4">
+<div>
+<div class="flex justify-between text-xs font-bold mb-1"><span class="text-slate-600">검색 호출</span><span class="text-indigo-700" id="quotaSearchText">0 / 100</span></div>
+<div class="w-full bg-slate-200 rounded-full h-2.5 overflow-hidden"><div class="bg-green-500 h-2.5 rounded-full transition-all duration-500" id="quotaSearchBar" style="width:0%"></div></div>
+</div>
+<div>
+<div class="flex justify-between text-xs font-bold mb-1"><span class="text-slate-600">상세 조회</span><span class="text-indigo-700" id="quotaDetailText">0 / 10,000</span></div>
+<div class="w-full bg-slate-200 rounded-full h-2.5 overflow-hidden"><div class="bg-green-500 h-2.5 rounded-full transition-all duration-500" id="quotaDetailBar" style="width:0%"></div></div>
+</div>
+</div>
+<p class="text-[11px] text-slate-500 mt-2">Google Cloud 실제 잔량이 아니라 이 도구의 호출 추정치입니다.</p>
+</div>
+</header>
 
-      <div class="soft-card p-4">
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <div class="flex justify-between text-sm font-bold mb-1">
-              <span class="text-slate-600">검색 호출</span>
-              <span id="quotaSearchText" class="text-indigo-700">0 / 100</span>
-            </div>
-            <div class="w-full bg-slate-200 rounded-full h-3 overflow-hidden">
-              <div id="quotaSearchBar" class="bg-green-500 h-3 rounded-full transition-all duration-500" style="width: 0%"></div>
-            </div>
-            <p class="text-xs text-slate-500 mt-1">search.list: 1회 호출 = 검색 버킷 1</p>
-          </div>
-          <div>
-            <div class="flex justify-between text-sm font-bold mb-1">
-              <span class="text-slate-600">상세 조회</span>
-              <span id="quotaDetailText" class="text-indigo-700">0 / 10,000</span>
-            </div>
-            <div class="w-full bg-slate-200 rounded-full h-3 overflow-hidden">
-              <div id="quotaDetailBar" class="bg-green-500 h-3 rounded-full transition-all duration-500" style="width: 0%"></div>
-            </div>
-            <p class="text-xs text-slate-500 mt-1">videos.list + channels.list: 보통 검색 1회당 2</p>
-          </div>
-        </div>
-        <p class="text-xs text-slate-500 mt-3">브라우저 표시값은 실제 Google Cloud 콘솔이 아니라, 이 도구가 호출한 횟수를 태평양 시간 기준 날짜로 추적한 참고값입니다.</p>
-      </div>
-    </header>
+<section class="soft-card p-5 mb-4 border-indigo-100" id="searchWorkspace">
+<div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 mb-4">
+<div>
+<h2 class="text-lg font-black text-slate-950">검색 설정</h2>
+<p class="text-sm text-slate-500 mt-1">자주 쓰는 항목만 앞에 두고, 나머지는 상세 설정에 접었습니다.</p>
+</div>
+<div class="flex flex-wrap gap-2" id="presetButtons">
+<button class="preset-chip" data-preset="music-market" type="button">AI 음악 시장</button>
+<button class="preset-chip" data-preset="music-breakout" type="button">최근 플레이리스트 돌파</button>
+<button class="preset-chip" data-preset="senior" type="button">시니어 롱폼</button>
+<button class="preset-chip" data-preset="recent" type="button">최근 급상승 탐색</button>
+</div>
+</div>
+<details class="rounded-xl border border-slate-200 bg-slate-50 mb-4" id="apiSettings">
+<summary class="cursor-pointer px-4 py-3 font-bold text-slate-700 select-none">API·보안 설정</summary>
+<div class="px-4 pb-4 grid grid-cols-1 lg:grid-cols-[1fr_auto_auto] gap-3 items-end">
+<div>
+<label class="block text-sm font-bold text-slate-700 mb-1.5" for="apiKey">YouTube API Key</label>
+<input autocomplete="off" class="w-full rounded-xl border border-slate-300 focus:ring-indigo-500 p-3 text-base shadow-sm" id="apiKey" placeholder="API 키 입력" spellcheck="false" type="password"/>
+<label class="mt-2 inline-flex items-center gap-2 text-sm text-slate-600 select-none"><input class="rounded border-slate-300" id="rememberKey" type="checkbox"/>이 브라우저에 API 키 저장</label>
+</div>
+<button class="text-sm bg-white border border-slate-300 text-slate-700 px-4 py-3 rounded-xl hover:bg-slate-50 transition" id="btnDeleteKey">API 키 삭제</button>
+<button class="text-sm bg-white border border-red-200 text-red-600 px-4 py-3 rounded-xl hover:bg-red-50 transition" id="btnClearCache">캐시·쿼터 초기화</button>
+</div>
+<p class="px-4 pb-4 text-xs text-slate-500">API 키는 코드·내보내기 파일·캐시 키에 포함하지 않습니다.</p>
+</details>
+<div class="grid grid-cols-1 lg:grid-cols-[minmax(320px,1fr)_220px_190px_auto] gap-3 items-end">
+<div>
+<label class="block text-sm font-bold text-slate-700 mb-1.5" for="q">검색어</label>
+<div class="flex gap-2">
+<input class="flex-1 rounded-xl border border-slate-300 focus:ring-indigo-500 p-3 text-base font-bold text-indigo-950 shadow-sm" id="q" placeholder="예: playlist, sleep music, 기초연금" type="text"/>
+<button class="px-4 bg-white border border-slate-300 text-slate-800 rounded-xl hover:bg-slate-50 font-bold" id="btnAddSeed">추천어</button>
+</div>
+<div class="hidden mt-2 flex flex-wrap gap-2 text-sm" id="seedBox"></div>
+</div>
+<div>
+<label class="block text-sm font-bold text-slate-700 mb-1.5" for="researchMode">리서치 모드</label>
+<select class="w-full rounded-xl border border-slate-300 p-3 text-base shadow-sm bg-white" id="researchMode"><option selected="" value="general">범용 트렌드</option><option value="music">AI 음악·플레이리스트</option><option value="senior">시니어 롱폼</option></select>
+</div>
+<div>
+<label class="block text-sm font-bold text-slate-700 mb-1.5" for="datePreset">기간</label>
+<select class="w-full rounded-xl border border-slate-300 p-3 text-base shadow-sm bg-indigo-50 text-indigo-950 font-bold" id="datePreset"><option value="1month">최근 1개월</option><option value="3month">최근 3개월</option><option value="6month">최근 6개월</option><option selected="" value="1year">최근 1년</option><option value="2year">최근 2년</option><option value="all">전체 기간</option></select>
+</div>
+<button class="bg-indigo-700 text-white px-7 py-3 rounded-xl hover:bg-indigo-800 font-bold text-lg shadow-md transition active:scale-95" id="btnSearch">분석 시작</button>
+</div>
+<details class="mt-4 rounded-xl border border-slate-200 bg-white" id="advancedSettings">
+<summary class="cursor-pointer px-4 py-3 font-bold text-slate-700 select-none">상세 설정 <span class="text-xs font-normal text-slate-500">정렬·길이·필터·시장·제외어</span></summary>
+<div class="px-4 pb-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+<div><label class="field-label" for="order">정렬 기준(API)</label><select class="field-control" id="order"><option value="viewCount">조회수순</option><option value="relevance">관련성순</option><option value="date">최신순</option><option value="rating">평점순</option></select></div>
+<div><label class="field-label" for="videoDuration">영상 길이</label><select class="field-control" id="videoDuration"><option value="medium">중간 4~20분</option><option selected="" value="long">롱폼 20분 이상</option><option value="any">전체</option></select></div>
+<div><label class="field-label" for="maxResults">검색 개수</label><select class="field-control" id="maxResults"><option value="10">10개</option><option selected="" value="25">25개</option><option value="50">50개</option></select></div>
+<div><label class="field-label" for="marketPreset">시장·언어</label><select class="field-control" id="marketPreset"><option selected="" value="KR">한국 · 한국어</option><option value="US">미국 · 영어</option><option value="JP">일본 · 일본어</option><option value="GLOBAL">글로벌 참고</option><option value="CUSTOM">직접 설정</option></select></div>
+<div class="hidden sm:col-span-2 grid grid-cols-2 gap-3" id="marketCustomBox"><div><label class="field-label" for="customRegion">지역 코드</label><input class="field-control" id="customRegion" maxlength="2" placeholder="예: GB"/></div><div><label class="field-label" for="customLanguage">언어 코드</label><input class="field-control" id="customLanguage" maxlength="5" placeholder="예: en"/></div></div>
+<div><label class="field-label" for="minViews">최소 조회수</label><input class="field-control" id="minViews" min="0" placeholder="예: 50000" step="1000" type="number"/></div>
+<div><label class="field-label" for="minRatio">최소 V/S</label><input class="field-control" id="minRatio" min="0" placeholder="예: 1.5" step="0.1" type="number"/></div>
+<div class="sm:col-span-2"><label class="field-label" for="excludeKeywords">제외 키워드</label><input class="field-control" id="excludeKeywords" placeholder="쉼표로 구분: shorts, live, cover" type="text"/></div>
+<div class="sm:col-span-2"><label class="field-label" for="customPhrases">추가 복합어 사전</label><input class="field-control" id="customPhrases" placeholder="쉼표로 구분: black screen, 노후 파산" type="text"/></div>
+</div>
+</details>
+<div class="mt-4 flex flex-wrap items-center gap-2">
+<button class="action-secondary border-fuchsia-200 text-fuchsia-800 hover:bg-fuchsia-50 disabled:opacity-50" disabled="" id="btnSaveComparison">비교 저장</button>
+<details class="relative" id="exportMenu">
+<summary class="action-secondary cursor-pointer select-none">내보내기 ▾</summary>
+<div class="export-popover">
+<div class="export-group-title">Markdown</div>
+<button disabled="" id="btnExport">현재 결과 MD</button><button disabled="" id="btnExportIdeas">후보 MD</button><button disabled="" id="btnExportFull">통합 MD</button>
+<div class="export-group-title mt-2">CSV</div>
+<button disabled="" id="btnExportCsv">현재 결과 CSV</button><button disabled="" id="btnExportIdeasCsv">후보 CSV</button><button disabled="" id="btnExportFullCsv">요약 CSV</button>
+</div>
+</details>
+<span class="text-xs text-slate-500">검색 후에는 아래 ‘검색 결과’ 탭이 자동으로 열립니다.</span>
+</div>
+</section>
 
-    <section class="soft-card p-5 mb-5 border-indigo-100">
-      <div class="flex flex-col md:flex-row md:justify-between md:items-center gap-3 mb-4">
-        <div class="text-sm text-slate-600">
-          <strong class="text-slate-800">보안 메모:</strong> API 키는 코드·내보내기 파일·캐시 키에 넣지 않습니다. 체크할 때만 이 브라우저에 저장합니다.
-        </div>
-        <div class="flex flex-wrap gap-2">
-          <button id="btnDeleteKey" class="text-sm bg-white border border-slate-300 text-slate-700 px-3 py-1.5 rounded-lg hover:bg-slate-50 transition">API 키 삭제</button>
-          <button id="btnClearCache" class="text-sm bg-white border border-red-200 text-red-600 px-3 py-1.5 rounded-lg hover:bg-red-50 transition">캐시·쿼터 초기화</button>
-        </div>
-      </div>
-
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
-        <div class="col-span-1 md:col-span-2">
-          <label for="apiKey" class="block text-sm font-bold text-slate-700 mb-2">YouTube API Key</label>
-          <input id="apiKey" type="password" autocomplete="off" spellcheck="false" class="w-full rounded-xl border border-slate-300 focus:ring-indigo-500 p-3 text-base shadow-sm" placeholder="API 키 입력" />
-          <label class="mt-2 inline-flex items-center gap-2 text-sm text-slate-600 select-none">
-            <input id="rememberKey" type="checkbox" class="rounded border-slate-300" />
-            이 브라우저에 API 키 저장
-          </label>
-        </div>
-
-        <div class="col-span-1 md:col-span-2">
-          <label for="q" class="block text-sm font-bold text-slate-700 mb-2">검색어</label>
-          <div class="flex gap-2">
-            <input id="q" type="text" class="flex-1 rounded-xl border border-slate-300 focus:ring-indigo-500 p-3 text-base font-bold text-indigo-950 shadow-sm" placeholder="예: playlist, lofi playlist, 기초연금, AI music" />
-            <button id="btnAddSeed" class="px-4 bg-slate-900 text-white rounded-xl hover:bg-slate-800 font-bold">추천어</button>
-          </div>
-          <div id="seedBox" class="hidden mt-2 flex flex-wrap gap-2 text-sm"></div>
-        </div>
-
-        <div>
-          <label for="researchMode" class="block text-sm font-bold text-slate-700 mb-2">리서치 모드</label>
-          <select id="researchMode" class="w-full rounded-xl border border-slate-300 p-3 text-base shadow-sm bg-white">
-            <option value="general" selected>범용 트렌드</option>
-            <option value="music">AI 음악·플레이리스트</option>
-            <option value="senior">시니어 롱폼</option>
-          </select>
-        </div>
-
-        <div>
-          <label for="order" class="block text-sm font-bold text-slate-700 mb-2">정렬 기준(API)</label>
-          <select id="order" class="w-full rounded-xl border border-slate-300 p-3 text-base shadow-sm">
-            <option value="viewCount">조회수순</option>
-            <option value="relevance">관련성순</option>
-            <option value="date">최신순</option>
-            <option value="rating">평점순</option>
-          </select>
-        </div>
-
-        <div>
-          <label for="videoDuration" class="block text-sm font-bold text-slate-700 mb-2">영상 길이</label>
-          <select id="videoDuration" class="w-full rounded-xl border border-slate-300 p-3 text-base shadow-sm">
-            <option value="medium">중간 4~20분</option>
-            <option value="long" selected>롱폼 20분 이상</option>
-            <option value="any">전체</option>
-          </select>
-        </div>
-
-        <div>
-          <label for="datePreset" class="block text-sm font-bold text-slate-700 mb-2">기간 설정</label>
-          <select id="datePreset" class="w-full rounded-xl border border-slate-300 p-3 text-base shadow-sm bg-indigo-50 text-indigo-950 font-bold">
-            <option value="1month">최근 1개월</option>
-            <option value="3month">최근 3개월</option>
-            <option value="6month">최근 6개월</option>
-            <option value="1year" selected>최근 1년</option>
-            <option value="2year">최근 2년</option>
-            <option value="all">전체 기간</option>
-          </select>
-        </div>
-
-        <div>
-          <label for="maxResults" class="block text-sm font-bold text-slate-700 mb-2">검색 개수</label>
-          <select id="maxResults" class="w-full rounded-xl border border-slate-300 p-3 text-base shadow-sm">
-            <option value="10">10개</option>
-            <option value="25" selected>25개</option>
-            <option value="50">50개</option>
-          </select>
-        </div>
-
-        <div>
-          <label for="minViews" class="block text-sm font-bold text-slate-700 mb-2">최소 조회수 필터</label>
-          <input id="minViews" type="number" min="0" step="1000" class="w-full rounded-xl border border-slate-300 p-3 text-base shadow-sm" placeholder="예: 50000" />
-        </div>
-
-        <div>
-          <label for="minRatio" class="block text-sm font-bold text-slate-700 mb-2">최소 성과비율(V/S)</label>
-          <input id="minRatio" type="number" min="0" step="0.1" class="w-full rounded-xl border border-slate-300 p-3 text-base shadow-sm" placeholder="예: 1.5" />
-        </div>
-
-        <div class="lg:col-span-2">
-          <label for="customPhrases" class="block text-sm font-bold text-slate-700 mb-2">추가 복합어 사전</label>
-          <input id="customPhrases" type="text" class="w-full rounded-xl border border-slate-300 p-3 text-base shadow-sm" placeholder="쉼표로 구분: 노후 파산, 요양병원 비용, 자식 갈등" />
-        </div>
-      </div>
-
-      <div class="mt-6 grid grid-cols-1 md:grid-cols-[1fr_auto_auto_auto_auto] gap-3">
-        <button id="btnSearch" class="bg-indigo-700 text-white py-3 rounded-xl hover:bg-indigo-800 font-bold text-lg shadow-md transition transform active:scale-95">분석 시작</button>
-        <button id="btnSaveComparison" class="px-6 bg-fuchsia-700 text-white py-3 rounded-xl hover:bg-fuchsia-800 font-bold text-lg shadow-md disabled:opacity-50" disabled>비교 저장</button>
-        <button id="btnExport" class="px-6 bg-slate-800 text-white py-3 rounded-xl hover:bg-slate-900 font-bold text-lg shadow-md disabled:opacity-50" disabled>결과 MD</button>
-        <button id="btnExportIdeas" class="px-6 bg-emerald-700 text-white py-3 rounded-xl hover:bg-emerald-800 font-bold text-lg shadow-md disabled:opacity-50" disabled>후보 MD</button>
-        <button id="btnExportFull" class="px-6 bg-violet-700 text-white py-3 rounded-xl hover:bg-violet-800 font-bold text-lg shadow-md disabled:opacity-50" disabled>통합 MD</button>
-      </div>
-      <div class="mt-3 flex flex-wrap items-center gap-2 text-sm">
-        <span class="font-bold text-slate-600 mr-1">CSV 보조 내보내기</span>
-        <button id="btnExportCsv" class="bg-white border border-slate-300 text-slate-700 px-3 py-1.5 rounded-lg hover:bg-slate-50 font-medium disabled:opacity-50" disabled>결과 CSV</button>
-        <button id="btnExportIdeasCsv" class="bg-white border border-emerald-200 text-emerald-700 px-3 py-1.5 rounded-lg hover:bg-emerald-50 font-medium disabled:opacity-50" disabled>후보 CSV</button>
-        <button id="btnExportFullCsv" class="bg-white border border-violet-200 text-violet-700 px-3 py-1.5 rounded-lg hover:bg-violet-50 font-medium disabled:opacity-50" disabled>요약 CSV</button>
-        <span class="text-xs text-slate-500">AI 협업은 MD, 엑셀 재가공은 CSV가 편합니다.</span>
-      </div>
-    </section>
-
-    <section class="grid grid-cols-1 lg:grid-cols-4 gap-4 mb-5">
-      <div class="soft-card p-4">
-        <div class="text-sm text-slate-500 font-bold">검색 결과</div>
-        <div id="statCount" class="text-2xl font-black text-slate-900 mt-1">0개</div>
-        <div id="statQuery" class="text-xs text-slate-500 mt-1 wrap">검색 전입니다.</div>
-      </div>
-      <div class="soft-card p-4">
-        <div class="text-sm text-slate-500 font-bold">중앙 조회수</div>
-        <div id="statMedianViews" class="text-2xl font-black text-slate-900 mt-1">-</div>
-        <div class="text-xs text-slate-500 mt-1">극단값 영향을 줄인 기준점</div>
-      </div>
-      <div class="soft-card p-4">
-        <div class="text-sm text-slate-500 font-bold">최고 일평균 조회</div>
-        <div id="statTopVelocity" class="text-2xl font-black text-slate-900 mt-1">-</div>
-        <div class="text-xs text-slate-500 mt-1">조회수 ÷ 업로드 후 경과일</div>
-      </div>
-      <div class="soft-card p-4">
-        <div class="text-sm text-slate-500 font-bold">돌파 후보</div>
-        <div id="statBreakouts" class="text-2xl font-black text-slate-900 mt-1">0개</div>
-        <div class="text-xs text-slate-500 mt-1">성과비율·일평균·소형 채널 기준</div>
-      </div>
-    </section>
-
-    <section class="soft-card p-5 mb-5 bg-indigo-50 border-indigo-200">
-      <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-4">
-        <h2 class="text-lg font-black text-indigo-950">키워드·복합어 인사이트</h2>
-        <div class="flex flex-wrap gap-2">
-          <button id="btnCopyKeywords" class="text-sm bg-white border border-slate-300 px-3 py-1.5 rounded-lg hover:bg-slate-50 font-medium disabled:opacity-50" disabled>키워드 복사</button>
-          <button id="btnExportKeywords" class="text-sm bg-white border border-emerald-200 text-emerald-700 px-3 py-1.5 rounded-lg hover:bg-emerald-50 font-medium disabled:opacity-50" disabled>선택 키워드 MD</button>
-          <button id="btnExportKeywordsCsv" class="text-sm bg-white border border-slate-300 text-slate-700 px-3 py-1.5 rounded-lg hover:bg-slate-50 font-medium disabled:opacity-50" disabled>선택 키워드 CSV</button>
-        </div>
-      </div>
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <div>
-          <h3 class="text-sm font-bold text-slate-700 mb-2">핵심 복합어</h3>
-          <div id="phraseBox" class="flex flex-wrap gap-2 min-h-[42px]"><span class="text-slate-500">검색 결과가 나오면 표시됩니다.</span></div>
-        </div>
-        <div>
-          <h3 class="text-sm font-bold text-slate-700 mb-2">단어 빈도</h3>
-          <div id="keywordBox" class="flex flex-wrap gap-2 min-h-[42px]"><span class="text-slate-500">검색 결과가 나오면 표시됩니다.</span></div>
-        </div>
-      </div>
-      <p class="text-xs text-slate-500 mt-4">키워드 칩을 클릭하면 검색어 입력이 아니라 아래 선택 키워드 보드에 저장되고, 그 키워드 중심의 확장 검색 후보가 생성됩니다.</p>
-    </section>
-
-    <section class="soft-card p-5 mb-5 bg-violet-50 border-violet-200">
-      <div class="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-3 mb-4">
-        <div>
-          <h2 class="text-lg font-black text-violet-950">제목 패턴 · SUNO 초안</h2>
-          <p class="text-sm text-slate-600 mt-1">상위 제목에서 반복되는 표현을 뽑고, 음악·플레이리스트 리서치용 SUNO 프롬프트 뼈대를 만듭니다.</p>
-        </div>
-        <div class="flex flex-wrap gap-2">
-          <button id="btnBuildSunoPrompt" class="text-sm bg-white border border-violet-200 text-violet-800 px-3 py-1.5 rounded-lg hover:bg-violet-100 font-bold disabled:opacity-50" disabled>SUNO 초안 새로 만들기</button>
-          <button id="btnCopySunoPrompt" class="text-sm bg-white border border-slate-300 px-3 py-1.5 rounded-lg hover:bg-slate-50 font-medium disabled:opacity-50" disabled>초안 복사</button>
-        </div>
-      </div>
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <div>
-          <h3 class="text-sm font-bold text-slate-700 mb-2">제목 패턴 추출</h3>
-          <div id="titlePatternBox" class="flex flex-wrap gap-2 min-h-[48px]"><span class="text-slate-500">검색 결과가 나오면 제목 패턴이 표시됩니다.</span></div>
-          <p class="text-xs text-slate-500 mt-3">패턴 칩을 클릭하면 선택 키워드로 저장됩니다.</p>
-        </div>
-        <div>
-          <div class="flex justify-between items-center mb-2 gap-3">
-            <h3 class="text-sm font-bold text-slate-700">SUNO 프롬프트 초안</h3>
-            <span id="sunoPromptSeed" class="text-xs text-violet-700 font-bold truncate"></span>
-          </div>
-          <textarea id="sunoPromptBox" rows="8" class="w-full rounded-xl border border-violet-200 p-3 text-sm shadow-sm bg-white mono" readonly placeholder="AI 음악·플레이리스트 모드에서 검색하면 초안이 표시됩니다."></textarea>
-        </div>
-      </div>
-    </section>
-
-    <section class="soft-card p-5 mb-5 bg-fuchsia-50 border-fuchsia-200">
-      <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-4">
-        <div>
-          <h2 class="text-lg font-black text-fuchsia-950">검색 결과 비교</h2>
-          <p class="text-sm text-slate-600 mt-1">예: lofi playlist, sleep music, study music을 각각 검색한 뒤 비교 저장하면 한 화면에서 후보성을 비교할 수 있습니다.</p>
-        </div>
-        <div class="flex flex-wrap gap-2">
-          <button id="btnExportComparisons" class="text-sm bg-white border border-fuchsia-200 text-fuchsia-800 px-3 py-1.5 rounded-lg hover:bg-fuchsia-100 disabled:opacity-50" disabled>비교 MD</button>
-          <button id="btnExportComparisonsCsv" class="text-sm bg-white border border-slate-300 text-slate-700 px-3 py-1.5 rounded-lg hover:bg-slate-50 disabled:opacity-50" disabled>비교 CSV</button>
-          <button id="btnClearComparisons" class="text-sm bg-white border border-red-200 text-red-600 px-3 py-1.5 rounded-lg hover:bg-red-50 disabled:opacity-50" disabled>비교 비우기</button>
-        </div>
-      </div>
-      <div id="comparisonBox" class="overflow-x-auto"><div class="text-slate-500">비교 저장한 검색 결과가 없습니다.</div></div>
-    </section>
-
-    <section class="soft-card p-5 mb-5 bg-emerald-50 border-emerald-200">
-      <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-4">
-        <h2 class="text-lg font-black text-emerald-950">선택 키워드 보드</h2>
-        <div class="flex flex-wrap gap-2">
-          <button id="btnClearSelectedKeywords" class="text-sm bg-white border border-red-200 text-red-600 px-3 py-1.5 rounded-lg hover:bg-red-50 disabled:opacity-50" disabled>선택 키워드 비우기</button>
-        </div>
-      </div>
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <div>
-          <h3 class="text-sm font-bold text-slate-700 mb-2">저장한 키워드</h3>
-          <div id="selectedKeywordBox" class="flex flex-wrap gap-2 min-h-[44px]"><span class="text-slate-500">추출 키워드를 클릭하면 이곳에 저장됩니다.</span></div>
-        </div>
-        <div>
-          <h3 class="text-sm font-bold text-slate-700 mb-2">선택 키워드 중심 확장 후보</h3>
-          <div id="expansionBox" class="flex flex-wrap gap-2 min-h-[44px]"><span class="text-slate-500">저장 키워드를 선택하면 확장 후보가 표시됩니다.</span></div>
-        </div>
-      </div>
-      <div class="mt-4 grid grid-cols-1 md:grid-cols-[1fr_auto_auto] gap-3">
-        <input id="manualKeyword" type="text" class="rounded-xl border border-slate-300 p-3 text-base shadow-sm" placeholder="직접 저장할 키워드: 예) deep sleep music, AI playlist, 기초연금" />
-        <button id="btnAddManualKeyword" class="px-5 bg-emerald-700 text-white rounded-xl hover:bg-emerald-800 font-bold">직접 추가</button>
-        <button id="btnSearchActiveKeyword" class="px-5 bg-slate-900 text-white rounded-xl hover:bg-slate-800 font-bold disabled:opacity-50" disabled>선택 키워드 검색</button>
-      </div>
-    </section>
-
-    <section class="soft-card p-5 mb-5 bg-amber-50 border-amber-200">
-      <div class="flex flex-col xl:flex-row xl:justify-between xl:items-start gap-3 mb-4">
-        <div>
-          <h2 class="text-lg font-black text-amber-950">히스토리 뷰어</h2>
-          <p class="text-sm text-slate-600 mt-1">검색 시점을 브라우저에 임시 저장합니다. 보존할 항목은 MD/CSV로 내보내고, 불필요한 항목은 삭제하면 됩니다.</p>
-        </div>
-        <div class="flex flex-wrap gap-2">
-          <label class="inline-flex items-center gap-2 bg-white border border-amber-200 rounded-lg px-3 py-1.5 text-sm text-slate-700 select-none">
-            <input id="autoHistory" type="checkbox" checked>
+<nav aria-label="작업 영역" class="workspace-tabs" id="workspaceTabs">
+<button class="workspace-tab active" data-tab="results" type="button">① 검색 결과</button>
+<button class="workspace-tab" data-tab="keywords" type="button">② 키워드 연구실</button>
+<button class="workspace-tab" data-tab="planning" type="button">③ 후보·기획</button>
+<button class="workspace-tab" data-tab="comparison" type="button">④ 비교</button>
+<button class="workspace-tab" data-tab="history" type="button">⑤ 기록·백업</button>
+</nav>
+<div class="tab-panel active" data-panel="results" id="panel-results"><section class="grid grid-cols-1 lg:grid-cols-4 gap-4 mb-5">
+<div class="soft-card p-4">
+<div class="text-sm text-slate-500 font-bold">검색 결과 <span class="help-dot" title="현재 필터를 통과한 영상 수입니다.">?</span></div>
+<div class="text-2xl font-black text-slate-900 mt-1" id="statCount">0개</div>
+<div class="text-xs text-slate-500 mt-1 wrap" id="statQuery">검색 전입니다.</div>
+</div>
+<div class="soft-card p-4">
+<div class="text-sm text-slate-500 font-bold">중앙 조회수 <span class="help-dot" title="극단적으로 큰 영상의 영향을 줄인, 결과 집합의 가운데 조회수입니다.">?</span></div>
+<div class="text-2xl font-black text-slate-900 mt-1" id="statMedianViews">-</div>
+<div class="text-xs text-slate-500 mt-1">극단값 영향을 줄인 기준점</div>
+</div>
+<div class="soft-card p-4">
+<div class="text-sm text-slate-500 font-bold">최고 일평균 조회 <span class="help-dot" title="조회수를 업로드 후 경과일로 나눈 값 중 가장 높은 수치입니다.">?</span></div>
+<div class="text-2xl font-black text-slate-900 mt-1" id="statTopVelocity">-</div>
+<div class="text-xs text-slate-500 mt-1">조회수 ÷ 업로드 후 경과일</div>
+</div>
+<div class="soft-card p-4">
+<div class="text-sm text-slate-500 font-bold">돌파 후보 <span class="help-dot" title="구독자 대비 성과, 조회 속도, 소형 채널 돌파 조건 중 하나 이상을 충족한 영상 수입니다.">?</span></div>
+<div class="text-2xl font-black text-slate-900 mt-1" id="statBreakouts">0개</div>
+<div class="text-xs text-slate-500 mt-1">성과비율·일평균·소형 채널 기준</div>
+</div>
+</section><section class="soft-card overflow-hidden mb-4" id="resultsWorkspace">
+<div class="px-4 pt-3 pb-2 text-xs text-slate-500 bg-white border-b border-slate-100">표 본문을 마우스로 잡아 좌우로 끌면 가로 스크롤됩니다. 제목 행 클릭은 기존처럼 정렬입니다.</div>
+<div class="overflow-x-auto drag-scroll" id="resultScrollArea">
+<table class="results-table w-full text-left">
+<thead class="bg-slate-100 text-slate-700 uppercase text-sm border-b-2 border-slate-200 sticky-table-head">
+<tr>
+<th class="p-4 sortable col-video sticky-col z-30" data-sort="title">영상 정보 <span id="sortIcon-title"></span></th>
+<th class="p-4 sortable col-channel" data-sort="subCount">채널/구독자 <span id="sortIcon-subCount"></span></th>
+<th class="p-4 w-32 text-center sortable no-wrap" data-sort="vsRatio">V/S <span id="sortIcon-vsRatio"></span></th>
+<th class="p-4 w-36 text-right sortable no-wrap" data-sort="viewCount">조회수 <span id="sortIcon-viewCount"></span></th>
+<th class="p-4 w-36 text-right sortable no-wrap" data-sort="viewsPerDay">일평균 <span id="sortIcon-viewsPerDay"></span></th>
+<th class="p-4 text-center sortable col-playlist playlist-col" data-sort="playlistScore">P‑점수 <span id="sortIcon-playlistScore"></span></th>
+<th class="p-4 w-28 text-center sortable no-wrap" data-sort="durationSec">길이 <span id="sortIcon-durationSec"></span></th>
+<th class="p-4 w-32 text-center sortable no-wrap" data-sort="publishedAt">업로드 <span id="sortIcon-publishedAt"></span></th>
+<th class="p-4 w-24 text-center no-wrap">저장</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-slate-100 text-base" id="tbody">
+<tr><td class="p-8 text-center text-slate-500" colspan="9">검색 결과가 이곳에 표시됩니다.</td></tr>
+</tbody>
+</table>
+</div>
+</section></div><div class="tab-panel" data-panel="keywords" id="panel-keywords"><section class="soft-card p-5 bg-indigo-50 border-indigo-200 mb-4">
+<div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-4">
+<h2 class="text-lg font-black text-indigo-950">키워드·복합어 인사이트</h2>
+<div class="flex flex-wrap gap-2">
+<button class="text-sm bg-white border border-slate-300 px-3 py-1.5 rounded-lg hover:bg-slate-50 font-medium disabled:opacity-50" disabled="" id="btnCopyKeywords">키워드 복사</button>
+<button class="text-sm bg-white border border-emerald-200 text-emerald-700 px-3 py-1.5 rounded-lg hover:bg-emerald-50 font-medium disabled:opacity-50" disabled="" id="btnExportKeywords">선택 키워드 MD</button>
+<button class="text-sm bg-white border border-slate-300 text-slate-700 px-3 py-1.5 rounded-lg hover:bg-slate-50 font-medium disabled:opacity-50" disabled="" id="btnExportKeywordsCsv">선택 키워드 CSV</button>
+</div>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+<div>
+<h3 class="text-sm font-bold text-slate-700 mb-2">핵심 복합어</h3>
+<div class="flex flex-wrap gap-2 min-h-[42px]" id="phraseBox"><span class="text-slate-500">검색 결과가 나오면 표시됩니다.</span></div>
+</div>
+<div>
+<h3 class="text-sm font-bold text-slate-700 mb-2">단어 빈도</h3>
+<div class="flex flex-wrap gap-2 min-h-[42px]" id="keywordBox"><span class="text-slate-500">검색 결과가 나오면 표시됩니다.</span></div>
+</div>
+</div>
+<p class="text-xs text-slate-500 mt-4">키워드 칩을 클릭하면 검색어 입력이 아니라 아래 선택 키워드 보드에 저장되고, 그 키워드 중심의 확장 검색 후보가 생성됩니다.</p>
+</section><section class="soft-card p-5 bg-emerald-50 border-emerald-200 mb-4">
+<div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-4">
+<h2 class="text-lg font-black text-emerald-950">선택 키워드 보드</h2>
+<div class="flex flex-wrap gap-2">
+<button class="text-sm bg-white border border-red-200 text-red-600 px-3 py-1.5 rounded-lg hover:bg-red-50 disabled:opacity-50" disabled="" id="btnClearSelectedKeywords">선택 키워드 비우기</button>
+</div>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+<div>
+<h3 class="text-sm font-bold text-slate-700 mb-2">저장한 키워드</h3>
+<div class="flex flex-wrap gap-2 min-h-[44px]" id="selectedKeywordBox"><span class="text-slate-500">추출 키워드를 클릭하면 이곳에 저장됩니다.</span></div>
+</div>
+<div>
+<h3 class="text-sm font-bold text-slate-700 mb-2">선택 키워드 중심 확장 후보</h3>
+<div class="flex flex-wrap gap-2 min-h-[44px]" id="expansionBox"><span class="text-slate-500">저장 키워드를 선택하면 확장 후보가 표시됩니다.</span></div>
+</div>
+</div>
+<div class="mt-4 grid grid-cols-1 md:grid-cols-[1fr_auto_auto] gap-3">
+<input class="rounded-xl border border-slate-300 p-3 text-base shadow-sm" id="manualKeyword" placeholder="직접 저장할 키워드: 예) deep sleep music, AI playlist, 기초연금" type="text"/>
+<button class="px-5 bg-emerald-700 text-white rounded-xl hover:bg-emerald-800 font-bold" id="btnAddManualKeyword">직접 추가</button>
+<button class="px-5 bg-slate-900 text-white rounded-xl hover:bg-slate-800 font-bold disabled:opacity-50" disabled="" id="btnSearchActiveKeyword">선택 키워드 검색</button>
+</div>
+</section><section class="soft-card p-5 bg-violet-50 border-violet-200 mb-4" id="patternWorkspace">
+<div class="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-3 mb-4">
+<div>
+<h2 class="text-lg font-black text-violet-950" id="patternSectionTitle">제목 패턴 · SUNO 초안</h2>
+<p class="text-sm text-slate-600 mt-1" id="patternSectionDescription">상위 제목에서 반복되는 표현을 뽑고, 음악·플레이리스트 리서치용 SUNO 프롬프트 뼈대를 만듭니다.</p>
+</div>
+<div class="flex flex-wrap gap-2">
+<button class="text-sm bg-white border border-violet-200 text-violet-800 px-3 py-1.5 rounded-lg hover:bg-violet-100 font-bold disabled:opacity-50" disabled="" id="btnBuildSunoPrompt">SUNO 초안 새로 만들기</button>
+<button class="text-sm bg-white border border-slate-300 px-3 py-1.5 rounded-lg hover:bg-slate-50 font-medium disabled:opacity-50" disabled="" id="btnCopySunoPrompt">초안 복사</button>
+</div>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+<div>
+<h3 class="text-sm font-bold text-slate-700 mb-2">제목 패턴 추출</h3>
+<div class="flex flex-wrap gap-2 min-h-[48px]" id="titlePatternBox"><span class="text-slate-500">검색 결과가 나오면 제목 패턴이 표시됩니다.</span></div>
+<p class="text-xs text-slate-500 mt-3">패턴 칩을 클릭하면 선택 키워드로 저장됩니다.</p>
+</div>
+<div class="mode-music-only" id="sunoPane">
+<div class="flex justify-between items-center mb-2 gap-3">
+<h3 class="text-sm font-bold text-slate-700">SUNO 프롬프트 초안</h3>
+<span class="text-xs text-violet-700 font-bold truncate" id="sunoPromptSeed"></span>
+</div>
+<textarea class="w-full rounded-xl border border-violet-200 p-3 text-sm shadow-sm bg-white mono" id="sunoPromptBox" placeholder="AI 음악·플레이리스트 모드에서 검색하면 초안이 표시됩니다." readonly="" rows="8"></textarea>
+</div>
+</div>
+</section></div><div class="tab-panel" data-panel="planning" id="panel-planning"><section class="soft-card p-5 mb-4">
+<div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-4">
+<h2 class="text-lg font-black text-slate-950">자동 추출 소재 후보</h2>
+<span class="text-sm text-slate-500">점수는 절대값이 아니라 후보 정렬용입니다.</span>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-3" id="ideasBox">
+<div class="text-slate-500">분석 후 이곳에 후보가 표시됩니다.</div>
+</div>
+</section><section class="soft-card p-5 mb-4">
+<div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-4">
+<h2 class="text-lg font-black text-slate-950">저장한 소재 후보</h2>
+<button class="text-sm bg-white border border-red-200 text-red-600 px-3 py-1.5 rounded-lg hover:bg-red-50 disabled:opacity-50" disabled="" id="btnClearFavorites">저장 후보 비우기</button>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-3" id="favoritesBox">
+<div class="text-slate-500">아직 저장한 후보가 없습니다.</div>
+</div>
+</section></div><div class="tab-panel" data-panel="comparison" id="panel-comparison"><section class="soft-card p-5 bg-fuchsia-50 border-fuchsia-200 mb-4">
+<div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-4">
+<div>
+<h2 class="text-lg font-black text-fuchsia-950">검색 결과 비교</h2>
+<p class="text-sm text-slate-600 mt-1">예: lofi playlist, sleep music, study music을 각각 검색한 뒤 비교 저장하면 한 화면에서 후보성을 비교할 수 있습니다.</p>
+</div>
+<div class="flex flex-wrap gap-2">
+<button class="text-sm bg-white border border-fuchsia-200 text-fuchsia-800 px-3 py-1.5 rounded-lg hover:bg-fuchsia-100 disabled:opacity-50" disabled="" id="btnExportComparisons">비교 MD</button>
+<button class="text-sm bg-white border border-slate-300 text-slate-700 px-3 py-1.5 rounded-lg hover:bg-slate-50 disabled:opacity-50" disabled="" id="btnExportComparisonsCsv">비교 CSV</button>
+<button class="text-sm bg-white border border-red-200 text-red-600 px-3 py-1.5 rounded-lg hover:bg-red-50 disabled:opacity-50" disabled="" id="btnClearComparisons">비교 비우기</button>
+</div>
+</div>
+<div class="overflow-x-auto" id="comparisonBox"><div class="text-slate-500">비교 저장한 검색 결과가 없습니다.</div></div>
+</section></div><div class="tab-panel" data-panel="history" id="panel-history"><section class="soft-card p-5 mb-4">
+<div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-4">
+<h2 class="text-lg font-black text-slate-950">최근 검색 기록</h2>
+<button class="text-sm bg-white border border-slate-300 text-slate-700 px-3 py-1.5 rounded-lg hover:bg-slate-50 disabled:opacity-50" disabled="" id="btnClearSessions">검색 기록 비우기</button>
+</div>
+<div class="flex flex-wrap gap-2" id="sessionsBox">
+<span class="text-slate-500">아직 검색 기록이 없습니다.</span>
+</div>
+</section><section class="soft-card p-5 bg-amber-50 border-amber-200 mb-4">
+<div class="flex flex-col xl:flex-row xl:justify-between xl:items-start gap-3 mb-4">
+<div>
+<h2 class="text-lg font-black text-amber-950">히스토리 뷰어</h2>
+<p class="text-sm text-slate-600 mt-1">검색 시점을 브라우저에 임시 저장합니다. 보존할 항목은 MD/CSV로 내보내고, 불필요한 항목은 삭제하면 됩니다.</p>
+</div>
+<div class="flex flex-wrap gap-2">
+<label class="inline-flex items-center gap-2 bg-white border border-amber-200 rounded-lg px-3 py-1.5 text-sm text-slate-700 select-none">
+<input checked="" id="autoHistory" type="checkbox"/>
             검색 후 자동 저장
           </label>
-          <label class="inline-flex items-center gap-2 bg-white border border-blue-200 rounded-lg px-3 py-1.5 text-sm text-slate-700 select-none" title="실제 YouTube 서버 할당량이 아니라 이 도구가 화면에 표시하는 추정 사용량만 백업합니다.">
-            <input id="backupQuotaEstimate" type="checkbox" checked>
+<label class="inline-flex items-center gap-2 bg-white border border-blue-200 rounded-lg px-3 py-1.5 text-sm text-slate-700 select-none" title="실제 YouTube 서버 할당량이 아니라 이 도구가 화면에 표시하는 추정 사용량만 백업합니다.">
+<input checked="" id="backupQuotaEstimate" type="checkbox"/>
             쿼터 추정치 포함
           </label>
-          <label class="inline-flex items-center gap-2 bg-white border border-purple-200 rounded-lg px-3 py-1.5 text-sm text-slate-700 select-none" title="24시간 이내의 YouTube API 응답 캐시만 백업합니다. 파일 크기가 커질 수 있어 필요할 때만 켜는 것을 권장합니다.">
-            <input id="backupApiCache" type="checkbox">
+<label class="inline-flex items-center gap-2 bg-white border border-purple-200 rounded-lg px-3 py-1.5 text-sm text-slate-700 select-none" title="24시간 이내의 YouTube API 응답 캐시만 백업합니다. 파일 크기가 커질 수 있어 필요할 때만 켜는 것을 권장합니다.">
+<input id="backupApiCache" type="checkbox"/>
             API 캐시 포함
           </label>
-          <button id="btnSaveHistory" class="text-sm bg-amber-700 text-white px-3 py-1.5 rounded-lg hover:bg-amber-800 font-bold disabled:opacity-50" disabled>현재 히스토리 저장</button>
-          <button id="btnExportHistoryMd" class="text-sm bg-white border border-amber-200 text-amber-800 px-3 py-1.5 rounded-lg hover:bg-amber-100 disabled:opacity-50" disabled>히스토리 전체 MD</button>
-          <button id="btnExportHistoryCsv" class="text-sm bg-white border border-slate-300 text-slate-700 px-3 py-1.5 rounded-lg hover:bg-slate-50 disabled:opacity-50" disabled>히스토리 전체 CSV</button>
-          <button id="btnExportBackupJson" class="text-sm bg-white border border-blue-200 text-blue-700 px-3 py-1.5 rounded-lg hover:bg-blue-50 disabled:opacity-50" disabled>백업 JSON</button>
-          <label for="fileImportBackup" class="text-sm bg-white border border-blue-200 text-blue-700 px-3 py-1.5 rounded-lg hover:bg-blue-50 font-bold cursor-pointer">백업 가져오기</label>
-          <input id="fileImportBackup" type="file" accept=".json,application/json" class="hidden" />
-          <button id="btnClearHistory" class="text-sm bg-white border border-red-200 text-red-600 px-3 py-1.5 rounded-lg hover:bg-red-50 disabled:opacity-50" disabled>히스토리 비우기</button>
-        </div>
-      </div>
-      <div id="historyBox" class="space-y-3"><div class="text-slate-500">아직 저장된 히스토리가 없습니다.</div></div>
-      <p class="text-xs text-slate-500 mt-3">이 히스토리는 현재 브라우저의 로컬 저장소에만 남습니다. 브라우저 변경·PC 포맷 전에 백업 JSON을 내려받아두면 다른 브라우저에서도 다시 가져올 수 있습니다. 쿼터 추정치는 백업에 포함할 수 있지만, 날짜가 다른 백업은 가져오기 시 자동으로 적용하지 않습니다. API 캐시는 선택한 경우에만 포함되며, 24시간이 지난 항목은 가져오기 때 자동으로 버립니다.</p>
-    </section>
-
-    <section class="soft-card p-5 mb-5">
-      <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-4">
-        <h2 class="text-lg font-black text-slate-950">자동 추출 소재 후보</h2>
-        <span class="text-sm text-slate-500">점수는 절대값이 아니라 후보 정렬용입니다.</span>
-      </div>
-      <div id="ideasBox" class="grid grid-cols-1 lg:grid-cols-2 gap-3">
-        <div class="text-slate-500">분석 후 이곳에 후보가 표시됩니다.</div>
-      </div>
-    </section>
-
-    <section class="soft-card p-5 mb-5">
-      <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-4">
-        <h2 class="text-lg font-black text-slate-950">저장한 소재 후보</h2>
-        <button id="btnClearFavorites" class="text-sm bg-white border border-red-200 text-red-600 px-3 py-1.5 rounded-lg hover:bg-red-50 disabled:opacity-50" disabled>저장 후보 비우기</button>
-      </div>
-      <div id="favoritesBox" class="grid grid-cols-1 lg:grid-cols-2 gap-3">
-        <div class="text-slate-500">아직 저장한 후보가 없습니다.</div>
-      </div>
-    </section>
-
-    <section class="soft-card p-5 mb-5">
-      <div class="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 mb-4">
-        <h2 class="text-lg font-black text-slate-950">최근 검색 기록</h2>
-        <button id="btnClearSessions" class="text-sm bg-white border border-slate-300 text-slate-700 px-3 py-1.5 rounded-lg hover:bg-slate-50 disabled:opacity-50" disabled>검색 기록 비우기</button>
-      </div>
-      <div id="sessionsBox" class="flex flex-wrap gap-2">
-        <span class="text-slate-500">아직 검색 기록이 없습니다.</span>
-      </div>
-    </section>
-
-    <section class="soft-card overflow-hidden">
-      <div class="px-4 pt-3 pb-2 text-xs text-slate-500 bg-white border-b border-slate-100">표 본문을 마우스로 잡아 좌우로 끌면 가로 스크롤됩니다. 제목 행 클릭은 기존처럼 정렬입니다.</div>
-      <div id="resultScrollArea" class="overflow-x-auto drag-scroll">
-        <table class="results-table w-full text-left">
-          <thead class="bg-slate-100 text-slate-700 uppercase text-sm border-b-2 border-slate-200">
-            <tr>
-              <th class="p-4 sortable col-video" data-sort="title">영상 정보 <span id="sortIcon-title"></span></th>
-              <th class="p-4 sortable col-channel" data-sort="subCount">채널/구독자 <span id="sortIcon-subCount"></span></th>
-              <th class="p-4 w-32 text-center sortable no-wrap" data-sort="vsRatio">V/S <span id="sortIcon-vsRatio"></span></th>
-              <th class="p-4 w-36 text-right sortable no-wrap" data-sort="viewCount">조회수 <span id="sortIcon-viewCount"></span></th>
-              <th class="p-4 w-36 text-right sortable no-wrap" data-sort="viewsPerDay">일평균 <span id="sortIcon-viewsPerDay"></span></th>
-              <th class="p-4 text-center sortable col-playlist" data-sort="playlistScore">P&#8209;점수 <span id="sortIcon-playlistScore"></span></th>
-              <th class="p-4 w-28 text-center sortable no-wrap" data-sort="durationSec">길이 <span id="sortIcon-durationSec"></span></th>
-              <th class="p-4 w-32 text-center sortable no-wrap" data-sort="publishedAt">업로드 <span id="sortIcon-publishedAt"></span></th>
-              <th class="p-4 w-24 text-center no-wrap">저장</th>
-            </tr>
-          </thead>
-          <tbody id="tbody" class="divide-y divide-slate-100 text-base">
-            <tr><td colspan="9" class="p-8 text-center text-slate-500">검색 결과가 이곳에 표시됩니다.</td></tr>
-          </tbody>
-        </table>
-      </div>
-    </section>
-  </div>
-
-  <script>
+<button class="text-sm bg-amber-700 text-white px-3 py-1.5 rounded-lg hover:bg-amber-800 font-bold disabled:opacity-50" disabled="" id="btnSaveHistory">현재 히스토리 저장</button>
+<button class="text-sm bg-white border border-amber-200 text-amber-800 px-3 py-1.5 rounded-lg hover:bg-amber-100 disabled:opacity-50" disabled="" id="btnExportHistoryMd">히스토리 전체 MD</button>
+<button class="text-sm bg-white border border-slate-300 text-slate-700 px-3 py-1.5 rounded-lg hover:bg-slate-50 disabled:opacity-50" disabled="" id="btnExportHistoryCsv">히스토리 전체 CSV</button>
+<button class="text-sm bg-white border border-blue-200 text-blue-700 px-3 py-1.5 rounded-lg hover:bg-blue-50 disabled:opacity-50" disabled="" id="btnExportBackupJson">백업 JSON</button>
+<label class="text-sm bg-white border border-blue-200 text-blue-700 px-3 py-1.5 rounded-lg hover:bg-blue-50 font-bold cursor-pointer" for="fileImportBackup">백업 가져오기</label>
+<input accept=".json,application/json" class="hidden" id="fileImportBackup" type="file"/>
+<button class="text-sm bg-white border border-red-200 text-red-600 px-3 py-1.5 rounded-lg hover:bg-red-50 disabled:opacity-50" disabled="" id="btnClearHistory">히스토리 비우기</button>
+</div>
+</div>
+<div class="space-y-3" id="historyBox"><div class="text-slate-500">아직 저장된 히스토리가 없습니다.</div></div>
+<p class="text-xs text-slate-500 mt-3">이 히스토리는 현재 브라우저의 로컬 저장소에만 남습니다. 브라우저 변경·PC 포맷 전에 백업 JSON을 내려받아두면 다른 브라우저에서도 다시 가져올 수 있습니다. 쿼터 추정치는 백업에 포함할 수 있지만, 날짜가 다른 백업은 가져오기 시 자동으로 적용하지 않습니다. API 캐시는 선택한 경우에만 포함되며, 24시간이 지난 항목은 가져오기 때 자동으로 버립니다.</p>
+</section></div></div>  <script>
     'use strict';
 
-    const APP_VERSION = '5.9';
+    const APP_VERSION = '6.0';
     const CACHE_PREFIX = 'ytlf_cache_v5_';
     const QUOTA_KEY = 'ytlf_quota_v5';
     const SAVED_KEY = 'ytlf_api_key_v5';
@@ -391,6 +297,7 @@
     const PLANNING_KEY = 'ytlf_planning_notes_v5';
     const HISTORY_KEY = 'ytlf_history_v5';
     const AUTO_HISTORY_KEY = 'ytlf_auto_history_v5';
+    const UI_SETTINGS_KEY = 'ytlf_ui_settings_v6';
     const SEARCH_LIMIT = 100;
     const DETAIL_LIMIT = 10000;
     const CACHE_TTL = 1000 * 60 * 60 * 24;
@@ -407,6 +314,16 @@
       minViews: document.getElementById('minViews'),
       minRatio: document.getElementById('minRatio'),
       customPhrases: document.getElementById('customPhrases'),
+      marketPreset: document.getElementById('marketPreset'),
+      customRegion: document.getElementById('customRegion'),
+      customLanguage: document.getElementById('customLanguage'),
+      marketCustomBox: document.getElementById('marketCustomBox'),
+      excludeKeywords: document.getElementById('excludeKeywords'),
+      apiSettings: document.getElementById('apiSettings'),
+      advancedSettings: document.getElementById('advancedSettings'),
+      sunoPane: document.getElementById('sunoPane'),
+      patternSectionTitle: document.getElementById('patternSectionTitle'),
+      patternSectionDescription: document.getElementById('patternSectionDescription'),
       btnSearch: document.getElementById('btnSearch'),
       btnExport: document.getElementById('btnExport'),
       btnExportIdeas: document.getElementById('btnExportIdeas'),
@@ -749,6 +666,93 @@
       return word.replace(/(은|는|이|가|을|를|의|와|과|도|로|에|서|에게|께서|부터|까지|처럼|보다|만|만큼|라면|이라면|하고|하고는)$/u, '');
     }
 
+    function getMarketSettings() {
+      const preset = els.marketPreset?.value || 'KR';
+      const map = {
+        KR: { region: 'KR', language: 'ko', label: '한국 · 한국어' },
+        US: { region: 'US', language: 'en', label: '미국 · 영어' },
+        JP: { region: 'JP', language: 'ja', label: '일본 · 일본어' },
+        GLOBAL: { region: '', language: '', label: '글로벌 참고' }
+      };
+      if (preset === 'CUSTOM') {
+        return {
+          region: String(els.customRegion?.value || '').trim().toUpperCase(),
+          language: String(els.customLanguage?.value || '').trim().toLowerCase(),
+          label: '직접 설정'
+        };
+      }
+      return map[preset] || map.KR;
+    }
+
+    function buildApiQuery(query) {
+      const excluded = String(els.excludeKeywords?.value || '')
+        .split(',').map(v => v.trim()).filter(Boolean)
+        .map(v => `-${v.replace(/^[-]+/, '')}`);
+      return [query, ...excluded].join(' ').trim();
+    }
+
+    function updateMarketCustomVisibility() {
+      if (!els.marketCustomBox) return;
+      els.marketCustomBox.classList.toggle('hidden', els.marketPreset?.value !== 'CUSTOM');
+    }
+
+    function saveUiSettings() {
+      writeJSON(UI_SETTINGS_KEY, {
+        marketPreset: els.marketPreset?.value || 'KR',
+        customRegion: els.customRegion?.value || '',
+        customLanguage: els.customLanguage?.value || '',
+        excludeKeywords: els.excludeKeywords?.value || ''
+      });
+    }
+
+    function loadUiSettings() {
+      const s = readJSON(UI_SETTINGS_KEY, {});
+      if (els.marketPreset && s.marketPreset) els.marketPreset.value = s.marketPreset;
+      if (els.customRegion) els.customRegion.value = s.customRegion || '';
+      if (els.customLanguage) els.customLanguage.value = s.customLanguage || '';
+      if (els.excludeKeywords) els.excludeKeywords.value = s.excludeKeywords || '';
+      updateMarketCustomVisibility();
+    }
+
+    function activateTab(name, scroll = false) {
+      document.querySelectorAll('.workspace-tab').forEach(btn => btn.classList.toggle('active', btn.dataset.tab === name));
+      document.querySelectorAll('.tab-panel').forEach(panel => panel.classList.toggle('active', panel.dataset.panel === name));
+      if (scroll) document.getElementById('workspaceTabs')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function updateModeUI() {
+      const isMusic = els.researchMode?.value === 'music';
+      document.body.classList.toggle('mode-music', isMusic);
+      if (els.patternSectionTitle) els.patternSectionTitle.textContent = isMusic ? '제목 패턴 · SUNO 초안' : '제목 패턴';
+      if (els.patternSectionDescription) els.patternSectionDescription.textContent = isMusic
+        ? '상위 제목의 반복 표현을 뽑고, 선택 키워드를 SUNO 프롬프트 뼈대로 연결합니다.'
+        : '상위 영상 제목에서 반복되는 문법과 표현을 추출합니다.';
+    }
+
+    function applySearchPreset(name) {
+      const presets = {
+        'music-market': { mode:'music', date:'1year', duration:'long', order:'viewCount', max:'50', market:'US', ratio:'' },
+        'music-breakout': { mode:'music', date:'3month', duration:'long', order:'viewCount', max:'50', market:'US', ratio:'1.5' },
+        'senior': { mode:'senior', date:'1year', duration:'long', order:'viewCount', max:'25', market:'KR', ratio:'' },
+        'recent': { mode:'general', date:'1month', duration:'any', order:'date', max:'50', market:'KR', ratio:'' }
+      };
+      const p = presets[name];
+      if (!p) return;
+      els.researchMode.value = p.mode;
+      els.datePreset.value = p.date;
+      els.videoDuration.value = p.duration;
+      els.order.value = p.order;
+      els.maxResults.value = p.max;
+      els.marketPreset.value = p.market;
+      els.minRatio.value = p.ratio;
+      updateMarketCustomVisibility();
+      updateModeUI();
+      renderSeeds();
+      renderExpansions(activeKeyword);
+      renderSunoPrompt();
+      saveUiSettings();
+    }
+
     function getModeConfig() {
       return researchModes[els.researchMode.value] || researchModes.general;
     }
@@ -863,14 +867,18 @@
       try {
         const maxResults = parseInt(els.maxResults.value, 10);
         const publishedAfter = getPublishedAfterDate(els.datePreset.value);
+        const market = getMarketSettings();
+        const apiQuery = buildApiQuery(q);
         const searchParams = new URLSearchParams({
-          part: 'snippet', type: 'video', q, key,
+          part: 'snippet', type: 'video', q: apiQuery, key,
           maxResults: String(maxResults),
           order: els.order.value,
           videoDuration: els.videoDuration.value,
-          regionCode: 'KR', relevanceLanguage: 'ko', safeSearch: 'none',
+          safeSearch: 'none',
           fields: 'items(id/videoId,snippet(channelId,channelTitle,title,description,publishedAt,thumbnails/medium/url))'
         });
+        if (market.region) searchParams.append('regionCode', market.region);
+        if (market.language) searchParams.append('relevanceLanguage', market.language);
         if (publishedAfter) searchParams.append('publishedAfter', publishedAfter);
 
         const { data: searchData } = await fetchYouTube('search', searchParams, 'search', 1);
@@ -907,6 +915,8 @@
         currentSort = { key: null, order: 'asc' };
         updateSortIcons();
         renderAll(q);
+        activateTab('results', true);
+        saveUiSettings();
         saveSession(q);
         if (els.autoHistory?.checked) saveHistorySnapshot(false);
       } catch (err) {
@@ -1385,6 +1395,7 @@
           els.researchMode.value = c.mode || 'general';
           els.videoDuration.value = c.duration || 'long';
           els.datePreset.value = c.datePreset || '1year';
+          updateModeUI();
           renderSeeds();
           window.scrollTo({ top: 0, behavior: 'smooth' });
         });
@@ -1524,7 +1535,7 @@
         tr.className = `border-b border-slate-100 hover:bg-slate-50 transition-colors ${cls.isHigh ? 'row-high' : cls.isBreakout ? 'row-breakout' : ''}`;
 
         const tdInfo = document.createElement('td');
-        tdInfo.className = 'p-4';
+        tdInfo.className = 'p-4 sticky-col';
         const infoWrap = document.createElement('div');
         infoWrap.className = 'flex gap-4 min-w-[430px]';
         const img = document.createElement('img');
@@ -1578,7 +1589,7 @@
         tdVel.textContent = fmtFull.format(Math.round(item.viewsPerDay));
 
         const tdPlaylist = document.createElement('td');
-        tdPlaylist.className = 'p-4 text-center font-black text-violet-800 col-playlist mono';
+        tdPlaylist.className = 'p-4 text-center font-black text-violet-800 col-playlist mono playlist-col';
         tdPlaylist.textContent = fmtFull.format(item.playlistScore || 0);
         tdPlaylist.title = 'AI 음악·플레이리스트 관점 점수입니다. 다른 장르 검색에서는 참고값으로만 보시면 됩니다.';
 
@@ -1773,7 +1784,8 @@
         promptBtn.addEventListener('click', () => {
           activeKeyword = f.title;
           renderSunoPrompt(f.title);
-          window.scrollTo({ top: document.getElementById('sunoPromptBox').offsetTop - 160, behavior: 'smooth' });
+          activateTab('keywords', true);
+          setTimeout(() => window.scrollTo({ top: document.getElementById('sunoPromptBox').offsetTop - 160, behavior: 'smooth' }), 180);
         });
         actions.append(saveNote, promptBtn);
         planner.appendChild(actions);
@@ -1793,6 +1805,10 @@
         duration: els.videoDuration.value,
         datePreset: els.datePreset.value,
         maxResults: els.maxResults.value,
+        marketPreset: els.marketPreset?.value || 'KR',
+        customRegion: els.customRegion?.value || '',
+        customLanguage: els.customLanguage?.value || '',
+        excludeKeywords: els.excludeKeywords?.value || '',
         resultCount: currentData.length,
         topPhrases: currentPhrases.slice(0, 8).map(p => p[0]),
         topVideo: currentData[0]?.title || ''
@@ -1828,6 +1844,12 @@
           els.videoDuration.value = s.duration || 'long';
           els.datePreset.value = s.datePreset || '1year';
           els.maxResults.value = s.maxResults || '25';
+          if (els.marketPreset) els.marketPreset.value = s.marketPreset || 'KR';
+          if (els.customRegion) els.customRegion.value = s.customRegion || '';
+          if (els.customLanguage) els.customLanguage.value = s.customLanguage || '';
+          if (els.excludeKeywords) els.excludeKeywords.value = s.excludeKeywords || '';
+          updateMarketCustomVisibility();
+          updateModeUI();
           window.scrollTo({ top: 0, behavior: 'smooth' });
         });
         els.sessionsBox.appendChild(btn);
@@ -2192,6 +2214,7 @@
           sessions: readJSON(SESSIONS_KEY, []),
           planningNotes: readPlanningNotes(),
           customPhrases: els.customPhrases.value || '',
+          uiSettings: { marketPreset: els.marketPreset?.value || 'KR', customRegion: els.customRegion?.value || '', customLanguage: els.customLanguage?.value || '', excludeKeywords: els.excludeKeywords?.value || '' },
           quotaEstimate: els.backupQuotaEstimate?.checked ? quotaEstimateSnapshot() : null,
           apiCache: els.backupApiCache?.checked ? apiCacheSnapshot() : null
         }
@@ -2245,6 +2268,14 @@ API 캐시는 ${cacheResult.applied}개 복원했고 ${cacheResult.skipped}개�
 
       if (typeof data.customPhrases === 'string' && data.customPhrases.trim()) {
         els.customPhrases.value = data.customPhrases;
+      }
+      if (data.uiSettings && typeof data.uiSettings === 'object') {
+        if (els.marketPreset) els.marketPreset.value = data.uiSettings.marketPreset || 'KR';
+        if (els.customRegion) els.customRegion.value = data.uiSettings.customRegion || '';
+        if (els.customLanguage) els.customLanguage.value = data.uiSettings.customLanguage || '';
+        if (els.excludeKeywords) els.excludeKeywords.value = data.uiSettings.excludeKeywords || '';
+        saveUiSettings();
+        updateMarketCustomVisibility();
       }
       renderFavorites();
       renderSessions();
@@ -2303,6 +2334,10 @@ API 캐시는 ${cacheResult.applied}개 복원했고 ${cacheResult.skipped}개�
         maxResults: els.maxResults.value,
         minViews: els.minViews.value || '',
         minRatio: els.minRatio.value || '',
+        marketPreset: els.marketPreset?.value || 'KR',
+        customRegion: els.customRegion?.value || '',
+        customLanguage: els.customLanguage?.value || '',
+        excludeKeywords: els.excludeKeywords?.value || '',
         summary,
         results: currentData.map(compactVideo),
         ideas: currentIdeas.map(compactVideo),
@@ -2430,6 +2465,12 @@ API 캐시는 ${cacheResult.applied}개 복원했고 ${cacheResult.skipped}개�
       els.maxResults.value = h.maxResults || '25';
       els.minViews.value = h.minViews || '';
       els.minRatio.value = h.minRatio || '';
+      if (els.marketPreset) els.marketPreset.value = h.marketPreset || 'KR';
+      if (els.customRegion) els.customRegion.value = h.customRegion || '';
+      if (els.customLanguage) els.customLanguage.value = h.customLanguage || '';
+      if (els.excludeKeywords) els.excludeKeywords.value = h.excludeKeywords || '';
+      updateMarketCustomVisibility();
+      updateModeUI();
 
       currentData = (h.results || []).map(restoreVideoFromHistory);
       currentIdeas = (h.ideas || []).map(restoreVideoFromHistory);
@@ -2466,7 +2507,7 @@ API 캐시는 ${cacheResult.applied}개 복원했고 ${cacheResult.skipped}개�
       els.btnExportFullCsv.disabled = currentData.length === 0;
       els.btnSaveComparison.disabled = currentData.length === 0;
       els.btnSaveHistory.disabled = currentData.length === 0;
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      activateTab('results', true);
       alert('히스토리를 복원했습니다. API를 다시 호출하지 않고 저장된 스냅샷을 화면에 올렸습니다.');
     }
 
@@ -2613,6 +2654,9 @@ API 캐시는 ${cacheResult.applied}개 복원했고 ${cacheResult.skipped}개�
         els.rememberKey.checked = Boolean(localStorage.getItem(SAVED_KEY));
       }
       els.autoHistory.checked = localStorage.getItem(AUTO_HISTORY_KEY) !== 'false';
+      loadUiSettings();
+      updateModeUI();
+      if (!saved && els.apiSettings) els.apiSettings.open = true;
       updateQuotaUI();
       renderSeeds();
       renderFavorites();
@@ -2625,7 +2669,13 @@ API 캐시는 ${cacheResult.applied}개 복원했고 ${cacheResult.skipped}개�
       renderHistory();
       setupResultTableDragScroll();
 
-      els.researchMode.addEventListener('change', () => { renderSeeds(); renderExpansions(activeKeyword); renderSunoPrompt(); });
+      els.researchMode.addEventListener('change', () => { updateModeUI(); renderSeeds(); renderExpansions(activeKeyword); renderSunoPrompt(); });
+      document.querySelectorAll('.workspace-tab').forEach(btn => btn.addEventListener('click', () => activateTab(btn.dataset.tab)));
+      document.querySelectorAll('[data-preset]').forEach(btn => btn.addEventListener('click', () => applySearchPreset(btn.dataset.preset)));
+      els.marketPreset?.addEventListener('change', () => { updateMarketCustomVisibility(); saveUiSettings(); });
+      els.customRegion?.addEventListener('change', saveUiSettings);
+      els.customLanguage?.addEventListener('change', saveUiSettings);
+      els.excludeKeywords?.addEventListener('change', saveUiSettings);
       els.btnSearch.addEventListener('click', runSearch);
       els.q.addEventListener('keydown', e => { if (e.key === 'Enter') runSearch(); });
       els.btnExport.addEventListener('click', exportResults);
@@ -2720,5 +2770,4 @@ API 캐시는 ${cacheResult.applied}개 복원했고 ${cacheResult.skipped}개�
 
     init();
   </script>
-</body>
-</html>
+</body></html>
